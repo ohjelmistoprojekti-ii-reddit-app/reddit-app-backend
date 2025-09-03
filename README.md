@@ -21,31 +21,31 @@
 
 ### Development Setup
 - Clone the repository:
-    ```bash
-    git clone https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-backend.git
-    ```
+```bash
+git clone https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-backend.git
+```
 - Create Virtual Environment for the project in the project folder with command:
-    ```bash
-    python -m venv venv
-    ```
+```bash
+python -m venv venv
+```
 - Activate the Virtual Environment (this has to be done every time you open new terminal):
-    ```bash
-    venv\Scripts\activate
-    ```
+```bash
+venv\Scripts\activate
+```
 - Install requirements to get started:
-    ```bash
-    pip install -r requirements.txt
-    ```
+```bash
+pip install -r requirements.txt
+```
 
 ### Connecting to Async PRAW (Reddit API)
 Assuming you have already registered an app to Reddit's developer portal:
 - Create **.env** file in the root of the project
 - Add your Reddit app credentials to the file:
-    ```
-    REDDIT_CLIENT_ID=your_client_id
-    REDDIT_CLIENT_SECRET=your_client_secret
-    REDDIT_USER_AGENT=your_user_agent
-    ```
+```
+REDDIT_CLIENT_ID=your_client_id
+REDDIT_CLIENT_SECRET=your_client_secret
+REDDIT_USER_AGENT=your_user_agent
+```
 
 ### Try it out
 The app is still in early development, so there's not much you can do.
