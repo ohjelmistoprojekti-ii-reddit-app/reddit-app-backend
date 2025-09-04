@@ -13,7 +13,7 @@ def get_items():
 
 # get method for the subreddit of your choise and the number of posts
 @bp.route('/<subreddit>/<int:count>', methods=['GET'])
-def get_item_subreddit(subreddit,count):
+def get_items_subreddit(subreddit,count):
     posts = asyncio.run(get_posts(subreddit,count))
     return jsonify(posts)
 
