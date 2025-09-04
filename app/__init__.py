@@ -4,7 +4,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object('app.config.Config')
 
-    from app.routes.items import bp as items_bp
-    app.register_blueprint(items_bp)
+    from app.routes.routes import bp as posts_bp
+    app.register_blueprint(posts_bp)
 
     return app
