@@ -50,11 +50,9 @@ REDDIT_USER_AGENT=your_user_agent
 ### Try it out
 The app is still in early development, so there's not much you can do.
 
-However, you can test the Reddit API connection by running the script:
+However, you can test the Reddit-App-Backend REST API connection by running the script:
 ```bash
-python reddit_analyzer.py
+python run.py
 ```
-
-If the connection is successful, example Reddit posts will be printed in your terminal.
-
-💡 You can change the subreddit and number of posts directly in `reddit_analyzer.py` to experiment with different data.
+When everything is working go to browser and type: http://127.0.0.1:5000/items where you can see 10 movie posts
+or type: http://127.0.0.1:5000/items/<subreddit>/<count> where you can select a subreddit and the number of posts.
