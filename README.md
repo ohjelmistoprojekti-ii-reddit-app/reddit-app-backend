@@ -54,5 +54,5 @@ However, you can test the Reddit-App-Backend REST API connection by running the 
 ```bash
 python run.py
 ```
-When everything is working go to browser and type: http://127.0.0.1:5000/items where you can see 10 movie posts
-or type: http://127.0.0.1:5000/items/subreddit/number_of_posts where you can select a subreddit of your choise and the number of posts you want to see.
+When everything is working go to your browser and type: http://127.0.0.1:5000/items where you can see 10 movie posts
+or type: http://127.0.0.1:5000/items/subreddit/number_of_posts where you can select a subreddit of your choise and the number of posts you want to see (http://127.0.0.1:5000/items/movies/5).
