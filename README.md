@@ -7,17 +7,16 @@
 
 > 🚧 This project is in early development.
 
-
 ## 🛠️ Tech Stack (Planned)
 
-- **Language:** Python
-- **Framework:** Flask
-- **Reddit API:** Async PRAW
-- **Topic modeling:** BERTopic or LDA
+- **Language:** [Python](https://docs.python.org/3/)
+- **Framework:** [Flask](https://flask.palletsprojects.com/en/stable/)
+- **Reddit API:** [Async PRAW](https://asyncpraw.readthedocs.io/en/stable/)
+- **Topic modeling:** [BERTopic](https://maartengr.github.io/BERTopic/index.html)
 - **Sentiment analysis:** VADER or TextBlob or Hugging Face *(TBD)*
 - **Database:** *(TBD)*
 
-## 🚀 For Getting Started
+## 🚀 Getting Started
 
 ### Development Setup
 - Clone the repository:
@@ -37,7 +36,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Connecting to Async PRAW (Reddit API)
+### Connecting to Reddit API (Async PRAW)
 Assuming you have already registered an app to Reddit's developer portal:
 - Create **.env** file in the root of the project
 - Add your Reddit app credentials to the file:
@@ -47,14 +46,29 @@ REDDIT_CLIENT_SECRET=your_client_secret
 REDDIT_USER_AGENT=your_user_agent
 ```
 
-### Try it out
+### Try It Out
 The app is still in early development, so there's not much you can do.
 
-However, you can test the Reddit API connection by running the script:
+However, you can view example Reddit posts and topic modeling results by running the script:
 ```bash
-python reddit_analyzer.py
+python demo.py
 ```
 
-If the connection is successful, example Reddit posts will be printed in your terminal.
+The results will be printed in your terminal.
 
-💡 You can change the subreddit and number of posts directly in `reddit_analyzer.py` to experiment with different data.
+💡 You can change the subreddit, type of posts and number of posts in `demo.py` to experiment with different data.
+
+## 🔎 Solutions Overview
+An overview of our solutions and approaches across the project's key areas.
+
+<details><summary>Topic Modeling</summary>
+Coming soon
+</details>
+
+<details><summary>Sentiment Analysis</summary>
+Coming soon
+</details>
+
+<details><summary>REST API</summary>
+Coming soon
+</details>
