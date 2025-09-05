@@ -20,7 +20,6 @@ async def create_client():
     )
     return reddit
 
-# you can define the parameters in reddit_analyzer.py
 async def get_posts(subreddit_name, post_type, limit_num):
     start = datetime.datetime.now()
     print(f"Fetching.. This will take a while.")
