@@ -33,7 +33,7 @@ async def get_posts(subreddit_name, post_type, limit_num):
 
         def is_bot(text):
             clean_text = re.sub(r'[_*~`]', '', text)
-            bot_text = re.compile(r'i am a bot', re.IGNORECASE)
+            bot_text = re.compile(r'i am a bot')
             return bool(bot_text.search(clean_text))
 
         comments = []
@@ -41,7 +41,7 @@ async def get_posts(subreddit_name, post_type, limit_num):
             count = 0
             # only top level comments
             for comment in submission.comments:
-                if not is_bot(comment.body): # leave out bot comments
+                if not is_bot(comment.body.lower()): # leave out bot comments
                     comments.append(comment.body)
                     count += 1
 
