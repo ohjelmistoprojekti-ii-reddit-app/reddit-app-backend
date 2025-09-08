@@ -46,7 +46,7 @@ REDDIT_CLIENT_SECRET=your_client_secret
 REDDIT_USER_AGENT=your_user_agent
 ```
 
-### Try It Out
+### Run the demo
 The app is still in early development, so there's not much you can do.
 
 However, you can view example Reddit posts and topic modeling results by running the script:
@@ -61,14 +61,50 @@ The results will be printed in your terminal.
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.
 
-<details><summary>Topic Modeling</summary>
+<details>
+<summary><strong>Topic Modeling</strong></summary>
+
+**Topic modeling** is a natural language processing (NLP) technique for identifying themes and topics from text data.
+
+There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern model that leverages machine learning to extract easily interpretable topics.
+
+<strong>Core concepts of BERTopic</strong>
+
+```mermaid
+flowchart LR
+    A["**Embedding**"] --->
+    B["**Dimensionality reduction**"] --->
+    C["**Clustering**"] --->
+    D["**Text representation**"]
+```
+
+**Embedding**: Turns text into numbers in a way that keeps track of meaning — for example, words like “movie” and “film” end up close to each other because they mean similar things.<br>
+**Dimensionality reduction**: Reduces these numbers into a simpler form, so that patterns (like groups of related discussions) are easier to spot.<br>
+**Clustering**: Groups together texts that are about similar topics.<br>
+**Text representation**: Labels each group with a few key words that capture its main theme.<br><br>
+
+<strong>Why use BERTopic on Reddit data?</strong>
+
+Reddit discussions are already organized into different topics as **subreddits**, so someone might wonder why we would use topic modeling on Reddit at all. We wanted to take our Reddit analysis a step further and see if recurring themes or topics could be found *within* large subreddits.
+
+Reddit discussions are diverse, informal and full of slang and memes, making the data challenging to analyze. BERTopic is an intelligent topic modeling approach that captures the meaning behind words using contextual embeddings, allowing it to understand nuances that traditional models like LDA often miss. We believe this makes it well-suited for extracting meaningful topics from a large, messy and broad dataset like Reddit.
+
+**Learn more on this topic**:
+- [What is Topic Modeling? An Introduction With Examples](https://www.datacamp.com/tutorial/what-is-topic-modeling) by Kurtis Pykes (Datacamp)
+- [Advanced Topic Modeling with BERTopic](https://www.pinecone.io/learn/bertopic/) by James Briggs (Pinecone)
+- [BERTopic official documentation](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#visual-overview)
+</details>
+
+<details>
+<summary><strong>Sentiment Analysis</strong></summary>
 Coming soon
 </details>
 
-<details><summary>Sentiment Analysis</summary>
+<details>
+<summary><strong>REST API</strong></summary>
 Coming soon
 </details>
 
-<details><summary>REST API</summary>
-Coming soon
-</details>
+<br>
+
+> Note: ChatGPT helped phrase parts of this README.
