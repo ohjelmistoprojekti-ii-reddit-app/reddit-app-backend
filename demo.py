@@ -8,10 +8,10 @@ from app.models.topic_modeling import extract_topics
 async def demo():
     # get_posts(<subreddit>, <type of posts>, <number of posts>)
     # type of post can be: controversial, gilded, hot, new, rising or top
-    posts = await get_posts("all", "hot", 500)
+    posts = await get_posts("all", "hot", 1000)
 
     random_posts = random.sample(posts, 3)
-    print("> Example posts:")
+    print("EXAMPLE POSTS:")
     for i, post in enumerate(random_posts):
             print(f"{i+1}. {post['title']}")
             if post['content']: print(f"CONTENT: {post['content']}")
@@ -21,16 +21,18 @@ async def demo():
 
     topics = extract_topics(posts)
 
-    print("> Example topics:")
-    for topic in topics[:4]:
-        print(f"{topic['id']}. {topic['topic']}\n")
-        print("> Example posts under this topic:\n")
-        for post in topic['posts'][:3]:
+    print("EXAMPLE TOPICS:")
+    for topic in topics[:10]:
+        print(f"{topic['id']+1}. {topic['topic']}\n")
+        print(f"POSTS UNDER THIS TOPIC: {topic['num_posts']}\n")
+        print("EXAMPLE POSTS:\n")
+        for post in topic['posts'][:2]:
             print(f"TITLE: {post['title']}")
             if post['content']: print(f"CONTENT: {post['content']}")
             print(f"EXAMPLE COMMENT: {post['comments'][0]}")
             print(f"UPVOTES: {post['score']}")
             print("---")
+        print()
 
 if __name__ == "__main__":
     asyncio.run(demo())
