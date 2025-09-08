@@ -17,7 +17,7 @@ def extract_topics(posts):
 
     # for clustering
     hdbscan_model = HDBSCAN(
-        min_cluster_size=10, # min amount of posts in a cluster (topic); if cluster has less posts, it is discarded
+        min_cluster_size=5, # min amount of posts in a cluster (topic); if cluster has less posts, it is discarded
         min_samples=2, # smaller value allows more clusters and less noise
         prediction_data=True,
         metric='euclidean'
