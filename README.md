@@ -70,18 +70,10 @@ There are multiple tools available for this task, and for this project, we chose
 
 <strong>Core concepts of BERTopic</strong>
 
-```mermaid
-flowchart LR
-    A["**Embedding**"] --->
-    B["**Dimensionality reduction**"] --->
-    C["**Clustering**"] --->
-    D["**Text representation**"]
-```
-
-**Embedding**: Turns text into numbers in a way that keeps track of meaning — for example, words like “movie” and “film” end up close to each other because they mean similar things.<br>
-**Dimensionality reduction**: Reduces these numbers into a simpler form, so that patterns (like groups of related discussions) are easier to spot.<br>
-**Clustering**: Groups together texts that are about similar topics.<br>
-**Text representation**: Labels each group with a few key words that capture its main theme.<br><br>
+1. **Embedding**: Turns text into numbers in a way that keeps track of meaning — for example, words like “movie” and “film” end up close to each other because they mean similar things.
+2. **Dimensionality reduction**: Reduces these numbers into a simpler form, so that patterns (like groups of related discussions) are easier to spot.
+3. **Clustering**: Groups together texts that are about similar topics.
+4. **Text representation**: Labels each group with a few key words that capture its main theme.<br>
 
 <strong>Why use BERTopic on Reddit data?</strong>
 
@@ -92,7 +84,7 @@ Reddit discussions are diverse, informal and full of slang and memes, making the
 **Learn more on this topic**:
 - [What is Topic Modeling? An Introduction With Examples](https://www.datacamp.com/tutorial/what-is-topic-modeling) by Kurtis Pykes (Datacamp)
 - [Advanced Topic Modeling with BERTopic](https://www.pinecone.io/learn/bertopic/) by James Briggs (Pinecone)
-- [BERTopic official documentation](https://maartengr.github.io/BERTopic/algorithm/algorithm.html#visual-overview)
+- [BERTopic official documentation](https://maartengr.github.io/BERTopic/algorithm/algorithm.html)
 </details>
 
 <details>
