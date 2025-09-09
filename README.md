@@ -36,6 +36,7 @@ venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+pip install flask-cors
 
 ### Connecting to Async PRAW (Reddit API)
 Assuming you have already registered an app to Reddit's developer portal:
