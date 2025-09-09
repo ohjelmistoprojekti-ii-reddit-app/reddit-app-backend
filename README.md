@@ -74,17 +74,17 @@ An overview of our solutions and approaches across the project's key areas.
 
 **Topic modeling** is a natural language processing (NLP) technique for identifying themes and topics from text data.
 
-There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern framework that leverages machine learning to extract easily interpretable topics.
+There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern framework that leverages advanced sentence-transformer models and statistical techniques to uncover easily interpretable topics.
 
 <strong>Core concepts of BERTopic</strong>
 
-BERTopic is a flexible framework that allows you to customize each component based on your needs. For example, embeddings can be generated with almost any sentence-transformers model, with BERT as the default option.
+BERTopic is highly flexible, allowing you to customize or swap components based on your needs. For example, you can control how broad or detailed the topic groups are by changing the clustering model, or generate embeddings using almost any sentence-transformer model. Adjusting different components can have a significant impact on the results.
 
-Here are the key steps in BERTopic and the models we used for them:
+Here are the key steps in BERTopic and the models we used for each stage:
 
 1. **Embedding**: Converts text into numerical vectors that capture meaning, so similar words are close in vector space. For example, words “*movie*” and “*film*” might end up near each other because they mean similar things.
     - Model: [all-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)
-2. **Dimensionality reduction**: Simplifies the high-dimensional vectors, making patterns and clusters easier to detect.
+2. **Dimensionality reduction**: Reduces the high-dimensional vectors, making patterns and clusters easier to detect.
     - Model: [UMAP](https://umap-learn.readthedocs.io/en/latest/)
 3. **Clustering**: Groups similar embeddings into coherent topic clusters.
     - Model: [HDBSCAN](https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.html)
