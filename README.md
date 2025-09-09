@@ -89,7 +89,7 @@ Here are the key steps in BERTopic and the models we used for them:
 3. **Clustering**: Groups similar embeddings into coherent topic clusters.
     - Model: [HDBSCAN](https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.html)
 4. **Topic representation**: Labels each cluster with a few key words summarizing its main theme.
-    - Model: BERTopic default, class-based TF-IDF (c-TF-IDF)
+    - Model: BERTopic default, [c-TF-IDF](https://maartengr.github.io/BERTopic/getting_started/ctfidf/ctfidf.html)
 
 
 <strong>Why use BERTopic on Reddit data?</strong>
@@ -114,4 +114,5 @@ Coming soon
 Coming soon
 </details>
 <br>
+
 > Note: ChatGPT helped phrase parts of this README.
