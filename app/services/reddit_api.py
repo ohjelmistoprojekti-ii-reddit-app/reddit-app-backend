@@ -1,7 +1,11 @@
 import os
-from dotenv import load_dotenv
 import asyncpraw
-import asyncio
+import datetime
+from dotenv import load_dotenv
+from app.helpers.text_processing import is_bot
+
+# after fetching post comments, fetch became super slow. still, we need the comments for the sentiment analysis
+# TODO: try to find a way to make the API connection faster
 
 load_dotenv()
 
@@ -16,21 +20,42 @@ async def create_client():
     )
     return reddit
 
-async def get_posts(subreddit_name, limit_num):
+async def get_posts(subreddit_name, post_type, limit_num):
+    start = datetime.datetime.now()
+    print(f"Fetching.. This will take a while.")
     reddit = await create_client()
 
     posts = []
     subreddit = await reddit.subreddit(subreddit_name)
 
-    # currently fetching "hot" posts
-    # you can also try these: controversial, gilded, hot, new, rising, top
-    async for submission in subreddit.hot(limit=limit_num):
+    async for submission in getattr(subreddit, post_type)(limit=limit_num):
+        await submission.load() # needed for fetching comments
+
+        comments = []
+        if submission.num_comments > 0:
+            count = 0
+            # only top level comments
+            for comment in submission.comments:
+                if not is_bot(comment.body.lower()): # leave out bot comments
+                    comments.append(comment.body)
+                    count += 1
+
+                    if count >= 8:
+                        break
+
         posts.append({
+            "id": submission.id,
             "title": submission.title,
             "content": submission.selftext,
+            "comments": comments,
             "num_comments": submission.num_comments,
-            "score": submission.score
+            "score": submission.score, # number of upvotes for the post
+            "upvote_ratio": submission.upvote_ratio
         })
+
+    end = datetime.datetime.now()
+    print(f"Fetch duration: {end - start}")
+    print(f"✓ Fetched {len(posts)} posts from r/{subreddit_name}/{post_type}")
 
     await reddit.close()
     return posts
