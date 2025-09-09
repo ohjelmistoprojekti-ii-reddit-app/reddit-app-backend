@@ -1,8 +1,8 @@
 import os
-import re
 import asyncpraw
 import datetime
 from dotenv import load_dotenv
+from app.helpers.text_processing import is_bot
 
 # after fetching post comments, fetch became super slow. still, we need the comments for the sentiment analysis
 # TODO: try to find a way to make the API connection faster
@@ -31,11 +31,6 @@ async def get_posts(subreddit_name, post_type, limit_num):
     async for submission in getattr(subreddit, post_type)(limit=limit_num):
         await submission.load() # needed for fetching comments
 
-        def is_bot(text):
-            clean_text = re.sub(r'[_*~`]', '', text)
-            bot_text = re.compile(r'i am a bot')
-            return bool(bot_text.search(clean_text))
-
         comments = []
         if submission.num_comments > 0:
             count = 0
@@ -45,7 +40,7 @@ async def get_posts(subreddit_name, post_type, limit_num):
                     comments.append(comment.body)
                     count += 1
 
-                    if count >= 5:
+                    if count >= 8:
                         break
 
         posts.append({
@@ -54,7 +49,8 @@ async def get_posts(subreddit_name, post_type, limit_num):
             "content": submission.selftext,
             "comments": comments,
             "num_comments": submission.num_comments,
-            "score": submission.score # number of upvotes for the post
+            "score": submission.score, # number of upvotes for the post
+            "upvote_ratio": submission.upvote_ratio
         })
 
     end = datetime.datetime.now()

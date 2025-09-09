@@ -1,30 +1,12 @@
+from app.helpers.text_processing import preprocess
+from app.helpers.stopwords import stopwords
 from bertopic import BERTopic
 from sklearn.feature_extraction.text import CountVectorizer
 from hdbscan import HDBSCAN
+from umap import UMAP
 import datetime
-import re
 
-# WORK IN PROGRESS
-
-# TODO: filter out or translate languages other than english
-# TODO: get a better stopword list
-# TODO: summarize the topics with AI?
-
-def preprocess(posts):
-    processed = []
-
-    for post in posts:
-        post_parts = [post['title'], post['content']]
-
-        for comment in post['comments']:
-            if comment and len(comment) > 10: # remove empty and short comments
-                post_parts.append(comment)
-
-        combined = " ".join(post_parts) # join a post into one string, separated by spaces
-        combined = re.sub(r'https?://\S+|www\.\S+', '', combined) # remove links
-        processed.append(combined)
-    
-    return processed
+# TODO: summarize the topics with AI
 
 def extract_topics(posts):
     print("Extracting topics..")
@@ -35,19 +17,28 @@ def extract_topics(posts):
 
     # for clustering
     hdbscan_model = HDBSCAN(
-        min_cluster_size=5, # min amount of posts in a topic
-        prediction_data=True
+        min_cluster_size=5, # min amount of posts in a cluster (topic); if cluster has less posts, it is discarded
+        min_samples=2, # smaller value allows more clusters and less noise
+        prediction_data=True,
+        metric='euclidean'
+    )
+
+    # for dimensionality reduction: makes clustering easier and faster
+    umap_model = UMAP(
+        n_neighbors=10, # controls topic scope: higher (10+) = broader themes, lower (~5) = small, niche discussions
+        metric='cosine'
     )
 
     model = BERTopic(
-        embedding_model="all-MiniLM-L12-v2", # hugging face sentence transformers for embedding
-        hdbscan_model=hdbscan_model
+        embedding_model="all-MiniLM-L12-v2", # hugging face sentence transformers model for embedding
+        hdbscan_model=hdbscan_model,
+        umap_model=umap_model
     )
 
     topics, probs = model.fit_transform(docs)
 
     # remove irrelevant words from the topics
-    vectorizer_model = CountVectorizer(stop_words="english")
+    vectorizer_model = CountVectorizer(stop_words=stopwords())
     model.update_topics(docs, vectorizer_model=vectorizer_model)
 
     print(model.get_topic_info())
@@ -60,15 +51,15 @@ def extract_topics(posts):
 
     for topic_id in topics:
         if topic_id == -1:
-            continue  # skip noise
+            continue # skip noise
 
-        # initialize a list for original post information
+        # initialize a list to store posts for each topic
         topic_with_posts[topic_id] = []
 
     for i, topic_id in enumerate(topics):
         if topic_id == -1:
-            continue  # skip noise
-
+            continue
+        
         # link post to the right topic
         topic_with_posts[topic_id].append(posts[i])
     
@@ -79,18 +70,9 @@ def extract_topics(posts):
         results.append({
             "id": topic_id,
             "topic": topic_words,
+            "num_posts": len(topic_posts), # amount of posts in this category
             "posts": topic_posts
         })
 
     return sorted(results, key=lambda k: k['id'])
-
-
-
-
-
-
-
-
-
-
 
