@@ -9,7 +9,7 @@ from app.models.sentiment_analysis import sentiment_analysis
 async def demo():
     # get_posts(<subreddit>, <type of posts>, <number of posts>)
     # type of post can be: controversial, gilded, hot, new, rising or top
-    posts = await get_posts("all", "hot", 500)
+    posts = await get_posts("all", "hot", 50)
 
     random_posts = random.sample(posts, 3)
     print("> Example posts:")
@@ -21,10 +21,13 @@ async def demo():
     print("-" * 30)
 
     topics = extract_topics(posts)
-
+    analyzed_topics = sentiment_analysis(topics)
+    
+    print(f"Amount of topics: {len(topics)}")
     print("> Example topics:")
-    for topic in topics[:4]:
+    for topic in analyzed_topics[:4]:
         print(f"{topic['id']}. {topic['topic']}\n")
+        print(f"Amount of posts: {len(topic['posts'])}")
         print("> Example posts under this topic:\n")
         for post in topic['posts'][:3]:
             print(f"TITLE: {post['title']}")
@@ -32,8 +35,25 @@ async def demo():
             print(f"EXAMPLE COMMENT: {post['comments'][0]}")
             print(f"UPVOTES: {post['score']}")
             print("---")
+        
+        s = topic['sentiment_values']
+        if topic['sentiment_values']['comment_count'] > 0:
+            print(f"Average compound: {s['average_compound']}")
+            print(f"Average negative: {s['average_neg']}%")
+            print(f"Average neutral:  {s['average_neu']}%")
+            print(f"Average positive: {s['average_pos']}%")
+            print(f"The average is based on {s['comment_count']} comments.")
 
-    analyzed_topics = sentiment_analysis(topics)
+            if s['average_compound'] >= 0.05:
+                print("Overall Sentiment: Positive\n")
+            elif s['average_compound'] <= -0.05:
+                print("Overall Sentiment: Negative\n")
+            else:
+                print("Overall Sentiment: Neutral\n")
+        
+        else:
+            print("No posts to analyze for this topic.\n")
+
 
 if __name__ == "__main__":
     asyncio.run(demo())
