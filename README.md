@@ -47,8 +47,7 @@ REDDIT_CLIENT_SECRET=your_client_secret
 REDDIT_USER_AGENT=your_user_agent
 ```
 
-### Run the demo
-The app is still in early development, so there's not much you can do.
+### Try it out
 
 <<<<<<< HEAD
 However, you can test the Reddit-App-Backend REST API connection by running the script:
@@ -58,7 +57,7 @@ python run.py
 When everything is working (you see the message on your console 'Running on http://127.0.0.1:5000') go to your browser and type: http://127.0.0.1:5000/posts/ where you can see 10 movie posts or type: http://127.0.0.1:5000/posts/subreddit/number_of_posts where you can select a subreddit of your choise and the number of posts you want to see (http://127.0.0.1:5000/posts/movies/5).
 =======
 >>>>>>> a17e5381a0a5c70019c019fb6d40012aff94e3ed
-However, you can view example Reddit posts and topic modeling results by running the script:
+View example Reddit posts and topic modeling results by running the script:
 ```bash
 python demo.py
 ```
@@ -66,6 +65,16 @@ python demo.py
 The results will be printed in your terminal.
 
 💡 You can change the subreddit, type of posts and number of posts in `demo.py` to experiment with different data.
+
+<hr><br>
+
+View the REST API:
+
+```bash
+python run.py
+```
+
+When everything is working (you see the message on your console 'Running on http://127.0.0.1:5000') go to your browser and type: http://127.0.0.1:5000/posts/ where you can see 10 movie posts or type: http://127.0.0.1:5000/posts/subreddit/number_of_posts where you can select a subreddit of your choise and the number of posts you want to see (http://127.0.0.1:5000/posts/movies/5).
 
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.
