@@ -9,10 +9,10 @@ from app.models.sentiment_analysis import sentiment_analysis
 async def demo():
     # get_posts(<subreddit>, <type of posts>, <number of posts>)
     # type of post can be: controversial, gilded, hot, new, rising or top
-    posts = await get_posts("all", "hot", 50)
+    posts = await get_posts("all", "hot", 1000)
 
     random_posts = random.sample(posts, 3)
-    print("> Example posts:")
+    print("EXAMPLE POSTS:")
     for i, post in enumerate(random_posts):
             print(f"{i+1}. {post['title']}")
             if post['content']: print(f"CONTENT: {post['content']}")
@@ -23,13 +23,14 @@ async def demo():
     topics = extract_topics(posts)
     analyzed_topics = sentiment_analysis(topics)
     
+    
     print(f"Amount of topics: {len(topics)}")
-    print("> Example topics:")
+    print("> EXAMPLE TOPICS::")
     for topic in analyzed_topics[:4]:
         print(f"{topic['id']}. {topic['topic']}\n")
-        print(f"Amount of posts: {len(topic['posts'])}")
-        print("> Example posts under this topic:\n")
-        for post in topic['posts'][:3]:
+        print(f"POSTS UNDER THIS TOPIC: {topic['num_posts']}\n")
+        print("EXAMPLE POSTS:\n")
+        for post in topic['posts'][:2]:
             print(f"TITLE: {post['title']}")
             if post['content']: print(f"CONTENT: {post['content']}")
             print(f"EXAMPLE COMMENT: {post['comments'][0]}")

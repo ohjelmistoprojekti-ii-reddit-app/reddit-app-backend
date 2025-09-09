@@ -1,7 +1,18 @@
-from app import app
+from flask import Blueprint, jsonify
+from app.services.reddit_api import get_posts
+import asyncio
+
+bp = Blueprint('posts', __name__, url_prefix='/posts')
 
 
-@app.route('/')
-@app.route('/index')
-def index():
-    return "Hello, World!"
+# get method for 10 movies
+@bp.route('/', methods=['GET'])
+def get_reddit_posts():
+    posts = asyncio.run(get_posts("movies", 10))
+    return jsonify(posts)
+
+# get method for the subreddit of your choise and the number of posts
+@bp.route('/<subreddit>/<int:count>', methods=['GET'])
+def get_posts_subreddit(subreddit,count):
+    posts = asyncio.run(get_posts(subreddit,count))
+    return jsonify(posts)
