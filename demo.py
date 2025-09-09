@@ -2,6 +2,7 @@ import asyncio
 import random
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
+from app.models.sentiment_analysis import sentiment_analysis
 
 # used for viewing reddit posts and topic modeling results in terminal
 
@@ -31,6 +32,8 @@ async def demo():
             print(f"EXAMPLE COMMENT: {post['comments'][0]}")
             print(f"UPVOTES: {post['score']}")
             print("---")
+
+    analyzed_topics = sentiment_analysis(topics)
 
 if __name__ == "__main__":
     asyncio.run(demo())
