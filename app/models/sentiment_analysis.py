@@ -4,15 +4,12 @@ nltk.download('vader_lexicon')
 
 
 def sentiment_analysis(topics):
-    print(f"Amount of topics: {len(topics)}")
-    
     
     sid_obj = SentimentIntensityAnalyzer()
+    analyzed_topics = []
     
     for topic in topics[:10]:
-        print(f"Topic: {topic['topic']}")
-        print(f"Amount of posts: {len(topic['posts'])}")
-        
+                        
         total_compound = 0
         total_neg = 0
         total_neu = 0
@@ -22,41 +19,36 @@ def sentiment_analysis(topics):
         for post in topic['posts']:
             for comment in post['comments']:
                 sentiment = sid_obj.polarity_scores(comment)
-                # print(f"Post: {post}")
-                
-                # print(f"Sentiment Scores: {sentiment}")
-                # print(f"Negative Sentiment: {sentiment['neg']*100:.2f}%")
-                # print(f"Neutral Sentiment: {sentiment['neu']*100:.2f}%")
-                # print(f"Positive Sentiment: {sentiment['pos']*100:.2f}%")
-                
-                # if sentiment['compound'] >= 0.05:
-                #     print("Overall Sentiment: Positive")
-                # elif sentiment['compound'] <= -0.05:
-                #     print("Overall Sentiment: Negative")
-                # else:
-                #     print("Overall Sentiment: Neutral")
 
                 total_compound += sentiment['compound']
                 total_neg += sentiment['neg']
                 total_neu += sentiment['neu']
                 total_pos += sentiment['pos']
                 count += 1
-    
-        if count > 0:
-            print(f"\n--- Averages for topic '{topic['topic']}' ---")
-            print(f"Average compound: {total_compound / count:.3f}")
-            print(f"Average negative: {total_neg / count * 100:.2f}%")
-            print(f"Average neutral:  {total_neu / count * 100:.2f}%")
-            print(f"Average positive: {total_pos / count * 100:.2f}%")
-            print(f"The average is based on {count} comments.")
 
-            if total_compound / count >= 0.05:
-                print("Overall Sentiment: Positive\n")
-            elif total_compound / count <= -0.05:
-                print("Overall Sentiment: Negative\n")
-            else:
-                print("Overall Sentiment: Neutral\n")
+        if count > 0:
+            average_compound = total_compound / count
+            average_neg = (total_neg / count) * 100
+            average_neu = (total_neu / count) * 100
+            average_pos = (total_pos / count) * 100
         else:
-            print("No posts to analyze for this topic.\n")
+            average_compound = average_neg = average_neu = average_pos = 0.0
+
+        analyzed_topics.append({
+            "id": topic['id'],
+            "topic": topic['topic'],
+            "num_posts": topic['num_posts'],
+            "posts": topic['posts'],
+            "sentiment_values": {
+                "average_compound": round(average_compound, 3),
+                "average_neg": round(average_neg, 3),
+                "average_neu": round(average_neu, 3),
+                "average_pos": round(average_pos, 3),
+                "comment_count": count
+            }
+        })
+
+    return analyzed_topics
+        
         
                         

@@ -21,10 +21,13 @@ async def demo():
     print("-" * 30)
 
     topics = extract_topics(posts)
-
-    print("EXAMPLE TOPICS:")
-    for topic in topics[:10]:
-        print(f"{topic['id']+1}. {topic['topic']}\n")
+    analyzed_topics = sentiment_analysis(topics)
+    
+    
+    print(f"Amount of topics: {len(topics)}")
+    print("> EXAMPLE TOPICS::")
+    for topic in analyzed_topics[:4]:
+        print(f"{topic['id']}. {topic['topic']}\n")
         print(f"POSTS UNDER THIS TOPIC: {topic['num_posts']}\n")
         print("EXAMPLE POSTS:\n")
         for post in topic['posts'][:2]:
@@ -33,9 +36,25 @@ async def demo():
             print(f"EXAMPLE COMMENT: {post['comments'][0]}")
             print(f"UPVOTES: {post['score']}")
             print("---")
-        print()
+        
+        s = topic['sentiment_values']
+        if topic['sentiment_values']['comment_count'] > 0:
+            print(f"Average compound: {s['average_compound']}")
+            print(f"Average negative: {s['average_neg']}%")
+            print(f"Average neutral:  {s['average_neu']}%")
+            print(f"Average positive: {s['average_pos']}%")
+            print(f"The average is based on {s['comment_count']} comments.")
 
-    analyzed_topics = sentiment_analysis(topics)
+            if s['average_compound'] >= 0.05:
+                print("Overall Sentiment: Positive\n")
+            elif s['average_compound'] <= -0.05:
+                print("Overall Sentiment: Negative\n")
+            else:
+                print("Overall Sentiment: Neutral\n")
+        
+        else:
+            print("No posts to analyze for this topic.\n")
+
 
 if __name__ == "__main__":
     asyncio.run(demo())
