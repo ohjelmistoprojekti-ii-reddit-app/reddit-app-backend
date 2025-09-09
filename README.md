@@ -74,20 +74,29 @@ An overview of our solutions and approaches across the project's key areas.
 
 **Topic modeling** is a natural language processing (NLP) technique for identifying themes and topics from text data.
 
-There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern model that leverages machine learning to extract easily interpretable topics.
+There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern framework that leverages machine learning to extract easily interpretable topics.
 
 <strong>Core concepts of BERTopic</strong>
 
-1. **Embedding**: Turns text into numbers in a way that keeps track of meaning — for example, words like “movie” and “film” end up close to each other because they mean similar things.
-2. **Dimensionality reduction**: Reduces these numbers into a simpler form, so that patterns (like groups of related discussions) are easier to spot.
-3. **Clustering**: Groups together texts that are about similar topics.
-4. **Text representation**: Labels each group with a few key words that capture its main theme.<br>
+BERTopic is a flexible framework that allows you to customize each component based on your needs. For example, embeddings can be generated with almost any sentence-transformers model, with BERT as the default option.
+
+Here are the key steps in BERTopic and the models we used for them:
+
+1. **Embedding**: Converts text into numerical vectors that capture meaning, so similar words are close in vector space. For example, words “*movie*” and “*film*” might end up near each other because they mean similar things.
+    - Model: [all-MiniLM-L12-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2)
+2. **Dimensionality reduction**: Simplifies the high-dimensional vectors, making patterns and clusters easier to detect.
+    - Model: [UMAP](https://umap-learn.readthedocs.io/en/latest/)
+3. **Clustering**: Groups similar embeddings into coherent topic clusters.
+    - Model: [HDBSCAN](https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.html)
+4. **Topic representation**: Labels each cluster with a few key words summarizing its main theme.
+    - Model: BERTopic default, class-based TF-IDF (c-TF-IDF)
+
 
 <strong>Why use BERTopic on Reddit data?</strong>
 
 Reddit discussions are already organized into different topics as **subreddits**, so someone might wonder why we would use topic modeling on Reddit at all. We wanted to take our Reddit analysis a step further and see if recurring themes or topics could be found *within* large subreddits.
 
-Reddit discussions are diverse, informal and full of slang and memes, making the data challenging to analyze. BERTopic is an intelligent topic modeling approach that captures the meaning behind words using contextual embeddings, allowing it to understand nuances that traditional models like LDA often miss. We believe this makes it well-suited for extracting meaningful topics from a large, messy and broad dataset like Reddit.
+Reddit discussions are diverse, informal and full of slang and memes, making the data challenging to analyze. BERTopic uses contextual embeddings to capture the meaning behind words, allowing it to understand nuances that traditional models like LDA often miss. We believe this makes it well-suited for extracting meaningful topics from a large and messy dataset like Reddit.
 
 **Learn more on this topic**:
 - [What is Topic Modeling? An Introduction With Examples](https://www.datacamp.com/tutorial/what-is-topic-modeling) by Kurtis Pykes (Datacamp)
@@ -104,5 +113,5 @@ Coming soon
 <summary><strong>REST API</strong></summary>
 Coming soon
 </details>
-
+<br>
 > Note: ChatGPT helped phrase parts of this README.
