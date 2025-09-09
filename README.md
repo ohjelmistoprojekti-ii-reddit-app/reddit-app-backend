@@ -1,5 +1,3 @@
-giy# Reddit Trend Analyzer
-
 ## 💻 This is the backend service for a web application that:
 - fetches **trending Reddit topics**
 - analyzes the **sentiment** of public discussions
@@ -49,14 +47,6 @@ REDDIT_USER_AGENT=your_user_agent
 
 ### Try it out
 
-<<<<<<< HEAD
-However, you can test the Reddit-App-Backend REST API connection by running the script:
-```bash
-python run.py
-```
-When everything is working (you see the message on your console 'Running on http://127.0.0.1:5000') go to your browser and type: http://127.0.0.1:5000/posts/ where you can see 10 movie posts or type: http://127.0.0.1:5000/posts/subreddit/number_of_posts where you can select a subreddit of your choise and the number of posts you want to see (http://127.0.0.1:5000/posts/movies/5).
-=======
->>>>>>> a17e5381a0a5c70019c019fb6d40012aff94e3ed
 View example Reddit posts and topic modeling results by running the script:
 ```bash
 python demo.py
@@ -66,7 +56,7 @@ The results will be printed in your terminal.
 
 💡 You can change the subreddit, type of posts and number of posts in `demo.py` to experiment with different data.
 
-<hr><br>
+<hr>
 
 View the REST API:
 
@@ -115,12 +105,4 @@ Coming soon
 Coming soon
 </details>
 
-<<<<<<< HEAD
-<details><summary>REST API</summary>
-Coming soon
-</details>
-=======
-<br>
-
 > Note: ChatGPT helped phrase parts of this README.
->>>>>>> a17e5381a0a5c70019c019fb6d40012aff94e3ed
