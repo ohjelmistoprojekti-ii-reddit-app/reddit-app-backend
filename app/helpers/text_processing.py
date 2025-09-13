@@ -1,5 +1,6 @@
-import langid
 import re
+import langid
+
 
 def is_english(text):
     try:

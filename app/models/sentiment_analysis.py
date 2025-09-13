@@ -38,7 +38,7 @@ def sentiment_analysis(topics):
             "id": topic['id'],
             "topic": topic['topic'],
             "num_posts": topic['num_posts'],
-            "posts": topic['posts'],
+            "posts": topic['posts'][:2],
             "sentiment_values": {
                 "average_compound": round(average_compound, 3),
                 "average_neg": round(average_neg, 3),

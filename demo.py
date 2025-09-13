@@ -9,7 +9,7 @@ from app.models.sentiment_analysis import sentiment_analysis
 async def demo():
     # get_posts(<subreddit>, <type of posts>, <number of posts>)
     # type of post can be: controversial, gilded, hot, new, rising or top
-    posts = await get_posts("all", "hot", 1000)
+    posts = await get_posts("all", "hot", 10)
 
     random_posts = random.sample(posts, 3)
     print("EXAMPLE POSTS:")
@@ -22,6 +22,8 @@ async def demo():
 
     topics = extract_topics(posts)
     analyzed_topics = sentiment_analysis(topics)
+
+    print(analyzed_topics)
     
     
     print(f"Amount of topics: {len(topics)}")

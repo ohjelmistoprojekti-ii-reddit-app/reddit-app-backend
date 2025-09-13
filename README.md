@@ -64,7 +64,44 @@ View the REST API:
 python run.py
 ```
 
-When everything is working (you see the message on your console 'Running on http://127.0.0.1:5000') go to your browser and type: http://127.0.0.1:5000/posts/ where you can see 10 movie posts or type: http://127.0.0.1:5000/posts/subreddit/number_of_posts where you can select a subreddit of your choise and the number of posts you want to see (http://127.0.0.1:5000/posts/movies/5).
+When everything is working (you see the message on your console 'Running on http://127.0.0.1:5000')
+
+Go to your browser and type: http://127.0.0.1:5000/posts/subreddit_name/post_type/num_posts
+
+This should be the form of the data:
+
+```json
+{
+    "id": ,
+    "num_posts": ,
+    "posts":
+    [
+      {
+        "comments": [],
+        "content":,
+        "id": ,
+        "num_comments":,
+        "score": ,
+        "title": ,
+        "upvote_ratio":
+      }
+
+    ],
+    "sentiment_values":
+    {
+      "average_compound":,
+      "average_neg": ,
+      "average_neu": ,
+      "average_pos": ,
+      "comment_count":
+    },
+    "topic": 
+    [
+    ]
+  }
+
+
+```
 
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.

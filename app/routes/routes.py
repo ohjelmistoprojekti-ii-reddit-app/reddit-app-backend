@@ -1,18 +1,17 @@
 from flask import Blueprint, jsonify
 from app.services.reddit_api import get_posts
 import asyncio
+from app.models.topic_modeling import extract_topics
+from app.models.sentiment_analysis import sentiment_analysis
 
 bp = Blueprint('posts', __name__, url_prefix='/posts')
 
 
-# get method for 10 movies
-@bp.route('/', methods=['GET'])
-def get_reddit_posts():
-    posts = asyncio.run(get_posts("movies", 10))
-    return jsonify(posts)
+@bp.route('/<subreddit>/<type_subbreddit>/<int:count>', methods=['GET'])
+def get_posts_subreddit(subreddit,type_subbreddit,count):
+    posts = asyncio.run(get_posts(subreddit,type_subbreddit,count))
 
-# get method for the subreddit of your choise and the number of posts
-@bp.route('/<subreddit>/<int:count>', methods=['GET'])
-def get_posts_subreddit(subreddit,count):
-    posts = asyncio.run(get_posts(subreddit,count))
-    return jsonify(posts)
+    topics = extract_topics(posts)
+    analyzed_topics = sentiment_analysis(topics)
+
+    return jsonify(analyzed_topics)
