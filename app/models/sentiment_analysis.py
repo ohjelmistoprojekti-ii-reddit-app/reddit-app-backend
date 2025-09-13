@@ -34,6 +34,7 @@ def sentiment_analysis(topics):
         else:
             average_compound = average_neg = average_neu = average_pos = 0.0
 
+        # Each analyzed topic has two post for performance purposes
         analyzed_topics.append({
             "id": topic['id'],
             "topic": topic['topic'],
