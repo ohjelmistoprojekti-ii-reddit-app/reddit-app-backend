@@ -67,7 +67,7 @@ When everything is working (you see the message on your console 'Running on http
 
 Go to your browser and type: http://127.0.0.1:5000/posts/subreddit_name/post_type/num_posts
 
-This should be the form of the data:
+This should be the form of the received data:
 
 ```json
 {
