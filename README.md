@@ -75,29 +75,29 @@ This should be the form of the data:
     "id": ,
     "num_posts": ,
     "posts":
-    [
-      {
-        "comments": [],
-        "content":,
-        "id": ,
-        "num_comments":,
-        "score": ,
-        "title": ,
-        "upvote_ratio":
-      }
+        [
+        {
+            "comments": [],
+            "content":,
+            "id": ,
+            "num_comments":,
+            "score": ,
+            "title": ,
+            "upvote_ratio":
+        }
 
-    ],
+        ],
     "sentiment_values":
-    {
-      "average_compound":,
-      "average_neg": ,
-      "average_neu": ,
-      "average_pos": ,
-      "comment_count":
-    },
+        {
+        "average_compound":,
+        "average_neg": ,
+        "average_neu": ,
+        "average_pos": ,
+        "comment_count":
+        },
     "topic": 
-    [
-    ]
+        [
+        ]
   }
 
 
