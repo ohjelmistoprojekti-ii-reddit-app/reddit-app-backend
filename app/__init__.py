@@ -11,9 +11,4 @@ def create_app():
     app.register_blueprint(posts_bp)
 
     
-
-    
-
-
-
     return app

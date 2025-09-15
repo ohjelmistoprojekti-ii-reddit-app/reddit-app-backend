@@ -1,12 +1,11 @@
 from app.helpers.text_processing import preprocess
 from app.helpers.stopwords import stopwords
+from app.models.summarization import summarize_topic_labels
 from bertopic import BERTopic
 from sklearn.feature_extraction.text import CountVectorizer
 from hdbscan import HDBSCAN
 from umap import UMAP
 import datetime
-
-# TODO: summarize the topics with AI
 
 def extract_topics(posts):
     print("Extracting topics..")
@@ -17,7 +16,7 @@ def extract_topics(posts):
 
     # for clustering
     hdbscan_model = HDBSCAN(
-        min_cluster_size=5, # min amount of posts in a cluster (topic); if cluster has less posts, it is discarded
+        min_cluster_size=8, # min amount of posts in a cluster (topic); if cluster has less posts, it is discarded
         min_samples=2, # smaller value allows more clusters and less noise
         prediction_data=True,
         metric='euclidean'
@@ -30,7 +29,7 @@ def extract_topics(posts):
     )
 
     model = BERTopic(
-        embedding_model="all-MiniLM-L12-v2", # hugging face sentence transformers model for embedding
+        embedding_model="all-MiniLM-L6-v2", # hugging face sentence transformers model for embedding
         hdbscan_model=hdbscan_model,
         umap_model=umap_model
     )
@@ -45,6 +44,8 @@ def extract_topics(posts):
 
     end = datetime.datetime.now()
     print(f"Topic modeling duration: {end - start}\n")
+
+    start = datetime.datetime.now()
 
     topic_with_posts = {}
     results = []
@@ -65,14 +66,20 @@ def extract_topics(posts):
     
     for topic_id, topic_posts in topic_with_posts.items():
         topic_list = model.get_topic(topic_id)
-        topic_words = [word for word, prob in topic_list[:3]]
+        topic_words = [word for word, prob in topic_list]
+
+        topic_summary = summarize_topic_labels(topic_words, topic_posts)
         
         results.append({
             "id": topic_id,
-            "topic": topic_words,
+            "raw_topic": topic_words,
+            "topic": topic_summary,
             "num_posts": len(topic_posts), # amount of posts in this category
             "posts": topic_posts
         })
+    
+    end = datetime.datetime.now()
+    print(f"Processing topic modeling results + LLM summary duration: {end - start}\n")
 
     return sorted(results, key=lambda k: k['id'])
 

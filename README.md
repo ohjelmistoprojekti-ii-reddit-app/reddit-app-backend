@@ -72,33 +72,27 @@ This should be the form of the received data:
 ```json
 {
     "id": ,
+    "topic": ,
     "num_posts": ,
     "posts":
-        [
-        {
+        [{
             "comments": [],
-            "content":,
+            "content": ,
             "id": ,
-            "num_comments":,
+            "num_comments": ,
             "score": ,
             "title": ,
-            "upvote_ratio":
-        }
-
-        ],
+            "upvote_ratio": ,
+        }],
     "sentiment_values":
         {
-        "average_compound":,
-        "average_neg": ,
-        "average_neu": ,
-        "average_pos": ,
-        "comment_count":
-        },
-    "topic": 
-        [
-        ]
+            "average_compound": ,
+            "average_neg": ,
+            "average_neu": ,
+            "average_pos": ,
+            "comment_count": ,
+        }
   }
-
 
 ```
 
@@ -124,8 +118,10 @@ Here are the key steps in BERTopic and the models we used for each stage:
     - Model: [UMAP](https://umap-learn.readthedocs.io/en/latest/)
 3. **Clustering**: Groups similar embeddings into coherent topic clusters.
     - Model: [HDBSCAN](https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.html)
-4. **Topic representation**: Labels each cluster with a few key words summarizing its main theme.
+4. **Topic representation**: Labels each cluster with a few keywords summarizing its main theme.
     - Model: BERTopic default, [c-TF-IDF](https://maartengr.github.io/BERTopic/getting_started/ctfidf/ctfidf.html)
+5. **Representation fine-tuning (optional)**: Converts the topic modeling results into a more understandable form. Can be done with GPT- or KEYBert-like models. Not a BERTopic default, needs to be added separately.
+    - Model: [Flan-T5](https://dataloop.ai/library/model/google_flan-t5-base/)
 
 
 <strong>Why use BERTopic on Reddit data?</strong>

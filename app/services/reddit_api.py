@@ -40,7 +40,7 @@ async def get_posts(subreddit_name, post_type, limit_num):
                     comments.append(comment.body)
                     count += 1
 
-                    if count >= 8:
+                    if count >= 10:
                         break
 
         posts.append({
