@@ -9,7 +9,7 @@ from app.models.sentiment_analysis import sentiment_analysis
 async def demo():
     # get_posts(<subreddit>, <type of posts>, <number of posts>)
     # type of post can be: controversial, gilded, hot, new, rising or top
-    posts = await get_posts("all", "hot", 10)
+    posts = await get_posts("all", "hot", 500)
 
     random_posts = random.sample(posts, 3)
     print("EXAMPLE POSTS:")
@@ -40,7 +40,7 @@ async def demo():
             print("---")
         
         s = topic['sentiment_values']
-        if topic['sentiment_values']['comment_count'] > 0:
+        if s['comment_count'] > 0:
             print(f"Average compound: {s['average_compound']}")
             print(f"Average negative: {s['average_neg']}%")
             print(f"Average neutral:  {s['average_neu']}%")
