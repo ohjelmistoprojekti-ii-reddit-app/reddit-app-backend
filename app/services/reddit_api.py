@@ -1,3 +1,4 @@
+import asyncio
 import os
 import asyncpraw
 import datetime
@@ -20,42 +21,64 @@ async def create_client():
     )
     return reddit
 
-async def get_posts(subreddit_name, post_type, limit_num):
-    start = datetime.datetime.now()
-    print(f"Fetching.. This will take a while.")
-    reddit = await create_client()
 
-    posts = []
-    subreddit = await reddit.subreddit(subreddit_name)
+async def process_submission(submission, semaphore):
+    async with semaphore:
+        try:
+            await submission.load()
+            await submission.comments.replace_more(limit=0)
 
-    async for submission in getattr(subreddit, post_type)(limit=limit_num):
-        await submission.load() # needed for fetching comments
-
-        comments = []
-        if submission.num_comments > 0:
+            comments = []
             count = 0
-            # only top level comments
             for comment in submission.comments:
                 if not is_bot(comment.body.lower()): # leave out bot comments
                     comments.append(comment.body)
                     count += 1
-
                     if count >= 8:
                         break
 
-        posts.append({
-            "id": submission.id,
-            "title": submission.title,
-            "content": submission.selftext,
-            "comments": comments,
-            "num_comments": submission.num_comments,
-            "score": submission.score, # number of upvotes for the post
-            "upvote_ratio": submission.upvote_ratio
-        })
+            return {
+                "id": submission.id,
+                "title": submission.title,
+                "content": submission.selftext,
+                "comments": comments,
+                "num_comments": submission.num_comments,
+                "score": submission.score,
+                "upvote_ratio": submission.upvote_ratio
+            }
+        except Exception as e:
+            print(f"Error processing submission {submission.id}: {e}")
+            return None
 
-    end = datetime.datetime.now()
-    print(f"Fetch duration: {end - start}")
-    print(f"✓ Fetched {len(posts)} posts from r/{subreddit_name}/{post_type}")
+MAX_CONCURRENT_REQUESTS = 16
+
+async def get_posts(subreddit_name, post_type, limit_num):
+    start = datetime.datetime.now()
+    print(f"Fetching.. This will take a while.")
+
+    reddit = await create_client()
+    subreddit = await reddit.subreddit(subreddit_name)
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS) 
+
+    submissions = []
+    async for submission in getattr(subreddit, post_type)(limit=limit_num):
+        submissions.append(submission)
+
+    tasks = []
+    for submission in submissions:
+        task = process_submission(submission, semaphore)
+        tasks.append(task)
+    
+    results = await asyncio.gather(*tasks)
+
+    posts = []
+    for post in results:
+        if post is not None:
+            posts.append(post)
 
     await reddit.close()
+
+    end = datetime.datetime.now()
+    print(f"Fetched {len(posts)} posts in {end - start}.")
+
     return posts

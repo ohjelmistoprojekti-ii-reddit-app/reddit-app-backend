@@ -11,7 +11,7 @@
 - **Framework:** [Flask](https://flask.palletsprojects.com/en/stable/)
 - **Reddit API:** [Async PRAW](https://asyncpraw.readthedocs.io/en/stable/)
 - **Topic modeling:** [BERTopic](https://maartengr.github.io/BERTopic/index.html)
-- **Sentiment analysis:** VADER or TextBlob or Hugging Face *(TBD)*
+- **Sentiment analysis:** VADER
 - **Database:** *(TBD)*
 
 ## 🚀 Getting Started
