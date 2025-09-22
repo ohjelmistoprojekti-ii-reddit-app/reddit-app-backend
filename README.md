@@ -33,6 +33,11 @@ venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+- Add MongoDb Atlas server:
+```bash
+python -m pip install "pymongo[srv]"
+```
+
 
 ### Connecting to Reddit API (Async PRAW)
 Assuming you have already registered an app to Reddit's developer portal:
@@ -42,6 +47,12 @@ Assuming you have already registered an app to Reddit's developer portal:
 REDDIT_CLIENT_ID=your_client_id
 REDDIT_CLIENT_SECRET=your_client_secret
 REDDIT_USER_AGENT=your_user_agent
+```
+### Connecting to MongoDb Atlas
+Firs log in to MongoDb Atlas and get your peronal connection string:
+- Add your connection string to your **.env** file
+```
+ATLAS_CONNECTION_STR=your_connection_string
 ```
 
 ### Try it out
@@ -65,7 +76,7 @@ python run.py
 
 When everything is working (you see the message on your console 'Running on http://127.0.0.1:5000')
 
-Go to your browser and type: http://127.0.0.1:5000/posts/subreddit_name/post_type/num_posts
+Go to your browser and type: http://127.0.0.1:5000/posts/
 
 This should be the form of the received data:
 
