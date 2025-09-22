@@ -38,7 +38,6 @@ pip install -r requirements.txt
 python -m pip install "pymongo[srv]"
 ```
 
-
 ### Connecting to Reddit API (Async PRAW)
 Assuming you have already registered an app to Reddit's developer portal:
 - Create **.env** file in the root of the project
