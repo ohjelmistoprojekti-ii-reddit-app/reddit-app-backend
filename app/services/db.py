@@ -14,7 +14,7 @@ def get_reddit_posts():
     #this gets all the posts from the database
     posts = coll.find()
 
-    #converting data to json format
+    #converting data to json format for the api
 
     list_json = list(posts)
 
