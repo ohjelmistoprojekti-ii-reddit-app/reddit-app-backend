@@ -3,10 +3,11 @@ from app.services.reddit_api import get_posts
 import asyncio
 import os
 
-# populate database with reddit posts
+#automatically populate database with reddit posts
+# when running the app
 def populate_database_reddit_posts():
+    # gets the posts from the reddit api
     posts = asyncio.run(get_posts("all", "hot", 500))
-
     # Here goes your Mongodb Atlas connection string
     uri = os.getenv("ATLAS_CONNECTION_STR")
     client = MongoClient(uri)
