@@ -1,0 +1,27 @@
+name: Reddit Analysis Pipeline
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # runs at 3:00 every day
+  workflow_dispatch: # allows manual start from GitHub
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    env:
+      REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+      REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+      REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+      ATLAS_CONNECTION_STR: ${{ secrets.ATLAS_CONNECTION_STR }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+            python-version: '3.12'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run pipeline
+        run: |
+          export PYTHONPATH="${PYTHONPATH}:$(pwd)" # allows imports from root
+          python scripts/pipeline.py
+

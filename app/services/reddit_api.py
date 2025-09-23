@@ -39,12 +39,14 @@ async def process_submission(submission, semaphore):
 
             return {
                 "id": submission.id,
+                "subreddit": submission.subreddit.display_name,
                 "title": submission.title,
                 "content": submission.selftext,
                 "comments": comments,
                 "num_comments": submission.num_comments,
                 "score": submission.score,
-                "upvote_ratio": submission.upvote_ratio
+                "upvote_ratio": submission.upvote_ratio,
+                "timestamp": datetime.datetime.now(datetime.timezone.utc)
             }
         except Exception as e:
             print(f"Error processing submission {submission.id}: {e}")
@@ -54,7 +56,7 @@ MAX_CONCURRENT_REQUESTS = 16
 
 async def get_posts(subreddit_name, post_type, limit_num):
     start = datetime.datetime.now()
-    print(f"Fetching.. This will take a while.")
+    print(f"Fetching posts..")
 
     reddit = await create_client()
     subreddit = await reddit.subreddit(subreddit_name)
