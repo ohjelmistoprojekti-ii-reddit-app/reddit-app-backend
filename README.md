@@ -48,7 +48,7 @@ REDDIT_CLIENT_SECRET=your_client_secret
 REDDIT_USER_AGENT=your_user_agent
 ```
 ### Connecting to MongoDb Atlas
-Firs log in to MongoDb Atlas and get your peronal connection string:
+First log in to MongoDb Atlas and get your peronal connection string:
 - Add your connection string to your **.env** file
 ```
 ATLAS_CONNECTION_STR=your_connection_string
@@ -56,7 +56,7 @@ ATLAS_CONNECTION_STR=your_connection_string
 
 ### Try it out
 
-View example Reddit posts and topic modeling results by running the script:
+**View example Reddit analysis results** by running the script:
 ```bash
 python demo.py
 ```
@@ -67,49 +67,94 @@ The results will be printed in your terminal.
 
 <hr>
 
-View the REST API:
+**View the REST API**
 
+Start the app to use the REST API:
 ```bash
 python run.py
 ```
 
-When everything is working (you see the message on your console 'Running on http://127.0.0.1:5000')
+When everything is working, you will see this message on your console: 'Running on http://127.0.0.1:5000'
 
-Go to your browser and type: http://127.0.0.1:5000/posts/
+1. **Fetch posts and analyze data (no database)**
 
-This should be the form of the received data:
+> GET `/posts/<subreddit>/<type>/<amount>`
+
+**Description**: Fetches posts directly from Reddit, performs topic modeling and sentiment analysis, and returns analyzed data. Data is not stored in the database.
+
+This operation may take a few minutes depending on the amount of posts.
+
+| Parameter | Description | Examples |
+| --------- | ----------- | ------- |
+| subreddit | name of any subreddit | `all`, `music`, `technology` |
+| type | type of posts | `hot`, `rising`, `new` |
+| amount | amount of posts | `500`, `1000` |
+
+**Example request**:
+```
+http://127.0.0.1:5000/posts/technology/hot/500
+```
+
+**Example response**:
 
 ```json
 {
-    "id": ,
-    "num_posts": ,
-    "posts":
-        [
-        {
-            "comments": [],
-            "content":,
-            "id": ,
-            "num_comments":,
-            "score": ,
-            "title": ,
-            "upvote_ratio":
-        }
+  "id": 1,
+  "num_posts": 22,
+  "posts": [
+    {
+      "id": "abc123",
+      "subreddit": "technology",
+      "title": "AI model achieves new benchmark",
+      "content": "A new AI model has set a record for image recognition accuracy.",
+      "comments": [
+        "This is amazing!",
+        "Impressive results, can't wait to see it in action."
+      ],
+      "num_comments": 2,
+      "score": 150,
+      "upvote_ratio": 0.97
+    },
+    {
+      "id": "def456",
+      "subreddit": "technology",
+      "title": "Tech company launches innovative gadget",
+      "content": "The latest gadget has several cutting-edge features.",
+      "comments": [
+        "Looks promising!"
+      ],
+      "num_comments": 1,
+      "score": 120,
+      "upvote_ratio": 0.95
+    }
+  ],
+  "sentiment_values": {
+    "average_compound": 0.25,
+    "average_neg": 10.0,
+    "average_neu": 75.0,
+    "average_pos": 15.0,
+    "comment_count": 50
+  },
+  "topic": ["AI", "Innovation", "Gadgets"],
+  "subreddit": "technology"
+}
+```
 
-        ],
-    "sentiment_values":
-        {
-        "average_compound":,
-        "average_neg": ,
-        "average_neu": ,
-        "average_pos": ,
-        "comment_count":
-        },
-    "topic": 
-        [
-        ]
-  }
+2. **Get latest posts from the database**
 
+> GET `/posts/latest/<subreddit>`
 
+**Description**: Fetches the latest posts saved to the database from the specified subreddit. Only posts saved today (UTC) are returned.
+
+🚨 Note: The pipeline must have run previously to save posts to the database.
+
+| Parameter | Description | Examples |
+| --------- | ----------- | -------- |
+| subreddit | name of subreddit | currently the options are `technology` or `worldnews` (as saved by the pipeline)
+
+Example request:
+```
+http://127.0.0.1:5000/posts/latest/technology
 ```
 
 ## 🔎 Solutions Overview
