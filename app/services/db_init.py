@@ -16,7 +16,7 @@ def populate_database_reddit_posts():
     db = client.reddit
     # This creates new collection called 'posts'
     coll = db.posts
-    coll.drop()
+    #coll.drop()
     #this inserts all the posts to the database
     coll.insert_many(posts)
     # Close the connection to MongoDB when you're done.

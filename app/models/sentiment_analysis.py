@@ -39,6 +39,7 @@ def sentiment_analysis(topics):
             "id": topic['id'],
             "topic": topic['topic'],
             "num_posts": topic['num_posts'],
+            "subreddit": topic['subreddit'],
             "posts": topic['posts'][:2],
             "sentiment_values": {
                 "average_compound": round(average_compound, 3),
@@ -46,10 +47,8 @@ def sentiment_analysis(topics):
                 "average_neu": round(average_neu, 3),
                 "average_pos": round(average_pos, 3),
                 "comment_count": count
-            }
+            },
         })
 
     return analyzed_topics
         
-        
-                        

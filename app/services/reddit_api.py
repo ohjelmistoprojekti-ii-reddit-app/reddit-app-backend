@@ -5,8 +5,6 @@ import datetime
 from dotenv import load_dotenv
 from app.helpers.text_processing import is_bot
 
-# after fetching post comments, fetch became super slow. still, we need the comments for the sentiment analysis
-# TODO: try to find a way to make the API connection faster
 
 load_dotenv()
 
@@ -46,13 +44,13 @@ async def process_submission(submission, semaphore):
                 "num_comments": submission.num_comments,
                 "score": submission.score,
                 "upvote_ratio": submission.upvote_ratio,
-                "timestamp": datetime.datetime.now(datetime.timezone.utc)
+                "created_at": datetime.datetime.fromtimestamp(submission.created_utc, tz=datetime.timezone.utc)
             }
         except Exception as e:
             print(f"Error processing submission {submission.id}: {e}")
             return None
 
-MAX_CONCURRENT_REQUESTS = 16
+MAX_CONCURRENT_REQUESTS = 12
 
 async def get_posts(subreddit_name, post_type, limit_num):
     start = datetime.datetime.now()

@@ -1,21 +1,25 @@
 from flask import Blueprint, jsonify
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis
-from app.services.db import get_reddit_posts
+from app.services.db import get_reddit_posts, get_latest_posts_by_subreddit
 
 bp = Blueprint('posts', __name__, url_prefix='/posts')
 
+@bp.route('/latest/<subreddit>', methods=['GET'])
+def get_latest_posts(subreddit):
+    data = get_latest_posts_by_subreddit(subreddit)
+    return jsonify(data)
 
-# get method for sentiment analysis
-@bp.route('/', methods=['GET'])
-def get_reddit_analysis():
-    #gets the data from the database
-    data = get_reddit_posts()
+# # get method for sentiment analysis
+# @bp.route('/', methods=['GET'])
+# def get_reddit_analysis():
+#     #gets the data from the database
+#     data = get_reddit_posts()
 
-    topics = extract_topics(data)
-    analyzed_topics = sentiment_analysis(topics)
+#     topics = extract_topics(data)
+#     analyzed_topics = sentiment_analysis(topics)
 
-    return jsonify(analyzed_topics)
+#     return jsonify(analyzed_topics)
 
 # get method for all posts from the database
 # @bp.route('/', methods=['GET'])

@@ -70,6 +70,7 @@ def extract_topics(posts):
         results.append({
             "id": topic_id,
             "topic": topic_words,
+            "subreddit": posts[0]['subreddit'], # subreddit category for easier db filtering
             "num_posts": len(topic_posts), # amount of posts in this category
             "posts": topic_posts
         })

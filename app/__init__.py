@@ -8,7 +8,7 @@ def create_app():
     CORS(app)
     app.config.from_object('app.config.Config')
     # populates the database with reddit post when running the app
-    populate_database_reddit_posts()
+    #populate_database_reddit_posts()
     from app.routes.routes import bp as posts_bp
     app.register_blueprint(posts_bp)
 
