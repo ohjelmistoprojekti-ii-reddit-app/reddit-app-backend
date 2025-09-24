@@ -47,6 +47,7 @@ REDDIT_CLIENT_ID=your_client_id
 REDDIT_CLIENT_SECRET=your_client_secret
 REDDIT_USER_AGENT=your_user_agent
 ```
+
 ### Connecting to MongoDb Atlas
 First log in to MongoDb Atlas and get your peronal connection string:
 - Add your connection string to your **.env** file
@@ -94,8 +95,8 @@ This operation may take a few minutes depending on the amount of posts.
 ```
 http://127.0.0.1:5000/posts/technology/hot/500
 ```
-
-**Example response**:
+<details>
+<summary><strong>Example response</strong> (click to open)</summary>
 
 ```json
 {
@@ -139,6 +140,8 @@ http://127.0.0.1:5000/posts/technology/hot/500
   "subreddit": "technology"
 }
 ```
+</details>
+<br>
 
 2. **Get latest posts from the database**
 
