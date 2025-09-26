@@ -2,7 +2,7 @@ name: Daily Reddit Analysis
 
 on:
   schedule:
-    - cron: '0 1 * * *' # runs every day at 1:00 UTC
+    - cron: '0 0 * * *' # runs every day at 00:00 UTC
   workflow_dispatch: # allows manual start from GitHub
 
 jobs:
@@ -21,7 +21,5 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt
       - name: Run pipeline
-        run: |
-          export PYTHONPATH="${PYTHONPATH}:$(pwd)" # allows imports from root
-          python scripts/pipeline.py
+        run: python -m scripts.pipeline
 
