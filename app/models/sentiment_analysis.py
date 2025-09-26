@@ -36,10 +36,9 @@ def sentiment_analysis(topics):
 
         # Each analyzed topic has two post for performance purposes
         analyzed_topics.append({
-            "id": topic['id'],
+            "topic_id": topic['topic_id'],
             "topic": topic['topic'],
             "num_posts": topic['num_posts'],
-            "subreddit": topic['subreddit'],
             "posts": topic['posts'][:2],
             "sentiment_values": {
                 "average_compound": round(average_compound, 3),

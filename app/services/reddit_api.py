@@ -50,7 +50,8 @@ async def process_submission(submission, semaphore):
             print(f"Error processing submission {submission.id}: {e}")
             return None
 
-MAX_CONCURRENT_REQUESTS = 12
+# smaller value = slower fetching, but less chance of going over rate limit
+MAX_CONCURRENT_REQUESTS = 2
 
 async def get_posts(subreddit_name, post_type, limit_num):
     start = datetime.datetime.now()

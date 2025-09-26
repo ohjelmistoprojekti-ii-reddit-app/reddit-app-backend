@@ -19,12 +19,15 @@ def get_posts_subreddit(subreddit,type,amount):
     return jsonify(analyzed_topics)
 
 
-# get method for retrieving analyzed posts from a given subreddit
+# get method for retrieving most recently analyzed posts for a given subreddit
 # connected to database
-# only returns posts that were analyzed and saved to the db today (in utc)
 @bp.route('/latest/<subreddit>', methods=['GET'])
 def get_latest_posts_from_db(subreddit):
     data = get_latest_posts_by_subreddit(subreddit)
+
+    if len(data) == 0:
+        return jsonify({"error": "No data found for this subreddit"}), 404
+    
     return jsonify(data)
 
 

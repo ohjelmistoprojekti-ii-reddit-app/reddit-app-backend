@@ -68,7 +68,7 @@ The results will be printed in your terminal.
 
 ## 🌐 REST API
 
-Start the app to use the REST API:
+Start the Flask server by running:
 ```bash
 python run.py
 ```
@@ -101,7 +101,7 @@ http://127.0.0.1:5000/posts/technology/hot/500
 
 ```json
 {
-  "id": 1,
+  "topic_id": 1,
   "num_posts": 22,
   "posts": [
     {
@@ -148,18 +148,18 @@ http://127.0.0.1:5000/posts/technology/hot/500
 
 > GET /posts/latest/{subreddit}
 
-**Description**: Retrieves the latest batch of analyzed posts for a given subreddit. The data has already been fetched, processed with topic modeling and sentiment analysis, and stored in the database beforehand.
+**Description**: Retrieves the latest analyzed posts for a given subreddit from the database. Similar to the `/posts/{subreddit}/{type}/{amount}` method, but fetches data from the database instead of Reddit.
 
-ℹ️ Our `GitHub Actions` pipeline automatically collects, analyzes, and stores a new batch of data every day for a predefined set of subreddits (currently `technology` and `worldnews`).
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores Reddit data once a day for a **predefined** set of subreddits (see table below).
 
-⚙️ For testing purposes, you can manually populate a local or development database with freshly analyzed data by running:
+⚙️ For testing purposes, you can also run the data pipeline manually to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following command in your terminal:
 ```
 python -m scripts.pipeline
 ```
 
-| Parameter | Description | Examples |
-| --------- | ----------- | -------- |
-| subreddit | name of subreddit | `technology` or `worldnews` (as saved by the pipeline)
+| Parameter | Description | Options |
+| --------- | ----------- | ------- |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming`
 
 **Example request**:
 ```

@@ -41,10 +41,10 @@ def extract_topics(posts):
     vectorizer_model = CountVectorizer(stop_words=stopwords())
     model.update_topics(docs, vectorizer_model=vectorizer_model)
 
-    print(model.get_topic_info())
+    # print(model.get_topic_info())
 
     end = datetime.datetime.now()
-    print(f"Topic modeling duration: {end - start}\n")
+    print(f"Topic modeling duration: {end - start}")
 
     topic_with_posts = {}
     results = []
@@ -68,12 +68,11 @@ def extract_topics(posts):
         topic_words = [word for word, prob in topic_list[:3]]
         
         results.append({
-            "id": topic_id,
+            "topic_id": topic_id,
             "topic": topic_words,
-            "subreddit": posts[0]['subreddit'], # subreddit category for easier db filtering
             "num_posts": len(topic_posts), # amount of posts in this category
             "posts": topic_posts
         })
 
-    return sorted(results, key=lambda k: k['id'])
+    return sorted(results, key=lambda k: k['topic_id'])
 
