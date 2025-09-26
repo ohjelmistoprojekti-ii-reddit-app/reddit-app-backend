@@ -144,29 +144,31 @@ http://127.0.0.1:5000/posts/technology/hot/500
 </details>
 
 
-### Get the latest analyzed posts from the database
+### Get latest analyzed posts from the database
 
 > GET /posts/latest/{subreddit}
 
-**Description**: Retrieves the most recent analyzed data for a specified subreddit from the database. Only posts analyzed and saved today (in UTC) are included.
+**Description**: Retrieves the latest batch of analyzed posts for a given subreddit. The data has already been fetched, processed with topic modeling and sentiment analysis, and stored in the database beforehand.
 
-ℹ️ The data is automatically collected and processed in the background by our `GitHub Actions` pipeline, which saves the data to the production database.
+ℹ️ Our `GitHub Actions` pipeline automatically collects, analyzes, and stores a new batch of data every day for a predefined set of subreddits (currently `technology` and `worldnews`).
 
-📋 For testing purposes, you can also manually populate a local or development database by running:
+⚙️ For testing purposes, you can manually populate a local or development database with freshly analyzed data by running:
 ```
 python -m scripts.pipeline
 ```
 
 | Parameter | Description | Examples |
 | --------- | ----------- | -------- |
-| subreddit | name of subreddit | currently the options are `technology` or `worldnews` (as saved by the pipeline)
+| subreddit | name of subreddit | `technology` or `worldnews` (as saved by the pipeline)
 
 **Example request**:
 ```
 http://127.0.0.1:5000/posts/latest/technology
 ```
 
-➡️ **Returns** 10 most popular topics from the subreddit along with sample posts and sentiment analysis results. **Response format** is similar to `/posts/{subreddit}/{type}/{amount}`, with an additional timestamp field for each post.
+➡️ **Returns** 10 most popular topics, along with sample posts and sentiment analysis results, from the most recently saved batch in the database.
+
+**Response format** is similar to `/posts/{subreddit}/{type}/{amount}` method, with an additional `timestamp` field for each post.
 
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.

@@ -1,5 +1,4 @@
-from datetime import datetime, timezone
-from pymongo import MongoClient
+from pymongo import MongoClient, DESCENDING
 import os
 
 def connect_db():
@@ -40,16 +39,24 @@ def get_reddit_posts():
 
     return data
 
-# for fetching posts from a given subreddit, assuming the pipeline saves data to the db once per day
+# get most recently analyzed data for a given subreddit
 def get_latest_posts_by_subreddit(subreddit):
     client = connect_db()
-
-    # start of the day in utc (00:00)
-    start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-
     db = client.reddit
+
+    latest_entry = db.posts.find_one(
+        {"subreddit": subreddit},
+        sort=[("timestamp", DESCENDING)]
+    )
+
+    if latest_entry is None:
+        return []
+
+    latest_timestamp = latest_entry["timestamp"]
+
+    # get all posts with the most recent timestamp for a given subreddit
     data = list(db.posts.find({
-        "timestamp": {"$gte": start}, # fetches posts that were saved to the db during current day
+        "timestamp": latest_timestamp,
         "subreddit": subreddit
     }))
     
