@@ -55,9 +55,9 @@ First log in to MongoDb Atlas and get your peronal connection string:
 ATLAS_CONNECTION_STR=your_connection_string
 ```
 
-### Try it out
+### Run the demo
 
-**View example Reddit analysis results** by running the script:
+View example Reddit analysis results by running the script:
 ```bash
 python demo.py
 ```
@@ -66,28 +66,26 @@ The results will be printed in your terminal.
 
 💡 You can change the subreddit, type of posts and number of posts in `demo.py` to experiment with different data.
 
-<hr>
-
-**View the REST API**
+## 🌐 REST API
 
 Start the app to use the REST API:
 ```bash
 python run.py
 ```
 
-When everything is working, you will see this message on your console: 'Running on http://127.0.0.1:5000'
+✅ When everything is working, you will see this message on your console: 'Running on http://127.0.0.1:5000'
 
-1. **Fetch posts and analyze data (no database)**
+### Get analyzed posts from Reddit (no database)
 
-> GET `/posts/<subreddit>/<type>/<amount>`
+> GET /posts/{subreddit}/{type}/{amount}
 
 **Description**: Fetches posts directly from Reddit, performs topic modeling and sentiment analysis, and returns analyzed data. Data is not stored in the database.
 
-This operation may take a few minutes depending on the amount of posts.
+⌛ This operation may take a few minutes depending on the amount of posts.
 
 | Parameter | Description | Examples |
 | --------- | ----------- | ------- |
-| subreddit | name of any subreddit | `all`, `music`, `technology` |
+| subreddit | [name of any subreddit](https://www.reddit.com/r/ListOfSubreddits/wiki/listofsubreddits/) | `all`, `music`, `technology` |
 | type | type of posts | `hot`, `rising`, `new` |
 | amount | amount of posts | `500`, `1000` |
 
@@ -95,8 +93,11 @@ This operation may take a few minutes depending on the amount of posts.
 ```
 http://127.0.0.1:5000/posts/technology/hot/500
 ```
+
+➡️ **Returns** 10 most popular topics from the subreddit along with sample posts and sentiment analysis results.
+
 <details>
-<summary><strong>Example response</strong> (click to open)</summary>
+<summary><strong>Example response format</strong> (click to open)</summary>
 
 ```json
 {
@@ -141,24 +142,31 @@ http://127.0.0.1:5000/posts/technology/hot/500
 }
 ```
 </details>
-<br>
 
-2. **Get latest posts from the database**
 
-> GET `/posts/latest/<subreddit>`
+### Get the latest analyzed posts from the database
 
-**Description**: Fetches the latest posts saved to the database from the specified subreddit. Only posts saved today (UTC) are returned.
+> GET /posts/latest/{subreddit}
 
-🚨 Note: The pipeline must have run previously to save posts to the database.
+**Description**: Retrieves the most recent analyzed data for a specified subreddit from the database. Only posts analyzed and saved today (in UTC) are included.
+
+ℹ️ The data is automatically collected and processed in the background by our `GitHub Actions` pipeline, which saves the data to the production database.
+
+📋 For testing purposes, you can also manually populate a local or development database by running:
+```
+python -m scripts.pipeline
+```
 
 | Parameter | Description | Examples |
 | --------- | ----------- | -------- |
 | subreddit | name of subreddit | currently the options are `technology` or `worldnews` (as saved by the pipeline)
 
-Example request:
+**Example request**:
 ```
 http://127.0.0.1:5000/posts/latest/technology
 ```
+
+➡️ **Returns** 10 most popular topics from the subreddit along with sample posts and sentiment analysis results. **Response format** is similar to `/posts/{subreddit}/{type}/{amount}`, with an additional timestamp field for each post.
 
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.
@@ -204,7 +212,7 @@ Coming soon
 </details>
 
 <details>
-<summary><strong>REST API</strong></summary>
+<summary><strong>Data Processing Automation</strong></summary>
 Coming soon
 </details>
 <br>

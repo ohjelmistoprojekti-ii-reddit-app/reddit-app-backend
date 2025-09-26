@@ -9,9 +9,9 @@ bp = Blueprint('posts', __name__, url_prefix='/posts')
 
 # This GET method gets the posts from reddit api and returns analyzed data
 # not connected to database
-@bp.route('/<subreddit>/<type_subbreddit>/<int:count>', methods=['GET'])
-def get_posts_subreddit(subreddit,type_subbreddit,count):
-    posts = asyncio.run(get_posts(subreddit,type_subbreddit,count))
+@bp.route('/<subreddit>/<type>/<int:amount>', methods=['GET'])
+def get_posts_subreddit(subreddit,type,amount):
+    posts = asyncio.run(get_posts(subreddit,type,amount))
 
     topics = extract_topics(posts)
     analyzed_topics = sentiment_analysis(topics)
@@ -19,12 +19,14 @@ def get_posts_subreddit(subreddit,type_subbreddit,count):
     return jsonify(analyzed_topics)
 
 
-# get method for fetching latest posts from a given subreddit
+# get method for retrieving analyzed posts from a given subreddit
 # connected to database
+# only returns posts that were analyzed and saved to the db today (in utc)
 @bp.route('/latest/<subreddit>', methods=['GET'])
 def get_latest_posts_from_db(subreddit):
     data = get_latest_posts_by_subreddit(subreddit)
     return jsonify(data)
+
 
 # # get method for sentiment analysis
 # @bp.route('/', methods=['GET'])
