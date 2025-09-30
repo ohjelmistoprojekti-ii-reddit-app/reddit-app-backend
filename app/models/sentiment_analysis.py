@@ -50,4 +50,28 @@ def sentiment_analysis(topics):
         })
 
     return analyzed_topics
+
+
+def sentiment_analysis_top_comments_by_country(comments):
+    
+    sid_obj = SentimentIntensityAnalyzer()
+    analyzed_comments = []
+    
+    for comment in comments:
+        sentiment = sid_obj.polarity_scores(comment['comment_english'])
+
+        analyzed_comments.append({
+            "post_title": comment["post_title"],
+            "comment_original": comment["comment_original"],
+            "comment_eng": comment["comment_english"],
+            "post_score": comment["score"],
+            "sentiment_values": {
+                "sentiment_compound": round(sentiment['compound'], 3),
+                "sentiment_neg": round(sentiment['neg'], 3),
+                "sentiment_neu": round(sentiment['neu'], 3),
+                "sentiment_pos": round(sentiment['pos'], 3),
+            },
+        })
+
+    return analyzed_comments
         
