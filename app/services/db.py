@@ -1,6 +1,13 @@
 from pymongo import MongoClient, DESCENDING
 import os
 
+def save_posts_to_database(posts_to_save, collection):
+    client = connect_db()
+    db = client.reddit
+    coll = db[collection]
+    coll.insert_many(posts_to_save)
+    client.close()
+
 def connect_db():
     # Here goes your Mongodb Atlas connection string
     uri = os.getenv("ATLAS_CONNECTION_STR")
