@@ -137,8 +137,7 @@ http://127.0.0.1:5000/posts/technology/hot/500
     "average_pos": 15.0,
     "comment_count": 50
   },
-  "topic": ["AI", "Innovation", "Gadgets"],
-  "subreddit": "technology"
+  "topic": ["AI", "Innovation", "Gadgets"]
 }
 ```
 </details>
@@ -168,7 +167,7 @@ http://127.0.0.1:5000/posts/latest/technology
 
 ➡️ **Returns** 10 most popular topics, along with sample posts and sentiment analysis results, from the most recently saved batch in the database.
 
-**Response format** is similar to `/posts/{subreddit}/{type}/{amount}` method, with an additional `timestamp` field for each post.
+**Response format** is similar to `/posts/{subreddit}/{type}/{amount}` method, with an additional `timestamp` and `subreddit` field for each post.
 
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.
@@ -214,8 +213,48 @@ Coming soon
 </details>
 
 <details>
-<summary><strong>Data Processing Automation</strong></summary>
-Coming soon
+<summary><strong>Automated Data Processing</strong></summary>
+
+We use **GitHub Actions** to automatically fetch, analyze, and store Reddit data once per day. The pipeline currently only runs for a predefined set of subreddits (see table below).
+
+**How it works**
+- Runs daily at midnight (UTC) or on demand via manual trigger
+- Fetches ~500 hot posts and up to 8 comments per subreddit
+- Processes content with topic modeling and sentiment analysis
+- Stores processed data in MongoDB Atlas
+
+The processed data can be accessed via the `/posts/latest/{subreddit}` endpoint (see [REST documentation](#-rest-api)).
+
+**Subreddits**
+
+The pipeline processes a predefined set of active subreddits to ensure diverse and relevant content for our users:
+
+| Subreddit    | Description                      |
+|--------------|----------------------------------|
+| worldnews    | International news               |
+| technology   | Tech news and discussions        |
+| entertainment| Entertainment & pop culture      |
+| movies       | Movie news, reviews & discussions|
+| gaming       | Game news, reviews & discussions |
+| sports       | Sports news and updates          |
+| travel       | Travel tips and stories          |
+| jobs         | Careers and job postings         |
+| futurology   | Future tech and trends           |
+| programming  | Programming discussions          |
+
+⚙️ The subreddit list can be modified in `scripts/pipeline.py`
+
+💡 We use the data for category filtering in the frontend. We are planning to add historical analysis and trend tracking soon.
+
+**Benefits**
+
+- Ensures consistent and reliable daily updates
+- Keeps the frontend up-to-date with fresh data
+- Enables historical analysis and long-term trend tracking
+- Delivers fast frontend performance without waiting for real-time processing
+
+**Learn more**
+- [GitHub Actions documentation](https://docs.github.com/en/actions)
 </details>
 <br>
 
