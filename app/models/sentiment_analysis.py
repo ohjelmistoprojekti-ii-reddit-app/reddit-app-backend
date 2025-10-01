@@ -4,6 +4,7 @@ nltk.download('vader_lexicon')
 
 
 def sentiment_analysis(topics):
+    print("Analyzing sentiment..")
     
     sid_obj = SentimentIntensityAnalyzer()
     analyzed_topics = []

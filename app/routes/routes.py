@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_top_comments_by_country
-from app.services.db import get_reddit_posts, get_latest_posts_by_subreddit
+from app.services.db import get_latest_posts_by_subreddit
 from app.services.reddit_api import get_posts
 from app.helpers.post_util import comments_of_top_posts
 import asyncio
 
 bp = Blueprint('posts', __name__, url_prefix='/posts')
 
-# This GET method gets the posts from reddit api and returns analyzed data
+# get method for fetching and analyzing Reddit data
 # not connected to database
 @bp.route('/<subreddit>/<type>/<int:amount>', methods=['GET'])
 def get_posts_subreddit(subreddit,type,amount):
@@ -31,24 +31,6 @@ def get_latest_posts_from_db(subreddit):
     
     return jsonify(data)
 
-
-# # get method for sentiment analysis
-# @bp.route('/', methods=['GET'])
-# def get_reddit_analysis():
-#     #gets the data from the database
-#     data = get_reddit_posts()
-
-#     topics = extract_topics(data)
-#     analyzed_topics = sentiment_analysis(topics)
-
-#     return jsonify(analyzed_topics)
-
-# get method for all posts from the database
-# @bp.route('/', methods=['GET'])
-# def get_reddit_posts():
-#     data = get_reddit_posts()
-
-#     return jsonify(data)
 
 @bp.route('/<subreddit>', methods=['GET'])
 def get_hot_comments_by_country(subreddit):

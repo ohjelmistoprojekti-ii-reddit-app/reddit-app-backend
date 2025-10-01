@@ -1,11 +1,9 @@
-import os
 import asyncio
 import datetime
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis
 from app.services.db import save_posts_to_database
-from pymongo import MongoClient
 
 subreddits = [
     "worldnews",
@@ -40,7 +38,6 @@ def pipeline(subreddits):
             return
 
         try:
-            print("Analyzing sentiment..")
             analyzed_topics = sentiment_analysis(topics)
         except Exception as e:
             print(f"::error::Error analyzing sentiment: {e}")
@@ -52,20 +49,10 @@ def pipeline(subreddits):
                 topic["timestamp"] = datetime.datetime.now(datetime.timezone.utc)
                 topic["subreddit"] = subreddit
 
-            # DATABASE TEST - will be refactored later
-            print("Inserting into database..\n")
-
             save_posts_to_database(analyzed_topics, "posts")
-            # uri = os.getenv("ATLAS_CONNECTION_STR")
-            # client = MongoClient(uri)
-            # db = client.reddit
-            # coll = db.posts
-            # coll.insert_many(analyzed_topics)
-            # client.close()
         except Exception as e:
             print(f"::error::Error inserting into database: {e}")
         
-
     print("Analysis complete.")
 
 if __name__ == "__main__":
