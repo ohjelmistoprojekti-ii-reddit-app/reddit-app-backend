@@ -273,7 +273,54 @@ Reddit discussions are diverse, informal and full of slang and memes, making the
 
 <details>
 <summary><strong>Sentiment Analysis</strong></summary>
-Coming soon
+
+**Sentiment analysis** is a subfield of Natural Language Processing (NLP) that focuses on determining the **emotional tone or attitude** expressed in a piece of text.
+
+In this project, we use sentiment analysis to determine the emotional tone of **Reddit posts and comments**. We chose to begin the analysis with **VADER** (Valence Aware Dictionary and sEntiment Reasoner), as it is specifically developed for analyzing **short, informal, and social media-style text**. The choice of VADER was also guided by its **high processing speed** and **low computational requirements**, which make it well-suited for efficiently analyzing large volumes of user-generated content.
+
+---
+
+## More about VADER's operating logic
+
+Unlike machine learning–based models, VADER does **not learn from data**. Instead, it uses:
+
+- A **predefined sentiment lexicon** (i.e., a list of words with known sentiment scores)  
+- **Syntactic rules** to adjust sentiment based on context clues such as:
+  - Capitalization (e.g., `"LOVE this"`)
+  - Negations (e.g., `"not good"`)
+  - Emojis and informal language
+
+For each piece of text, VADER outputs four sentiment scores:
+
+- **Positive** (`pos`)
+- **Negative** (`neg`)
+- **Neutral** (`neu`)
+- **Compound** — a normalized score ranging from –1 (most negative) to +1 (most positive)
+
+> ⚠️ Because VADER is a **lexicon-based tool**, it does **not understand deeper context** such as **sarcasm**, **irony**, or **ambiguous phrasing**.
+
+---
+
+## 🔧 Use of VADER in This Project
+
+This project utilizes VADER to perform sentiment analysis on **user-generated content**, such as:
+
+- Reddit comments under popular or trending posts
+
+### Topic-Based Aggregated Sentiment
+
+For a set of current or trending topics — each containing multiple posts and comments — the system:
+
+- Analyzes the **sentiment of each comment** using VADER  
+- Computes **average sentiment values** for each topic  
+- Returns a **summary of sentiment scores** across all analyzed topics
+
+We use typical threshold values to determine sentiments:
+
+- **Positive sentiment**: `compound` ≥ **0.05**
+- **Neutral sentiment**: `–0.05` < `compound` < **0.05**
+- **Negative sentiment**: `compound` ≤ **–0.05**
+
 </details>
 
 <details>
