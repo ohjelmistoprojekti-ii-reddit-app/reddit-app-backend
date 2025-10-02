@@ -20,12 +20,10 @@ This is the **backend service** for a web application that:
   - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
   - [Get analyzed example comments on hot topics](#get-analyzed-example-comments-on-hot-topics)
 - [🔎 Solutions Overview](#-solutions-overview)
+- [➡️ See Also](#-see-also)
 
 </details>
 <br>
-
-**See also:** 🖼️ [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend) | 👥
-[Organization page](https://github.com/ohjelmistoprojekti-ii-reddit-app/)
 
 > This project was created as part of the Software Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
 
@@ -395,8 +393,12 @@ The pipeline processes a predefined set of active subreddits to ensure diverse a
 **Learn more**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
 </details>
-<br>
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
+
+## ➡️ See Also
+
+🖼️ [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend) <br>
+👥 [Organization page](https://github.com/ohjelmistoprojekti-ii-reddit-app/)
 
 > Note: ChatGPT helped phrase parts of this README.
