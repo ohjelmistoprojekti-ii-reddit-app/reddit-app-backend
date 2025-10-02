@@ -11,7 +11,7 @@
 - **Framework:** [Flask](https://flask.palletsprojects.com/en/stable/)
 - **Reddit API:** [Async PRAW](https://asyncpraw.readthedocs.io/en/stable/)
 - **Topic modeling:** [BERTopic](https://maartengr.github.io/BERTopic/index.html)
-- **Sentiment analysis:** VADER
+- **Sentiment analysis:** [VADER](https://vadersentiment.readthedocs.io/en/latest/index.html) 
 - **Database:** *(TBD)*
 
 ## 🚀 Getting Started
@@ -168,6 +168,70 @@ http://127.0.0.1:5000/posts/latest/technology
 ➡️ **Returns** 10 most popular topics, along with sample posts and sentiment analysis results, from the most recently saved batch in the database.
 
 **Response format** is similar to `/posts/{subreddit}/{type}/{amount}` method, with an additional `timestamp` and `subreddit` field for each post.
+
+
+### Get analyzed example comments on hot topics
+
+> GET /posts/hot/{subreddit}
+
+**Description**: Fetches 10 hot posts directly from Reddit. For each post, selects one comment, translates it into English, performs sentiment analysis, and returns the analyzed data. The data is not stored in the database.
+
+ℹ️ This endpoint supports map feature in front-end
+
+
+| Parameter | Description | Options |
+| --------- | ----------- | ------- |
+| subreddit | name of subreddit from the predefined options | `suomi`, `sweden`, `spain`, `mexico`, `italia`
+
+**Example request**:
+```
+http://127.0.0.1:5000/posts/hot/italia
+```
+➡️ **Returns** For each current post that contains at least one comment, returns an example comment along with its sentiment analysis result. Posts without comments are excluded.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+{
+    "comment_eng": "thanks to all for support, I didn't feel like ahaha and I learned about the challenge",
+    "comment_original": "grazie di cuore a tutti per il supporto, non me lo aspettavo ahaha e scusatemi per lo sfogo",
+    "post_score": 480,
+    "post_title": "Ho 23 anni e NON vivo",
+    "sentiment_values": {
+      "sentiment_compound": 0.585,
+      "sentiment_neg": 0.111,
+      "sentiment_neu": 0.526,
+      "sentiment_pos": 0.363
+    }
+  },
+  {
+    "comment_eng": "With this opposition, I have spent ten years in government.",
+    "comment_original": "Con questa opposizione fa tranquillissimamente dieci anni al governo",
+    "post_score": 355,
+    "post_title": "Zitta zitta la Meloni a fine mese arriva sul podio",
+    "sentiment_values": {
+      "sentiment_compound": 0,
+      "sentiment_neg": 0,
+      "sentiment_neu": 1,
+      "sentiment_pos": 0
+    }
+  },
+  {
+    "comment_eng": "Is the minimum wage at 9 euros?",
+    "comment_original": "Maa il salario minimo a 9 euro? Helloo? ",
+    "post_score": 202,
+    "post_title": "Se Flotilla sarà attaccata i sindacati sono pronti allo SCIOPERO GENERALE immediato",
+    "sentiment_values": {
+      "sentiment_compound": 0,
+      "sentiment_neg": 0,
+      "sentiment_neu": 1,
+      "sentiment_pos": 0
+    }
+  }
+```
+</details>
+
 
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.
