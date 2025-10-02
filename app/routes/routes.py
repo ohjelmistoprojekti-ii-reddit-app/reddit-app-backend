@@ -50,7 +50,7 @@ def get_latest_posts_from_db(subreddit):
 
 #     return jsonify(data)
 
-@bp.route('/<subreddit>', methods=['GET'])
+@bp.route('/hot/<subreddit>', methods=['GET'])
 def get_hot_comments_by_country(subreddit):
     posts = asyncio.run(get_posts(subreddit, "hot", 10))
     comments =  comments_of_top_posts(posts)
