@@ -201,12 +201,12 @@ http://127.0.0.1:5000/posts/latest/technology
 
 **Description**: Fetches 10 hot posts directly from Reddit. For each post, selects one comment, translates it into English, performs sentiment analysis, and returns the analyzed data. The data is not stored in the database.
 
-ℹ️ This endpoint supports map feature in front-end
+ℹ️ This endpoint supports the map feature on the front end. We use it primarily to fetch country-specific subreddits, but it can also be used to retrieve data about subreddits with supported languages.
 
 
-| Parameter | Description | Options |
+| Parameter | Description | Examples |
 | --------- | ----------- | ------- |
-| subreddit | name of subreddit from the predefined options | `suomi`, `sweden`, `spain`, `mexico`, `italia`
+| subreddit | [name of any subreddit](https://www.reddit.com/r/ListOfSubreddits/wiki/listofsubreddits/) | `suomi`, `sweden`, `spain`, `mexico`, `italia`
 
 **Example request**:
 ```
