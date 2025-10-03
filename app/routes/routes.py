@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_top_comments_by_country
-from app.services.db import get_latest_posts_by_subreddit
+from app.services.db import get_latest_posts_by_subreddit, get_post_numbers_by_timeperiod
 from app.services.reddit_api import get_posts
 from app.helpers.post_util import comments_of_top_posts
 import asyncio
@@ -25,6 +25,17 @@ def get_posts_subreddit(subreddit,type,amount):
 @bp.route('/latest/<subreddit>', methods=['GET'])
 def get_latest_posts_from_db(subreddit):
     data = get_latest_posts_by_subreddit(subreddit)
+
+    if len(data) == 0:
+        return jsonify({"error": "No data found for this subreddit"}), 404
+    
+    return jsonify(data)
+
+# get method for retriving post numbers over x days in a given subreddit
+# connected to database
+@bp.route('/numbers/<subreddit>/<int:days>', methods=['GET'])
+def get_post_numbers_from_db(subreddit, days):
+    data = get_post_numbers_by_timeperiod(subreddit, days)
 
     if len(data) == 0:
         return jsonify({"error": "No data found for this subreddit"}), 404
