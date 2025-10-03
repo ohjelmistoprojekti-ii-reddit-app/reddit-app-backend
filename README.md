@@ -124,11 +124,13 @@ http://127.0.0.1:5000/posts/technology/hot/500
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
 
+Note that the order of fields may vary.
 ```json
 {
-  "topic_id": 1,
-  "num_posts": 22,
-  "posts": [
+  "topic_id": 3, // Indicates the rank of the topic, starting from 0 which is the most popular topic
+  "topic": ["AI", "Innovation", "Gadgets"], // Keywords representing the topic
+  "num_posts": 22, // Number of posts in this topic
+  "posts": [ // Example posts with comments
     {
       "id": "abc123",
       "subreddit": "technology",
@@ -155,14 +157,13 @@ http://127.0.0.1:5000/posts/technology/hot/500
       "upvote_ratio": 0.95
     }
   ],
-  "sentiment_values": {
+  "sentiment_values": { // Sentiment analysis results
     "average_compound": 0.25,
     "average_neg": 10.0,
     "average_neu": 75.0,
     "average_pos": 15.0,
     "comment_count": 50
   },
-  "topic": ["AI", "Innovation", "Gadgets"]
 }
 ```
 </details>
@@ -192,7 +193,56 @@ http://127.0.0.1:5000/posts/latest/technology
 
 ➡️ **Returns** 10 most popular topics, along with sample posts and sentiment analysis results, from the most recently saved batch in the database.
 
-**Response format** is similar to `/posts/{subreddit}/{type}/{amount}` method, with an additional `timestamp` and `subreddit` field for each post.
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+Note that the order of fields may vary.
+
+```json
+{
+  "_id": "64a7f8e2b4c79e6f8c9d4e1a", // MongoDB document ID
+  "topic_id": 3, // Indicates the rank of the topic, starting from 0 which is the most popular topic
+  "topic": ["AI", "Innovation", "Gadgets"], // Keywords representing the topic
+  "subreddit": "technology",
+  "num_posts": 22, // Number of posts in this topic
+  "posts": [ // Example posts with comments
+    {
+      "id": "abc123",
+      "subreddit": "technology",
+      "title": "AI model achieves new benchmark",
+      "content": "A new AI model has set a record for image recognition accuracy.",
+      "comments": [
+        "This is amazing!",
+        "Impressive results, can't wait to see it in action."
+      ],
+      "num_comments": 2,
+      "score": 150,
+      "upvote_ratio": 0.97
+    },
+    {
+      "id": "def456",
+      "subreddit": "technology",
+      "title": "Tech company launches innovative gadget",
+      "content": "The latest gadget has several cutting-edge features.",
+      "comments": [
+        "Looks promising!"
+      ],
+      "num_comments": 1,
+      "score": 120,
+      "upvote_ratio": 0.95
+    }
+  ],
+  "sentiment_values": { // Sentiment analysis results
+    "average_compound": 0.25,
+    "average_neg": 10.0,
+    "average_neu": 75.0,
+    "average_pos": 15.0,
+    "comment_count": 50
+  },
+  "timestamp": "2025-07-05T12:34:56.789Z", // Time when the data was saved to db
+}
+```
+</details>
 
 
 ### Get analyzed example comments on hot topics
