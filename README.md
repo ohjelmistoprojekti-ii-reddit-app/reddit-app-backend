@@ -125,7 +125,7 @@ http://127.0.0.1:5000/posts/technology/hot/500
 <summary><strong>Example response format</strong> (click to open)</summary>
 
 Note that the order of fields may vary.
-```json
+```jsonc
 {
   "topic_id": 3, // Indicates the rank of the topic, starting from 0 which is the most popular topic
   "topic": ["AI", "Innovation", "Gadgets"], // Keywords representing the topic
@@ -198,7 +198,7 @@ http://127.0.0.1:5000/posts/latest/technology
 
 Note that the order of fields may vary.
 
-```json
+```jsonc
 {
   "_id": "64a7f8e2b4c79e6f8c9d4e1a", // MongoDB document ID
   "topic_id": 3, // Indicates the rank of the topic, starting from 0 which is the most popular topic
