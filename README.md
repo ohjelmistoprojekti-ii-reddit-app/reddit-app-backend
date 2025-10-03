@@ -1,18 +1,40 @@
-## 💻 This is the backend service for a web application that:
-- fetches **trending Reddit topics**
-- analyzes the **sentiment** of public discussions
-- and enables **filtering topics by sentiment** (positive, negative, neutral)
+# Reddit Trend Analyzer
 
-> 🚧 This project is in early development.
+This is the **backend service** for a web application that:
+- fetches **popular Reddit posts**
+- identifies **trending topics** using topic modeling
+- analyzes **sentiment** of public discussions
+- and enables **filtering** topics by sentiment (positive, negative, neutral) and category (e.g., technology, entertainment, sports)
 
-## 🛠️ Tech Stack (Planned)
+<details open>
+<summary><strong>Table of Contents</strong></summary>
 
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🚀 Getting Started](#-getting-started)
+  - [Development Setup](#development-setup)
+  - [Connecting to Reddit API (Async PRAW)](#connecting-to-reddit-api-async-praw)
+  - [Connecting to MongoDb Atlas](#connecting-to-mongodb-atlas)
+  - [Run the demo](#run-the-demo)
+- [🌐 REST API](#-rest-api)
+  - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
+  - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
+  - [Get analyzed example comments on hot topics](#get-analyzed-example-comments-on-hot-topics)
+- [🔎 Solutions Overview](#-solutions-overview)
+- [➡️ See Also](#see-also)
+
+</details>
+
+> This project was created as part of the Software Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
+
+## 🛠️ Tech Stack
 - **Language:** [Python](https://docs.python.org/3/)
 - **Framework:** [Flask](https://flask.palletsprojects.com/en/stable/)
 - **Reddit API:** [Async PRAW](https://asyncpraw.readthedocs.io/en/stable/)
 - **Topic modeling:** [BERTopic](https://maartengr.github.io/BERTopic/index.html)
-- **Sentiment analysis:** [VADER](https://vadersentiment.readthedocs.io/en/latest/index.html) 
-- **Database:** *(TBD)*
+- **Sentiment analysis:** [VADER](https://vadersentiment.readthedocs.io/en/latest/index.html)
+- **Database:** [MongoDB](https://www.mongodb.com/)
+
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## 🚀 Getting Started
 
@@ -65,6 +87,8 @@ python demo.py
 The results will be printed in your terminal.
 
 💡 You can change the subreddit, type of posts and number of posts in `demo.py` to experiment with different data.
+
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## 🌐 REST API
 
@@ -232,6 +256,7 @@ http://127.0.0.1:5000/posts/hot/italia
 ```
 </details>
 
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## 🔎 Solutions Overview
 An overview of our solutions and approaches across the project's key areas.
@@ -367,6 +392,12 @@ The pipeline processes a predefined set of active subreddits to ensure diverse a
 **Learn more**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
 </details>
-<br>
+
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
+
+## See Also
+
+🖼️ [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend) <br>
+👥 [Organization page](https://github.com/ohjelmistoprojekti-ii-reddit-app/)
 
 > Note: ChatGPT helped phrase parts of this README.
