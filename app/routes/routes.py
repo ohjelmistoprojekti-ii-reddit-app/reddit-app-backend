@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify
 from app.models.topic_modeling import extract_topics
-from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_top_comments_by_country
+from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_for_map_feature
 from app.services.db import get_latest_posts_by_subreddit, get_post_numbers_by_timeperiod
 from app.services.reddit_api import get_posts
-from app.helpers.post_util import comments_of_top_posts
+from app.helpers.post_util import get_top_posts_with_translations
 import asyncio
 
 bp = Blueprint('posts', __name__, url_prefix='/posts')
@@ -12,7 +12,7 @@ bp = Blueprint('posts', __name__, url_prefix='/posts')
 # not connected to database
 @bp.route('/<subreddit>/<type>/<int:amount>', methods=['GET'])
 def get_posts_subreddit(subreddit,type,amount):
-    posts = asyncio.run(get_posts(subreddit,type,amount))
+    posts = asyncio.run(get_posts(subreddit,type,amount,2))
 
     topics = extract_topics(posts)
     analyzed_topics = sentiment_analysis(topics)
@@ -45,11 +45,11 @@ def get_post_numbers_from_db(subreddit, days):
 
 @bp.route('/hot/<subreddit>', methods=['GET'])
 def get_hot_comments_by_country(subreddit):
-    posts = asyncio.run(get_posts(subreddit, "hot", 10))
-    comments =  comments_of_top_posts(posts)
-    analyzed_comments = sentiment_analysis_top_comments_by_country(comments)
+    posts = asyncio.run(get_posts(subreddit, "hot", 10, 4))
+    top_posts = asyncio.run(get_top_posts_with_translations(posts))
+    analyzed_posts = sentiment_analysis_for_map_feature(top_posts)
     
-    return jsonify(analyzed_comments)
+    return jsonify(analyzed_posts)
 
 
 

@@ -1,39 +1,40 @@
-from app.helpers.text_processing import is_english, translator
+import asyncio
+import langid
+from app.helpers.text_processing import translate_into_english
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+import datetime
+
+tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-base")
+model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-base")
 
 
-def comments_of_top_posts(posts):
+def is_valid_comment(comment):
+    if not isinstance(comment, str):
+        return False
+    text = comment.strip()
+    if len(text) < 5:
+        return False
+    return True
+
+
+async def get_top_posts_with_translations(posts):
     # Sort posts by Reddit score (upvotes - downvotes), descending
-    top_posts = sorted(posts, key=lambda p: p["score"], reverse=True)
-    chosen_comments = []
+    top_posts = sorted(posts, key=lambda p: p["score"], reverse=True)[:1]
+    print("Translating posts into English..")
 
-    for post in top_posts[:1]:
-        comments = post["comments"]
-        if not comments:
-            continue
-        for comment in comments:
-            # excludes links and comments that are difficult to translate due to their length
-            if 'http' in comment.lower() or 'www' in comment.lower() or len(comment) > 500:
-                continue
-            try:
-                if is_english(comment):
-                    comment_eng = comment
-                else:
-                    comment_eng = translator(comment)
-                chosen_comments.append({
-                    "post_title": post["title"],
-                    "comment_original": comment,
-                    "comment_english": comment_eng,
-                    "score": post["score"]
-                })
-                break  # Only one comment per post
-                
-            except:
-                chosen_comments.append({
-                    "post_title": post["title"],
-                    "comment_original": comment,
-                    "comment_english": "problems with translating",
-                    "score": post["score"]
-                })
-                break
+    for i, post in enumerate(top_posts):
+        start = datetime.datetime.now()
+        post["comments_eng"] = []
+        post["title_eng"] = await translate_into_english(post["title"], tokenizer, model)
+        post["content_eng"] = await translate_into_english(post["content"], tokenizer, model)
+        
+        comment_tasks = [
+        translate_into_english(comment, tokenizer, model)
+        for comment in post["comments"][:3]
+        if is_valid_comment(comment)
+        ]
+        post["comments_eng"] = await asyncio.gather(*comment_tasks)
+        end = datetime.datetime.now()
+        print(f"Translated the post number {i+1} in {end - start}.")
 
-    return chosen_comments
+    return top_posts

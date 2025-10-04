@@ -50,16 +50,15 @@ async def process_submission(submission, semaphore):
             print(f"Error processing submission {submission.id}: {e}")
             return None
 
-# smaller value = slower fetching, but less chance of going over rate limit
-MAX_CONCURRENT_REQUESTS = 2
+# max_concurrent_requests smaller value = slower fetching, but less chance of going over rate limit
 
-async def get_posts(subreddit_name, post_type, limit_num):
+async def get_posts(subreddit_name, post_type, limit_num, max_concurrent_requests):
     start = datetime.datetime.now()
     print(f"Fetching posts..")
 
     reddit = await create_client()
     subreddit = await reddit.subreddit(subreddit_name)
-    semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS) 
+    semaphore = asyncio.Semaphore(max_concurrent_requests) 
 
     submissions = []
     async for submission in getattr(subreddit, post_type)(limit=limit_num):
