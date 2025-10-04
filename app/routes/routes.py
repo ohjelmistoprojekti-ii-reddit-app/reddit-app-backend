@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_top_comments_by_country
-from app.services.db import get_latest_posts_by_subreddit, get_post_numbers_by_timeperiod
+from app.services.db import get_latest_posts_by_subreddit, get_post_numbers_by_timeperiod, get_top_topics_by_timeperiod
 from app.services.reddit_api import get_posts
 from app.helpers.post_util import comments_of_top_posts
 import asyncio
@@ -31,7 +31,7 @@ def get_latest_posts_from_db(subreddit):
     
     return jsonify(data)
 
-# get method for retriving post numbers over x days in a given subreddit
+# get method for retrieving post numbers over x days for a given subreddit
 # connected to database
 @bp.route('/numbers/<subreddit>/<int:days>', methods=['GET'])
 def get_post_numbers_from_db(subreddit, days):
@@ -42,6 +42,16 @@ def get_post_numbers_from_db(subreddit, days):
     
     return jsonify(data)
 
+# get method for retrieving limit number of top topics and their frequency count over x days for a given subreddit
+# connected to database
+@bp.route('/numbers/topics/<subreddit>/<int:days>/<int:limit>', methods=['GET'])
+def get_top_topics_from_db(subreddit, days, limit):
+    data = get_top_topics_by_timeperiod(subreddit, days, limit)
+
+    if len(data) == 0:
+        return jsonify({"error": "No data found for this subreddit"}), 404
+    
+    return jsonify(data)
 
 @bp.route('/hot/<subreddit>', methods=['GET'])
 def get_hot_comments_by_country(subreddit):
