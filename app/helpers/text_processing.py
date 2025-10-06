@@ -80,3 +80,25 @@ async def translate_into_english(text, tokenizer, model):
     except:
         return f"Error during translation"
     
+
+# Process and clean up topic labels. This version is without LLM.
+def process_topic_label(raw_topics):
+    # Remove words that contain numbers or are very similar to each other
+    top_words = []
+    for raw_word in raw_topics:
+        if any(char.isdigit() for char in raw_word):
+            continue
+
+        is_similar = False
+        for top_word in top_words:
+            if raw_word.lower() in top_word.lower() or top_word.lower() in raw_word.lower():
+                is_similar = True
+                break
+
+        if not is_similar:
+            top_words.append(raw_word)
+
+    # Only include the top 3 words in the topic label
+    top_three = top_words[:3]
+    topic_text = " ".join(top_three)
+    return topic_text.title() # Capitalize the first letter of each word

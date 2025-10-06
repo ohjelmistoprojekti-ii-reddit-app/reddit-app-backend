@@ -3,7 +3,6 @@ import random
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis
-import datetime
 
 # used for viewing reddit posts and topic modeling results in terminal
 
@@ -28,9 +27,9 @@ async def demo():
     
     
     print(f"Amount of topics: {len(topics)}")
-    print("> EXAMPLE TOPICS::")
+    print("> EXAMPLE TOPICS:")
     for topic in analyzed_topics[:4]:
-        print(f"{topic['topic_id']}. {topic['topic']}\n")
+        print(f"{topic['topic_id']}. {topic['label']}\n")
         print(f"POSTS UNDER THIS TOPIC: {topic['num_posts']}\n")
         print("EXAMPLE POSTS:\n")
         for post in topic['posts'][:2]:

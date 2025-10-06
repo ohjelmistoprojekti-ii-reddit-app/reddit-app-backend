@@ -1,12 +1,10 @@
-from app.helpers.text_processing import preprocess
+from app.helpers.text_processing import preprocess, process_topic_label
 from app.helpers.stopwords import stopwords
 from bertopic import BERTopic
 from sklearn.feature_extraction.text import CountVectorizer
 from hdbscan import HDBSCAN
 from umap import UMAP
 import datetime
-
-# TODO: summarize the topics with AI
 
 def extract_topics(posts):
     print("Extracting topics..")
@@ -65,11 +63,13 @@ def extract_topics(posts):
     
     for topic_id, topic_posts in topic_with_posts.items():
         topic_list = model.get_topic(topic_id)
-        topic_words = [word for word, prob in topic_list[:3]]
+        topic_words = [word for word, prob in topic_list[:6]]
+        topic_label = process_topic_label(topic_words)
         
         results.append({
             "topic_id": topic_id,
             "topic": topic_words,
+            "label": topic_label,
             "num_posts": len(topic_posts), # amount of posts in this category
             "posts": topic_posts
         })

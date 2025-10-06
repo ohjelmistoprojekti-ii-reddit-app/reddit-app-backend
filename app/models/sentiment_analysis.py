@@ -39,6 +39,7 @@ def sentiment_analysis(topics):
         analyzed_topics.append({
             "topic_id": topic['topic_id'],
             "topic": topic['topic'],
+            "label": topic['label'],
             "num_posts": topic['num_posts'],
             "posts": topic['posts'][:2],
             "sentiment_values": {
