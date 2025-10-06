@@ -18,6 +18,8 @@ This is the **backend service** for a web application that:
 - [🌐 REST API](#-rest-api)
   - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
   - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
+  - [Get post number statistics from the database](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
+  - [Get top topics statistics from the database](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
   - [Get analyzed example comments on hot topics](#get-analyzed-example-comments-on-hot-topics)
 - [🔎 Solutions Overview](#-solutions-overview)
 - [➡️ See Also](#see-also)
@@ -244,6 +246,86 @@ Note that the order of fields may vary.
 ```
 </details>
 
+### Get post number statistics for a subreddit in a given timeperiod
+
+> GET /posts/numbers/{subreddit}/{days}
+
+**Description**: Retrieves daily and total post number statistics for one subreddit over a desired time period.
+
+ℹ️ This endpoint supports a post number trend chart for a selected subreddit.
+
+| Parameter | Description | Variable|
+| --------- | ----------- | ------- |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming` |
+| days | Last amount of days | int |
+
+**Example request**:
+```
+http://127.0.0.1:5000/posts/numbers/programming/7
+```
+
+➡️ **Returns** The subreddit and daily post numbers for the timestamps included in the provided time period.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+{
+    "_id:": "programming",
+    "daily": [
+      {"day": "2025-09-26", "posts":244},
+      {"day":"2025-09-27", "posts":199},
+      {"day":"2025-09-28", "posts":191},
+      {"day":"2025-09-29", "posts":183},
+      {"day":"2025-09-30", "posts":180},
+      {"day":"2025-10-01", "posts":231},
+      {"day":"2025-10-02", "posts":175}
+    ],
+    "total_posts": 1403
+}
+```
+</details>
+
+### Get top topics statistics for a subreddit in a given timeperiod
+
+> GET /posts/numbers/topics/{subreddit}/{days}/{limit}
+
+**Description**: Retrieves the most frequent topics and their count for one subreddit over a desired time period.
+
+ℹ️ This endpoint supports a topic topics trend chart for a selected subreddit.
+
+| Parameter | Description | Variable|
+| --------- | ----------- | ------- |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming` |
+| days | Last amount of days | int |
+| limit | The length of the top topics list to be displayed | int |
+
+**Example request**:
+```
+http://127.0.0.1:5000/posts/numbers/topics/programming/7/8
+```
+
+➡️ **Returns** The subreddit and the most frequent topics and their count in the provided time period.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+{
+    "_id:": "programming",
+    "topics": [
+      {"count": 7, "topic": "python"},
+      {"count": 7, "topic": "database"},
+      {"count": 6, "topic": "postgresql"},
+      {"count": 6, "topic": "postgres"},
+      {"count": 6, "topic": "ai"},
+      {"count": 6, "topic": "java"},
+      {"count": 5, "topic": "threads"},
+      {"count": 5, "topic": "rust"}
+    ]
+}
+```
+</details>
 
 ### Get analyzed hot posts from Reddit (no database)
 

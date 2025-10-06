@@ -44,6 +44,7 @@ def get_latest_posts_by_subreddit(subreddit):
     client.close()
     return sorted_data
 
+# get daily post numbers and total number of posts for a subreddit in a given timeperiod
 def get_post_numbers_by_timeperiod(subreddit, number_of_days):
     client = connect_db()
     db = client.reddit
@@ -55,7 +56,7 @@ def get_post_numbers_by_timeperiod(subreddit, number_of_days):
 
     # build aggregation pipeline 
     pipeline = [
-        # match with timestamp >= min_date
+        # match with subreddit and timestamp >= min_date
         {"$match": {
             "subreddit": subreddit,
             "timestamp": {"$gte": min_date, "$lt": max_date}
@@ -92,3 +93,51 @@ def get_post_numbers_by_timeperiod(subreddit, number_of_days):
     client.close()
     
     return post_numbers
+
+# get limit number of top topics and their frequency count for a subreddit in a given timeperiod
+def get_top_topics_by_timeperiod(subreddit, number_of_days, limit):
+    client = connect_db()
+    db = client.reddit
+    collection = db["posts"]
+
+    date_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    min_date = date_today - timedelta(days=number_of_days)
+    max_date = date_today
+
+    # build aggregation pipeline
+    pipeline = [
+        # match with subreddit and timestamp >= min_date
+        {"$match": {
+            "subreddit": subreddit,
+            "timestamp": {"$gte": min_date, "$lt": max_date}
+        }},
+
+        # unwind array into individual topic docs
+        {"$unwind": "$topic"},
+
+        # group by topic to get topic count
+        {"$group": {
+            "_id": "$topic",
+            "count": {"$sum": 1}
+        }},
+
+        # sort descending
+        {"$sort": {"count": -1}}, 
+
+        # limit number of topics returned
+        {"$limit": limit},
+
+        # group by subreddit and push topic and topic count
+        {"$group": {
+            "_id": subreddit,
+            "topics": {"$push": {
+                "topic": "$_id",
+                "count": "$count"
+            }}
+        }}
+    ]
+
+    topics_list = list(collection.aggregate(pipeline))
+    client.close()
+
+    return topics_list
