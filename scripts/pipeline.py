@@ -26,7 +26,7 @@ def pipeline(subreddits):
         print(f"===== PROCESSING SUBREDDIT: {subreddit} =====")
         
         try:
-            posts = asyncio.run(get_posts(subreddit, "hot", 500))
+            posts = asyncio.run(get_posts(subreddit, "hot", 500, 2))
         except Exception as e:
             print(f"::error::Error fetching posts: {e}")
             return
