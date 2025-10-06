@@ -34,15 +34,14 @@ def sentiment_analysis(topics):
         else:
             average_compound = average_neg = average_neu = average_pos = 0.0
 
-        # Each analyzed topic has 4 post for performance purposes
         analyzed_topics.append({
-            "id": topic['id'],
-            "raw_topic": topic['raw_topic'],
+            "topic_id": topic['topic_id'],
             "topic": topic['topic'],
+            "label": topic['label'],
             "num_posts": topic['num_posts'],
-            "posts": topic['posts'][:4],
+            "posts": topic['posts'][:6],
             "sentiment_values": {
-                "average_compound": round(average_compound, 3),
+                "average_compound": round(average_compound, 4),
                 "average_neg": round(average_neg, 3),
                 "average_neu": round(average_neu, 3),
                 "average_pos": round(average_pos, 3),

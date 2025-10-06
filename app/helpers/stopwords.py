@@ -31,7 +31,7 @@ def stopwords():
         "even", "don", "re", "repost", "aita", "ama", "new", "old", "soon", "way",
         "meirl", "irl", "thread", "reddit", "now", "got", "never", "much", "see",
         "http", "https", "www", "since", "sorry", "minutes", "minute", "sent",
-        "second", "seconds", "actual", "giphy", "gif"
+        "second", "seconds", "actual", "giphy", "gif", "ve",
     ]
 
     return stopwords
