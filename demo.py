@@ -2,15 +2,15 @@ import asyncio
 import random
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
-from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_top_comments_by_country
-from app.helpers.post_util import comments_of_top_posts
+from app.models.sentiment_analysis import sentiment_analysis
+import datetime
 
 # used for viewing reddit posts and topic modeling results in terminal
 
 async def demo():
     # get_posts(<subreddit>, <type of posts>, <number of posts>)
     # type of post can be: controversial, gilded, hot, new, rising or top
-    posts = await get_posts("all", "hot", 500)
+    posts = await get_posts("all", "hot", 500, 2)
 
     random_posts = random.sample(posts, 3)
     print("EXAMPLE POSTS:")
@@ -57,29 +57,7 @@ async def demo():
         
         else:
             print("No posts to analyze for this topic.\n")
-
-
-    # Shows JSON data returned by get_hot_comments_by_country route
-
-    subreddits = [
-    "suomi",
-    "sweden",
-    "italia",
-    "mexico",
-    "spain",
-    ]
-
-    all_comments = []
-
-    for subreddit in subreddits:
-        posts = await get_posts(subreddit, "hot", 10)
-        comments = comments_of_top_posts(posts)
-        all_comments.extend(comments)
-        
-    analyzed_comments = sentiment_analysis_top_comments_by_country(all_comments)
-
-    print(analyzed_comments)
-
+          
 
 if __name__ == "__main__":
     asyncio.run(demo())

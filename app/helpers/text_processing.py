@@ -1,6 +1,11 @@
 import re
 import langid
 from transformers import T5Tokenizer, T5ForConditionalGeneration
+import nltk
+nltk.download('punkt_tab')
+from nltk.tokenize import sent_tokenize
+import asyncio
+import torch
 
 tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-base")
 model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-base")
@@ -44,19 +49,34 @@ def is_bot(text):
     bot_text = re.compile(r'i am a bot')
     return bool(bot_text.search(clean_text))
 
-def translator(comment):
-    try:
-        language, confidence = langid.classify(comment)
-        if language not in language_names:
-            return "Unsupported language"
-        
-        original_language = language_names[language]
-        prompt = f"translate {original_language} to English: {comment}"
-        input_ids = tokenizer(prompt, return_tensors="pt").input_ids
-        outputs = model.generate(input_ids, max_length=512)
-        translation = tokenizer.decode(outputs[0], skip_special_tokens=True)
+def remove_links(text):
+    return re.sub(r'https?://\S+', '', text).strip()
 
-        return translation
+async def batch_translate(sentences, original_language, tokenizer, model):
+    prompts = [f"translate {original_language} to English: {s}" for s in sentences]
+    inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True)
+    with torch.inference_mode():  # Disable gradient tracking for faster inference
+        outputs = model.generate(**inputs, max_length=256)
+    return tokenizer.batch_decode(outputs, skip_special_tokens=True)
+
+
+async def translate_into_english(text, tokenizer, model):
+    try:
+        # Identifies the original language of the title
+        language, confidence = langid.classify(text)
+        if language == 'en':
+            return text
+        if language not in language_names:
+            return "This language is so far unsupported"
+        
+        # Identifies the name of language based on language_names dictionary
+        original_language = language_names[language]
+        text_without_links = remove_links(text)
+        sentences = sent_tokenize(text_without_links, language=language_names[language])
+
+        translations = await batch_translate(sentences, original_language, tokenizer, model)
+    
+        return " ".join(translations)
     except:
-        return "Error during translation"
+        return f"Error during translation"
     

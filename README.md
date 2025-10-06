@@ -327,13 +327,13 @@ http://127.0.0.1:5000/posts/numbers/topics/programming/7/8
 ```
 </details>
 
-### Get analyzed example comments on hot topics
+### Get analyzed hot posts from Reddit (no database)
 
 > GET /posts/hot/{subreddit}
 
-**Description**: Fetches 10 hot posts directly from Reddit. For each post, selects one comment, translates it into English, performs sentiment analysis, and returns the analyzed data. The data is not stored in the database.
+**Description**: Fetches 10 hot posts directly from Reddit, translates their title, content and comments into English, performs sentiment analysis on the comments, and returns the analyzed data. The data is not stored in the database.
 
-ℹ️ This endpoint supports the map feature on the front end. We use it primarily to fetch country-specific subreddits, but it can also be used to retrieve data about subreddits with supported languages.
+ℹ️ This endpoint supports the map feature on the front end. We use it primarily to fetch country-specific subreddits, but it can also be used to retrieve data about any subreddit with supported language.
 
 
 | Parameter | Description | Examples |
@@ -344,48 +344,38 @@ http://127.0.0.1:5000/posts/numbers/topics/programming/7/8
 ```
 http://127.0.0.1:5000/posts/hot/italia
 ```
-➡️ **Returns** For each current post that contains at least one comment, returns an example comment along with its sentiment analysis result. Posts without comments are excluded.
+➡️ **Returns** Posts with original and translated content, including sentiment analysis on comments.
 
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
 
 ```json
-{
-    "comment_eng": "thanks to all for support, I didn't feel like ahaha and I learned about the challenge",
-    "comment_original": "grazie di cuore a tutti per il supporto, non me lo aspettavo ahaha e scusatemi per lo sfogo",
-    "post_score": 480,
-    "post_title": "Ho 23 anni e NON vivo",
-    "sentiment_values": {
-      "sentiment_compound": 0.585,
-      "sentiment_neg": 0.111,
-      "sentiment_neu": 0.526,
-      "sentiment_pos": 0.363
-    }
-  },
+  [
   {
-    "comment_eng": "With this opposition, I have spent ten years in government.",
-    "comment_original": "Con questa opposizione fa tranquillissimamente dieci anni al governo",
-    "post_score": 355,
-    "post_title": "Zitta zitta la Meloni a fine mese arriva sul podio",
+    "comments": [
+      "Immagino sia successo a [Firenze](https://www.ilgiornale.it/news/cronaca-locale/vandalismo-pro-pal-firenze-blocchi-cemento-sui-binari-2546511.html), cerchiamo di mettere le fonti, thanks.",
+      "Attaccato da chi? Questo è un gesto molto pericoloso e non ha nessun senso e non c’entra niente con le manifestazioni pacifiche che ci sono state in questi giorni. Se davvero l’hanno fatto dei manifestanti vanno fermati.\nFortunatamente con tutte le telecamere di sicurezza di una stazione ferroviaria sarà facilissimo risalire ai responsabili, per caso il tuo amico ti ha detto dove è successo? Vedo che è notte quindi immagino tra ieri e oggi",
+      "“manifestanti”.."
+    ],
+    "comments_eng": [
+      "The image has been successfully re-created in [French] ( we are asking for the fonts, thanks.",
+      "Accused of who? This is a very dangerous move and there is no sense and there is no sense in the peaceful demonstrations that we are experiencing in these days. If they really did make the manifestos. Unfortunately, with all the security cameras at a railway station, it will be easy to get to the responsible, if your friend has told you where it happened? I see that I am now comparing yesterday and today.",
+      "This language is so far unsupported"
+    ],
+    "content": "So che verrò attaccato da molti, ma dopo questa ennesima bravata inizio a convincermi sempre di più che qui la situazione sta sfuggendo di mano a tutti. Volete manifestare? Bene, avete tutto il diritto di farlo, ma fatelo usando la testa e pensando alle conseguenze di ciò che fate. Proprio ieri avevo letto un post di un utente che raccontava che sua nonna è rimasta bloccata nel traffico per ore quando doveva andare a fare il suo ciclo di chemio… Una cosa a mio parere molto grave. Ieri sera ricevo questo video da un mio amico che lavora come macchinista. Questo gesto non è un gesto di protesta ma un vero e proprio attentato. Se un treno in corsa passava su quei blocchi c’era un alta possibilità che deragliasse… Risultato? Feriti e possibili morti di innocenti che stavano viaggiando su un semplice treno.",
+    "content_eng": "So he would be beaten by many, but after this latest bravery he started to convince me constantly that the situation is worse than here. Volete manifestare? Well, you have all the directions to do it, but you kill it using the test and thinking about the consequences of what you kill. Yesterday I had a post on a poet who told me that his wife was stranded in traffic for hours when she needed to take her chemotherapy... A thing that makes me feel very bad. I'll be taking this video from a friend who works as a mechanic. This gesture is not a protest gesture but a real and committed one. If a train was in the path on those blocks there was a high possibility of crashing... result? Feriti and possible deaths of innocents traveling on a simple train.",
+    "score": 579,
     "sentiment_values": {
-      "sentiment_compound": 0,
-      "sentiment_neg": 0,
-      "sentiment_neu": 1,
-      "sentiment_pos": 0
-    }
-  },
-  {
-    "comment_eng": "Is the minimum wage at 9 euros?",
-    "comment_original": "Maa il salario minimo a 9 euro? Helloo? ",
-    "post_score": 202,
-    "post_title": "Se Flotilla sarà attaccata i sindacati sono pronti allo SCIOPERO GENERALE immediato",
-    "sentiment_values": {
-      "sentiment_compound": 0,
-      "sentiment_neg": 0,
-      "sentiment_neu": 1,
-      "sentiment_pos": 0
-    }
+      "average_compound": 0.242,
+      "average_neg": 17.133,
+      "average_neu": 66.767,
+      "average_pos": 16.1
+    },
+    "title": "Manifestanti cercano di bloccare il traffico ferroviario mettendo blocchi di cemento sui binari",
+    "title_eng": "Manifestos are trying to block traffic by putting cement blocks on the bridges."
   }
+]
+  
 ```
 </details>
 
@@ -524,6 +514,13 @@ The pipeline processes a predefined set of active subreddits to ensure diverse a
 
 **Learn more**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
+</details>
+
+
+
+<details>
+<summary><strong>Language Translation</strong></summary>
+Coming soon
 </details>
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
