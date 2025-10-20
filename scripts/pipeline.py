@@ -6,7 +6,7 @@ from app.services.db import save_posts_to_database
 from app.config import Config
 
 """"
-For GitHhub Actions workflow:
+For GitHub Actions workflow:
 Fetches and analyzes posts from the given subreddits, and inserts the results into the database
 """
 
