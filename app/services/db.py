@@ -7,11 +7,17 @@ def connect_db():
     client = MongoClient(uri)
     return client
 
-def save_posts_to_database(posts_to_save, collection):
+def save_posts_to_database(posts_to_save, subreddit, collection):
     print("Inserting into database..\n")
     client = connect_db()
     db = client.reddit
     coll = db[collection]
+
+    # add timestamp and subreddit to each object for easier filtering
+    for p in posts_to_save:
+        p["timestamp"] = datetime.now(timezone.utc)
+        p["subreddit"] = subreddit
+
     coll.insert_many(posts_to_save)
     client.close()
 
@@ -54,7 +60,7 @@ def get_post_numbers_by_timeperiod(subreddit, number_of_days):
     min_date = date_today - timedelta(days=number_of_days)
     max_date = date_today
 
-    # build aggregation pipeline 
+    # build aggregation pipeline
     pipeline = [
         # match with subreddit and timestamp >= min_date
         {"$match": {

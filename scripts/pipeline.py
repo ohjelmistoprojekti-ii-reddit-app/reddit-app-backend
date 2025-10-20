@@ -1,59 +1,45 @@
 import asyncio
-import datetime
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis
 from app.services.db import save_posts_to_database
+from app.config import Config
 
-subreddits = [
-    "worldnews",
-    "technology",
-    "entertainment",
-    "movies",
-    "gaming",
-    "sports",
-    "travel",
-    "jobs",
-    "futurology",
-    "programming",
-]
+""""
+For GitHhub Actions workflow:
+Fetches and analyzes posts from the given subreddits, and inserts the results into the database
+"""
 
-# for github actions workflow
-# fetches and analyzes posts from the given subreddits
-# and inserts the results into the database
-def pipeline(subreddits):
-    for subreddit in subreddits:
-        print(f"===== PROCESSING SUBREDDIT: {subreddit} =====")
+def pipeline(subreddit):
+    print(f"===== PROCESSING SUBREDDIT: {subreddit} =====")
         
-        try:
-            posts = asyncio.run(get_posts(subreddit, "hot", 500, 2))
-        except Exception as e:
-            print(f"::error::Error fetching posts: {e}")
-            return
+    try:
+        posts = asyncio.run(get_posts(subreddit, "hot", 500, 2))
+    except Exception as e:
+        print(f"::error::Error fetching posts: {e}")
 
-        try:
-            topics = extract_topics(posts)
-        except Exception as e:
-            print(f"::error::Error extracting topics: {e}")
-            return
+    try:
+        topics = extract_topics(posts)
+    except Exception as e:
+        print(f"::error::Error extracting topics: {e}")
 
-        try:
-            analyzed_topics = sentiment_analysis(topics)
-        except Exception as e:
-            print(f"::error::Error analyzing sentiment: {e}")
-            return
+    try:
+        analyzed_topics = sentiment_analysis(topics)
+    except Exception as e:
+        print(f"::error::Error analyzing sentiment: {e}")
 
-        try:
-            # add subreddit and run timestamp to each topic for easier db filtering
-            for topic in analyzed_topics:
-                topic["timestamp"] = datetime.datetime.now(datetime.timezone.utc)
-                topic["subreddit"] = subreddit
-
-            save_posts_to_database(analyzed_topics, "posts")
-        except Exception as e:
-            print(f"::error::Error inserting into database: {e}")
+    try:
+        save_posts_to_database(analyzed_topics, subreddit, "posts")
+    except Exception as e:
+        print(f"::error::Error inserting into database: {e}")
         
-    print("Analysis complete.")
+    print("Pipeline complete.")
 
 if __name__ == "__main__":
-    pipeline(subreddits)
+    subreddits = Config.SUBREDDITS
+
+    for subreddit in subreddits:
+        try:
+            pipeline(subreddit)
+        except Exception as e:
+            print(f"::error::Pipeline failed for {subreddit}: {e}")
