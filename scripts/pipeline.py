@@ -32,8 +32,6 @@ def pipeline(subreddit):
         save_posts_to_database(analyzed_topics, subreddit, "posts")
     except Exception as e:
         print(f"::error::Error inserting into database: {e}")
-        
-    print("Pipeline complete.")
 
 if __name__ == "__main__":
     subreddits = Config.SUBREDDITS
