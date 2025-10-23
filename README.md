@@ -102,6 +102,14 @@ python run.py
 
 ✅ When everything is working, you will see this message on your console: 'Running on http://127.0.0.1:5000'
 
+**Available endpoints:**
+- [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
+- [Get available subreddits](#get-available-subreddits)
+- [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
+- [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
+- [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
+- [Get analyzed hot posts from Reddit (no database)](#get-analyzed-hot-posts-from-reddit-no-database)
+
 ### Get analyzed posts from Reddit (no database)
 
 > GET /posts/{subreddit}/{type}/{amount}
@@ -171,6 +179,38 @@ Note that the order of fields may vary.
 ```
 </details>
 
+### Get available subreddits
+> GET /subreddits
+
+**Description**: Retrieves list of subreddits that our `GitHub Actions` pipeline currently analyzes daily. The analyzed data is stored in the database and can be accessed via other endpoints.
+
+ℹ️ The subreddit options can be modified in `app/config.py` file
+
+**Example request**:
+```
+http://127.0.0.1:5000/subreddits
+```
+
+➡️ **Returns** list of subreddits that have data available in the database.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  "worldnews",
+  "technology",
+  "entertainment",
+  "movies",
+  "gaming",
+  "sports",
+  "travel",
+  "jobs",
+  "futurology",
+  "programming"
+]
+```
+</details>
 
 ### Get latest analyzed posts from the database
 
@@ -178,16 +218,13 @@ Note that the order of fields may vary.
 
 **Description**: Retrieves the latest analyzed posts for a given subreddit from the database. Similar to the `/posts/{subreddit}/{type}/{amount}` method, but fetches data from the database instead of Reddit.
 
-ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores Reddit data once a day for a **predefined** set of subreddits (see table below).
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores Reddit data once a day for a **predefined** set of subreddits.
 
-⚙️ For testing purposes, you can also run the data pipeline manually to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following command in your terminal:
-```
-python -m scripts.pipeline
-```
+You can also run the data pipeline manually to populate your database (see [Solutions overview](#-solutions-overview) and *Automated data processing* section for more details).
 
-| Parameter | Description | Options |
-| --------- | ----------- | ------- |
-| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming`
+| Parameter | Description | Examples | All options |
+| --------- | ----------- | -------- | ----------- |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment` | [Full list of available subreddits](#get-available-subreddits) |
 
 **Example request**:
 ```
@@ -484,9 +521,11 @@ We use **GitHub Actions** to automatically fetch, analyze, and store Reddit data
 - Processes content with topic modeling and sentiment analysis
 - Stores processed data in MongoDB Atlas
 
-The processed data can be accessed via the `/posts/latest/{subreddit}` endpoint (see [REST documentation](#-rest-api)).
+🔑 The processed data can be accessed via the `/posts/latest/{subreddit}` endpoint (see [REST documentation](#get-latest-analyzed-posts-from-the-database))
 
-**Subreddits**
+💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for historical analysis and tracking long-term trends.
+
+**Available subreddits**
 
 The pipeline processes a predefined set of active subreddits to ensure diverse and relevant content for our users:
 
@@ -503,11 +542,18 @@ The pipeline processes a predefined set of active subreddits to ensure diverse a
 | futurology   | Future tech and trends           |
 | programming  | Programming discussions          |
 
-⚙️ The subreddit list can be modified in `scripts/pipeline.py`
+🔑 To access subreddit options via REST, see the [Get available subreddits](#get-available-subreddits) endpoint
 
-💡 We use the data for category filtering in the frontend. We are planning to add historical analysis and trend tracking soon.
+⚙️ The subreddit list can be modified in `app/config.py`. Note that the GitHub Actions pipeline currently runs once a day, so new data may not be immediately available for all subreddits.
 
-**Benefits**
+**Run the pipeline locally**
+
+For testing purposes, you can also run the data pipeline locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following command in your terminal:
+```
+python -m scripts.pipeline
+```
+
+**Benefits of automated data processing**
 
 - Ensures consistent and reliable daily updates
 - Keeps the frontend up-to-date with fresh data
