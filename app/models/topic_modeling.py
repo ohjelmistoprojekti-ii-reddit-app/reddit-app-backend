@@ -20,7 +20,7 @@ def extract_topics(posts):
 
     # Representation model for better topic labeling
     representation_model = KeyBERTInspired(
-        top_n_words=3,
+        top_n_words=10,
         nr_repr_docs=3,
         nr_samples=300,
         nr_candidate_words=60
@@ -50,8 +50,6 @@ def extract_topics(posts):
     )
 
     topics, probs = model.fit_transform(docs)
-    
-    print(model.get_topic_info())
 
     # remove irrelevant words from the topics
     vectorizer_model = CountVectorizer(
@@ -63,6 +61,7 @@ def extract_topics(posts):
 
     model.update_topics(docs, vectorizer_model=vectorizer_model)
     # Combine similar topics
+    print(model.get_topic_info())
     model = model.reduce_topics(docs, nr_topics="auto")
     topics = model.topics_ 
     # Get presentative comments
