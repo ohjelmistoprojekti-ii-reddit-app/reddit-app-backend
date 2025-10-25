@@ -487,7 +487,7 @@ http://127.0.0.1:5000/countries/latest/italia
 
 Note that some fields may be empty depending on the post content. For example, there is often no `content` field if the post only contains an image or a link. In such cases, the `content_link` field will contain the link to the media content. Also, if the post is already in English, the `content_eng`, `title_eng` and `comments_eng` fields will be empty, as no translation is needed.
 
-Also note that the response does not contain all comments: currently, we only store a example comments per post for brevity. `Num_comments` field indicates the total amount of comments on the post.
+Also note that the response does not contain all comments: currently, we only store a few example comments per post for brevity. `Num_comments` field indicates the total amount of comments on the post.
 
 ```jsonc
 [
