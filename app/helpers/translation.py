@@ -34,7 +34,7 @@ async def translate_into_english(text, tokenizer, model):
         # Identifies the name of language based on supported_languages dictionary
         original_language = supported_languages[language]
         text_without_links = remove_links(text)
-        sentences = sent_tokenize(text_without_links, language=supported_languages[language])
+        sentences = sent_tokenize(text_without_links, language=supported_languages[language].lower())
 
         translations = await batch_translate(sentences, original_language, tokenizer, model)
     
