@@ -1,0 +1,43 @@
+def get_supported_languages():
+    # Languages that langid and Flan-t5 support
+    # Some languages, like Arabic, were removed because translations were not working well
+    language_names = {
+        "bn": "Bengali",
+        "bg": "Bulgarian",
+        "cs": "Czech",
+        "de": "German",
+        "el": "Greek",
+        "en": "English",
+        "es": "Spanish",
+        "et": "Estonian",
+        "fi": "Finnish",
+        "fr": "French",
+        "gu": "Gujarati",
+        "he": "Hebrew",
+        "hi": "Hindi",
+        "hr": "Croatian",
+        "id": "Indonesian",
+        "it": "Italian",
+        "ja": "Japanese",
+        "kn": "Kannada",
+        "ko": "Korean",
+        "ml": "Malayalam",
+        "mr": "Marathi",
+        "ms": "Malay",
+        "nl": "Dutch",
+        "no": "Norwegian",
+        "pa": "Panjabi",
+        "pl": "Polish",
+        "pt": "Portuguese",
+        "ru": "Russian",
+        "sk": "Slovak",
+        "sv": "Swedish",
+        "sw": "Swahili",
+        "ta": "Tamil",
+        "te": "Telugu",
+        "th": "Thai",
+        "tr": "Turkish",
+        "ur": "Urdu",
+    }
+
+    return language_names

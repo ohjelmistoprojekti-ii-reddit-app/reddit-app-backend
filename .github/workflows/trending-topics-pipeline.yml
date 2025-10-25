@@ -1,9 +1,10 @@
-name: Daily Reddit Analysis
+name: Trending Topics Analysis
 
 on:
   schedule:
-    - cron: '0 0 * * *' # runs every day at 00:00 UTC
-  workflow_dispatch: # allows manual start from GitHub
+    # runs once a day at 02:00 UTC | ~05:00 Finnish time
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 jobs:
   run-pipeline:
@@ -21,5 +22,5 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt
       - name: Run pipeline
-        run: python -m scripts.pipeline
+        run: python -m scripts.topics_pipeline
 

@@ -44,7 +44,9 @@ async def process_submission(submission, semaphore):
                 "num_comments": submission.num_comments,
                 "score": submission.score,
                 "upvote_ratio": submission.upvote_ratio,
-                "created_at": datetime.datetime.fromtimestamp(submission.created_utc, tz=datetime.timezone.utc)
+                "created_at": datetime.datetime.fromtimestamp(submission.created_utc, tz=datetime.timezone.utc),
+                "link": f"https://reddit.com{submission.permalink}",
+                "content_link": submission.url
             }
         except Exception as e:
             print(f"Error processing submission {submission.id}: {e}")

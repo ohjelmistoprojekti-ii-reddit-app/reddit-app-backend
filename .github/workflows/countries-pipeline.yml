@@ -1,0 +1,26 @@
+name: Country Subreddit Analysis
+
+on:
+  schedule:
+    # runs twice a day: at 05:00 UTC / ~08:00 Finnish time and at 14:00 UTC / ~17:00 Finnish time
+    - cron: '0 5 * * *'
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-country-pipeline:
+    runs-on: ubuntu-latest
+    env:
+      REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+      REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+      REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+      ATLAS_CONNECTION_STR: ${{ secrets.ATLAS_CONNECTION_STR }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run country pipeline
+        run: python -m scripts.countries_pipeline

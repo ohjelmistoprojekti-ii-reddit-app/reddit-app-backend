@@ -10,7 +10,6 @@ def sentiment_analysis(topics):
     analyzed_topics = []
     
     for topic in topics[:10]:
-                        
         total_compound = 0
         total_neg = 0
         total_neu = 0
@@ -69,7 +68,12 @@ def sentiment_analysis_for_map_feature(posts):
         total_pos = 0
         count = 0
 
-        for comment in post['comments_eng']:
+        if post['comments_eng']:
+            comments = post['comments_eng']
+        else:
+            comments = post['comments']
+
+        for comment in comments:
             sentiment = sid_obj.polarity_scores(comment)
 
             total_compound += sentiment['compound']
@@ -90,10 +94,13 @@ def sentiment_analysis_for_map_feature(posts):
             "title": post['title'],
             "title_eng": post['title_eng'],
             "content": post['content'],
+            "content_link": post['content_link'],
             "content_eng": post['content_eng'],
             "comments": post['comments'][:3],
+            "num_comments": post['num_comments'],
             "comments_eng": post['comments_eng'][:3],
             "score": post["score"],
+            "link": post["link"],
             "sentiment_values": {
                 "average_compound": round(average_compound, 3),
                 "average_neg": round(average_neg, 3),
@@ -103,4 +110,3 @@ def sentiment_analysis_for_map_feature(posts):
         })
 
     return analyzed_posts
-    

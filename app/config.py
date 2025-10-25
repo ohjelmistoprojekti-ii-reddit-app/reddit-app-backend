@@ -17,15 +17,26 @@ class Config:
         "programming",
     ]
 
-    # (Initial) subreddit options for the map feature
-    # The country codes and names are needed for the svg map in frontend
+    # Country subreddits that are analyzed daily via our GitHub Actions workflow
+    # For frontend map feature
     COUNTRY_SUBREDDITS = [
-        { "id": "FI", "name": "Finland", "subredditName": "suomi" },
-        { "id": "SE", "name": "Sweden", "subredditName": "sweden" },
-        { "id": "IT", "name": "Italy", "subredditName": "italia" },
-        { "id": "MX", "name": "Mexico", "subredditName": "mexico" },
-        { "id": "ES", "name": "Spain", "subredditName": "spain" },
-        { "id": "EG", "name": "Egypt", "subredditName": "egypt" },
-        { "id": "ZA", "name": "South Africa", "subredditName": "southafrica" },
-        { "id": "IN", "name": "India", "subredditName": "india" },
+        { "id": "FI", "name": "Finland", "subreddit": "suomi" },
+        { "id": "SE", "name": "Sweden", "subreddit": "sweden" },
+        { "id": "IT", "name": "Italy", "subreddit": "italia" },
+        { "id": "ES", "name": "Spain", "subreddit": "spain" },
+        { "id": "DE", "name": "Germany", "subreddit": "de" },
+        { "id": "PL", "name": "Poland", "subreddit": "polska" },
+        { "id": "FR", "name": "France", "subreddit": "france" },
+        { "id": "ZA", "name": "South Africa", "subreddit": "southafrica" },
+        { "id": "NG", "name": "Nigeria", "subreddit": "nigeria" },
+        { "id": "MX", "name": "Mexico", "subreddit": "mexico" },
+        { "id": "IN", "name": "India", "subreddit": "india" },
+        { "id": "CA", "name": "Canada", "subreddit": "canada" },
+        { "id": "TH", "name": "Thailand", "subreddit": "thailand" },
+        { "id": "JP", "name": "Japan", "subreddit": "japan" },
+        { "id": "BR", "name": "Brazil", "subreddit": "brazil" },
+        { "id": "KR", "name": "South Korea", "subreddit": "korea" },
+        { "id": "AU", "name": "Australia", "subreddit": "australia" },
+        { "id": "AR", "name": "Argentina", "subreddit": "argentina" },
+        { "id": "CN", "name": "China", "subreddit": "china" },
     ]
