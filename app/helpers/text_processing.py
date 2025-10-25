@@ -20,7 +20,6 @@ def preprocess(posts):
                 post_parts.append(comment)
 
         combined = " ".join(post_parts) # join a post into one string, separated by spaces
-        combined = combined.lower() # change all texts into lowercase
         combined = remove_links(combined) # remove links
         processed.append(combined)
     
@@ -56,3 +55,72 @@ def process_topic_label(raw_topics):
     top_three = top_words[:3]
     topic_text = " ".join(top_three)
     return topic_text.title() # Capitalize the first letter of each word
+
+def clean_text(text):
+    text = re.sub(r'#+.*', '', text)  # remove markdown headers
+    text = re.sub(r'https?://\S+', '', text)  # remove URLs
+    text = re.sub(r'\([^)]*\)', '', text)  # remove parentheticals
+    text = re.sub(r'[^a-zA-Z0-9.,!?\'\"\-\s]', '', text)  # remove emojis, junk
+    text = re.sub(r'\s+', ' ', text)  # normalize whitespace
+    return text.strip()
+
+def smart_split(text, tokenizer, max_tokens):
+    sentences = re.split(r'(?<=[.!?]) +', text)
+    chunks, current_chunk = [], []
+    current_len = 0
+
+    for sentence in sentences:
+        tokens = tokenizer.encode(sentence, add_special_tokens=False)
+        if current_len + len(tokens) <= max_tokens:
+            current_chunk.append(sentence)
+            current_len += len(tokens)
+        else:
+            if current_chunk:
+                chunks.append(" ".join(current_chunk).strip())
+            current_chunk = [sentence]
+            current_len = len(tokens)
+
+    if current_chunk:
+        chunks.append(" ".join(current_chunk).strip())
+
+    return chunks
+
+def filter_factual_sentences(text):
+    
+    # Split into sentences
+    sentences = re.split(r'(?<=[.!?]) +', text)
+
+    # Filter out non-factual ones
+    factual_sentences = [s for s in sentences if is_factual_sentence(s)]
+
+    return " ".join(factual_sentences)
+
+def is_factual_sentence(sentence):
+    sentence = sentence.strip().lower()
+
+    # Rule 1: Remove questions
+    if sentence.endswith('?'):
+        return False
+
+    # Rule 2: Minimum word count
+    if len(sentence.split()) < 8:
+        return False
+
+    # Rule 3: Opinion/slang keywords 
+    opinion_keywords = [
+        'i think', 'i hope', 'lol', 'lmao', 'omg', 'swear', 'crazy',
+    'obviously', 'seriously', 'guys', 'like the movies', 'wtf',
+    'dolla', 'dumb', 'they don\'t care', 'no proof', 'they figure they\'ll be dead',
+    'just saying', 'idk', 'literally', 'basically', 'my opinion', 'sounds like',
+    'that’s why', 'i feel like', 'imo', 'smh', 'bruh', 'fuck'
+    ]
+    
+    for phrase in opinion_keywords:
+        if phrase in sentence:
+            return False
+
+    # Rule 4: Remove sentences with multiple exclamation or question marks  
+    if sentence.count("!") > 2 or sentence.count("?") > 2:
+        return False
+
+    return True
