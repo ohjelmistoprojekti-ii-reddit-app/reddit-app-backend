@@ -13,5 +13,6 @@ def get_subreddits():
 # Get subreddit options for the map feature
 @bp.route('/countries', methods=['GET'])
 def get_countries():
-    country_subreddits = Config.COUNTRY_SUBREDDITS
+    country_subreddits = Config.COUNTRY_SUBREDDITS_SET1 + Config.COUNTRY_SUBREDDITS_SET2
+
     return jsonify(country_subreddits)

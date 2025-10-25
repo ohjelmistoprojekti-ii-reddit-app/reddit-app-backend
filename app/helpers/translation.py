@@ -43,3 +43,41 @@ async def translate_into_english(text, tokenizer, model):
         print(f"Translation error: {e}\nText snippet: {text[:200]}...")
         return text
     
+
+def translate_label_or_topic(label=None, topic=None, tokenizer=tokenizer, model=model):
+    supported_languages = get_supported_languages()
+
+    if not label and not topic:
+        return None
+
+    text = label if label else " ".join(topic)
+
+    try:
+        # Identifies the original language of the label or topic
+        language, confidence = langid.classify(text)
+        print(f"[DEBUG] Topic: {text} | lang: {language} | conf: {confidence}")
+        
+        if language == 'en':
+            return label if label else topic
+        if language not in supported_languages:
+            return "Unsupported language"
+        
+        # Identifies the name of language based on supported_languages dictionary
+        original_language = supported_languages[language]
+
+        prompts = f"Translate from {original_language} to English: {text}"
+    
+        inputs = tokenizer(prompts, return_tensors="pt", padding=True, truncation=True)
+        with torch.inference_mode():
+            outputs = model.generate(**inputs, max_length=50)
+
+        translations = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+
+        if label:
+            return translations[0]
+        elif topic:
+            return translations[0].split()
+        
+    except Exception as e:
+        print(f"Translation error with label or topic: {e}\nText: {label if label else topic}...")
+        return label if label else topic

@@ -1,12 +1,11 @@
 import re
-import langid
 
-def is_english(text):
-    try:
-        language, confidence = langid.classify(text)
-        return language == 'en'
-    except:
-        return False
+# def is_english(text):
+#     try:
+#         language, confidence = langid.classify(text)
+#         return language == 'en'
+#     except:
+#         return False
 
 def preprocess(posts):
     processed = []
@@ -16,7 +15,7 @@ def preprocess(posts):
 
         for comment in post['comments']:
             # leave out too short comments
-            if comment and len(comment) > 10 and is_english(comment):
+            if comment and len(comment) > 10:
                 post_parts.append(comment)
 
         combined = " ".join(post_parts) # join a post into one string, separated by spaces

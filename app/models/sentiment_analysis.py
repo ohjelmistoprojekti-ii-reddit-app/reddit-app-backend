@@ -17,7 +17,12 @@ def sentiment_analysis(topics):
         count = 0
 
         for post in topic['posts']:
-            for comment in post['comments']:
+            if post.get('comments_eng'):
+                comments = post['comments_eng']
+            else:
+                comments = post['comments']
+
+            for comment in comments:
                 sentiment = sid_obj.polarity_scores(comment)
 
                 total_compound += sentiment['compound']

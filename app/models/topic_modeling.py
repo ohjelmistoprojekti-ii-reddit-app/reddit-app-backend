@@ -1,10 +1,19 @@
 from app.helpers.text_processing import preprocess, process_topic_label
-from app.helpers.stopwords import stopwords
+#from app.helpers.stopwords import stopwords
 from bertopic import BERTopic
 from sklearn.feature_extraction.text import CountVectorizer
 from hdbscan import HDBSCAN
 from umap import UMAP
 import datetime
+import stopwordsiso
+
+# Combine stopwords from supported languages
+# Using set because it automatically removes duplicates
+combined_stopwords = set()
+all_langs = stopwordsiso.langs()
+for lang in all_langs:
+    combined_stopwords.update(stopwordsiso.stopwords(lang))
+combined_stopwords = list(combined_stopwords) # Convert to list for CountVectorizer
 
 def extract_topics(posts):
     print("Extracting topics..")
@@ -28,7 +37,7 @@ def extract_topics(posts):
     )
 
     model = BERTopic(
-        embedding_model="all-MiniLM-L12-v2", # hugging face sentence transformers model for embedding
+        embedding_model="paraphrase-multilingual-MiniLM-L12-v2",
         hdbscan_model=hdbscan_model,
         umap_model=umap_model
     )
@@ -36,7 +45,7 @@ def extract_topics(posts):
     topics, probs = model.fit_transform(docs)
 
     # remove irrelevant words from the topics
-    vectorizer_model = CountVectorizer(stop_words=stopwords())
+    vectorizer_model = CountVectorizer(stop_words=combined_stopwords)
     model.update_topics(docs, vectorizer_model=vectorizer_model)
 
     # print(model.get_topic_info())
