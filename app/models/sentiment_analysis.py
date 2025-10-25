@@ -67,7 +67,12 @@ def sentiment_analysis_for_map_feature(posts):
         total_pos = 0
         count = 0
 
-        for comment in post['comments_eng']:
+        if post['comments_eng']:
+            comments = post['comments_eng']
+        else:
+            comments = post['comments']
+
+        for comment in comments:
             sentiment = sid_obj.polarity_scores(comment)
 
             total_compound += sentiment['compound']

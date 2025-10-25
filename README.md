@@ -485,10 +485,14 @@ http://127.0.0.1:5000/countries/latest/italia
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
 
-```json
+Note that some fields may be empty depending on the post content. For example, there is often no `content` field if the post only contains an image or a link. In such cases, the `content_link` field will contain the link to the media content. Also, if the post is already in English, the `content_eng`, `title_eng` and `comments_eng` fields will be empty, as no translation is needed.
+
+Also note that the response does not contain all comments: currently, we only store a example comments per post for brevity. `Num_comments` field indicates the total amount of comments on the post.
+
+```jsonc
 [
   {
-    "_id": "68fb7be963ba754836af3d90",
+    "_id": "68fb7be963ba754836af3d90", // MongoDB document ID
     "country_id": "IT",
     "country_name": "Italy",
     "posts": [
@@ -505,9 +509,9 @@ http://127.0.0.1:5000/countries/latest/italia
         ],
         "content": "",
         "content_eng": "",
-        "content_link": "https://i.redd.it/elut1z7650xf1.jpeg",
-        "link": "https://reddit.com/r/Italia/comments/1oeq9gq/il_dualismo_di_reddit/",
-        "num_comments": 25,
+        "content_link": "https://i.redd.it/elut1z7650xf1.jpeg", // Link to the post's media content (e.g., image or link to a news article). If the post has no additional media content, this matches 'link'
+        "link": "https://reddit.com/r/Italia/comments/1oeq9gq/il_dualismo_di_reddit/", // Direct link to the original Reddit post
+        "num_comments": 25, // Total amount of comments on the post
         "score": 219,
         "sentiment_values": {
           "average_compound": 0.001,
@@ -520,7 +524,7 @@ http://127.0.0.1:5000/countries/latest/italia
       },
     ],
     "subreddit": "italia",
-    "timestamp": "Fri, 24 Oct 2025 13:15:21 GMT"
+    "timestamp": "Fri, 24 Oct 2025 13:15:21 GMT" // Time when the data was saved to db
   }
 ]
 ```
@@ -620,6 +624,8 @@ We use typical threshold values to determine sentiments:
 
 <details>
 <summary><strong>Automated Data Processing</strong></summary>
+
+⚠️ Our Actions pipeline is under active development, and this section does not currently cover all features. Updates coming soon.
 
 We use **GitHub Actions** to automatically fetch, analyze, and store Reddit data once per day. The pipeline currently only runs for a predefined set of subreddits (see table below).
 
