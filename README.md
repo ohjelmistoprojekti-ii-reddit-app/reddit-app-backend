@@ -104,11 +104,13 @@ python run.py
 
 **Available endpoints:**
 - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
-- [Get available subreddits](#get-available-subreddits)
+- [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
+- [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
 - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
 - [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
 - [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
-- [Get analyzed hot posts from Reddit (no database)](#get-analyzed-hot-posts-from-reddit-no-database)
+- [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
+- [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-subreddit-data-from-the-database)
 
 ### Get analyzed posts from Reddit (no database)
 
@@ -179,10 +181,10 @@ Note that the order of fields may vary.
 ```
 </details>
 
-### Get available subreddits
+### Get subreddits that have data available in the database
 > GET /subreddits
 
-**Description**: Retrieves list of subreddits that our `GitHub Actions` pipeline currently analyzes daily. The analyzed data is stored in the database and can be accessed via other endpoints.
+**Description**: Retrieves list of subreddits that our `GitHub Actions` pipeline currently analyzes regularly. The analyzed data is stored in the database and can be accessed via `/posts/latest/{subreddit}` endpoint.
 
 ℹ️ The subreddit options can be modified in `app/config.py` file
 
@@ -216,15 +218,13 @@ http://127.0.0.1:5000/subreddits
 
 > GET /posts/latest/{subreddit}
 
-**Description**: Retrieves the latest analyzed posts for a given subreddit from the database. Similar to the `/posts/{subreddit}/{type}/{amount}` method, but fetches data from the database instead of Reddit.
+**Description**: Retrieves the latest analyzed data for a given subreddit from the database. The analysis process for these subreddits includes topic modeling and sentiment analysis on comments.
 
-ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores Reddit data once a day for a **predefined** set of subreddits.
-
-You can also run the data pipeline manually to populate your database (see [Solutions overview](#-solutions-overview) and *Automated data processing* section for more details).
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores Reddit data once a day for a **predefined** set of subreddits. To learn more about the automated pipeline, see the [Solutions Overview](#-solutions-overview) section.
 
 | Parameter | Description | Examples | All options |
 | --------- | ----------- | -------- | ----------- |
-| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment` | [Full list of available subreddits](#get-available-subreddits) |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment` | [Get all available subreddits](#get-subreddits-that-have-data-available-in-the-database) |
 
 **Example request**:
 ```
@@ -366,7 +366,7 @@ http://127.0.0.1:5000/posts/numbers/topics/programming/7/8
 ```
 </details>
 
-### Get analyzed hot posts from Reddit (no database)
+### Get translated and analyzed posts from Reddit (no database)
 
 > GET /posts/hot/{subreddit}
 
@@ -389,7 +389,7 @@ http://127.0.0.1:5000/posts/hot/italia
 <summary><strong>Example response format</strong> (click to open)</summary>
 
 ```json
-  [
+[
   {
     "comments": [
       "Immagino sia successo a [Firenze](https://www.ilgiornale.it/news/cronaca-locale/vandalismo-pro-pal-firenze-blocchi-cemento-sui-binari-2546511.html), cerchiamo di mettere le fonti, thanks.",
@@ -415,6 +415,114 @@ http://127.0.0.1:5000/posts/hot/italia
   }
 ]
   
+```
+</details>
+
+### Get country subreddits that have data available in the database
+> GET /subreddits/countries
+
+**Description**: Retrieves list of country subreddits that our `GitHub Actions` pipeline currently analyzes regularly. The analyzed data is stored in the database and can be accessed via `/countries/latest/{subreddit}` endpoint.
+
+**Example request**:
+```
+http://127.0.0.1:5000/subreddits/countries
+```
+
+➡️ **Returns** list of country subreddits that have data available in the database.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  {
+    "id": "FI",
+    "name": "Finland",
+    "subreddit": "suomi"
+  },
+  {
+    "id": "SE",
+    "name": "Sweden",
+    "subreddit": "sweden"
+  },
+  {
+    "id": "IT",
+    "name": "Italy",
+    "subreddit": "italia"
+  },
+  {
+    "id": "MX",
+    "name": "Mexico",
+    "subreddit": "mexico"
+  },
+  {
+    "id": "ES",
+    "name": "Spain",
+    "subreddit": "spain"
+  },
+]
+```
+</details>
+
+### Get latest analyzed country data from the database
+> GET /countries/latest/{subreddit}
+
+**Description**: Retrieves the latest analyzed posts for a given country subreddit from the database. The analysis process for country subreddits includes translation to English (if needed), and sentiment analysis on comments.
+
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, translates, analyzes, and stores country subreddit data twice a day for a **predefined** set of country subreddits.
+
+| Parameter | Description | Examples | All options |
+| --------- | ----------- | -------- | ----------- |
+| subreddit | name of country subreddit from the predefined options | `suomi`, `sweden`, `italia`, `mexico`, `spain` | [Get all available country subreddits](#get-country-subreddits-that-have-data-available-in-the-database) |
+
+**Example request**:
+```
+http://127.0.0.1:5000/countries/latest/italia
+```
+
+➡️ **Returns** latest analyzed posts for the country subreddit from the most recently saved batch in the database. The response includes original and translated content, along with sentiment analysis on comments.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  {
+    "_id": "68fb7be963ba754836af3d90",
+    "country_id": "IT",
+    "country_name": "Italy",
+    "posts": [
+      {
+        "comments": [
+          "Non c’è nulla di più pericoloso del revisionismo storico. O dei “se solo…”. Che lo si faccia con buone, o cattive intenzioni, poco cambia. Un mondo violento crea leader violenti. Al giorno d’oggi, questi personaggi sarebbero CEO di aziende altisonanti. E finirebbero per influenzare molte più vite. Non si muore solo di spada.",
+          "Khan, Cesare, Alessandro Magno, tutti genocidi assassini... infatti se non ci fossero stati il mondo antico avrebbe vissuto nel pacifismo più totale",
+          "Non c’è rosa senza spine. Chi ha cambiato il mondo o voleva cambiarlo ha spento vite. \nEgel diceva “laddove non ci sono guerre la storia presenta pagine bianche”.\nLa penso uguale."
+        ],
+        "comments_eng": [
+          "There is nothing more dangerous than historical revisionism. Or they say \"it's just...\". If you do it with good, or strong, intentions, it changes. A violent world creates violent leaders. Today, these people would be CEOs of high-growth companies. And they would end up influencing many more lives. Not only do you die.",
+          "Khan, Cesare, Alessandro Magno, all the genocidal assassins ... in fact if we had not existed the ancient world would have lived in the most total peace",
+          "There is no rose without a spine. Whoever changed the world or wanted to change it spent his life. Egel said “there are no wars, the story of the white pages.” I think it's a universal idea."
+        ],
+        "content": "",
+        "content_eng": "",
+        "content_link": "https://i.redd.it/elut1z7650xf1.jpeg",
+        "link": "https://reddit.com/r/Italia/comments/1oeq9gq/il_dualismo_di_reddit/",
+        "num_comments": 25,
+        "score": 219,
+        "sentiment_values": {
+          "average_compound": 0.001,
+          "average_neg": 9.45,
+          "average_neu": 78.15,
+          "average_pos": 12.4
+        },
+        "title": "Il dualismo di reddit",
+        "title_eng": "Reddit's Duality"
+      },
+    ],
+    "subreddit": "italia",
+    "timestamp": "Fri, 24 Oct 2025 13:15:21 GMT"
+  }
+]
 ```
 </details>
 
@@ -550,7 +658,7 @@ The pipeline processes a predefined set of active subreddits to ensure diverse a
 
 For testing purposes, you can also run the data pipeline locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following command in your terminal:
 ```
-python -m scripts.pipeline
+python -m scripts.topics_pipeline
 ```
 
 **Benefits of automated data processing**
@@ -563,8 +671,6 @@ python -m scripts.pipeline
 **Learn more**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
 </details>
-
-
 
 <details>
 <summary><strong>Language Translation</strong></summary>

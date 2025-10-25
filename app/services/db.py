@@ -22,11 +22,12 @@ def save_posts_to_database(posts_to_save, subreddit, collection):
     client.close()
 
 # get most recently analyzed data for a given subreddit
-def get_latest_posts_by_subreddit(subreddit):
+def get_latest_posts_by_subreddit(subreddit, collection):
     client = connect_db()
     db = client.reddit
+    coll = db[collection]
 
-    latest_entry = db.posts.find_one(
+    latest_entry = coll.find_one(
         {"subreddit": subreddit},
         sort=[("timestamp", DESCENDING)]
     )
@@ -37,7 +38,7 @@ def get_latest_posts_by_subreddit(subreddit):
     latest_timestamp = latest_entry["timestamp"]
 
     # get all posts with the most recent timestamp for a given subreddit
-    data = list(db.posts.find({
+    data = list(coll.find({
         "timestamp": latest_timestamp,
         "subreddit": subreddit
     }))
@@ -45,10 +46,12 @@ def get_latest_posts_by_subreddit(subreddit):
     for post in data:
         post["_id"] = str(post["_id"])  # convert Mongo ObjectId to string
 
-    sorted_data = sorted(data, key=lambda k: k['topic_id'])
+    sorted_data = []
+    if collection == 'posts':
+        sorted_data = sorted(data, key=lambda k: k['topic_id'])
 
     client.close()
-    return sorted_data
+    return sorted_data if sorted_data else data
 
 # get daily post numbers and total number of posts for a subreddit in a given timeperiod
 def get_post_numbers_by_timeperiod(subreddit, number_of_days):

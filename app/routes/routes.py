@@ -24,7 +24,7 @@ def get_posts_subreddit(subreddit,type,amount):
 # connected to database
 @bp.route('/latest/<subreddit>', methods=['GET'])
 def get_latest_posts_from_db(subreddit):
-    data = get_latest_posts_by_subreddit(subreddit)
+    data = get_latest_posts_by_subreddit(subreddit, "posts")
 
     if len(data) == 0:
         return jsonify({"error": "No data found for this subreddit"}), 404
