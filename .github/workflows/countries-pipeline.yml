@@ -2,9 +2,8 @@ name: Country Subreddit Analysis
 
 on:
   schedule:
-    # runs twice a day: at 05:00 UTC / ~08:00 Finnish time and at 14:00 UTC / ~17:00 Finnish time
-    - cron: '0 5 * * *'
-    - cron: '0 14 * * *'
+    # runs once a day at 06:00 UTC / ~09:00 Finnish time
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 jobs:
