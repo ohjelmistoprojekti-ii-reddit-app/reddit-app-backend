@@ -9,7 +9,7 @@ def sentiment_analysis(topics):
     sid_obj = SentimentIntensityAnalyzer()
     analyzed_topics = []
     
-    for topic in topics[:10]:
+    for topic in topics:
         total_compound = 0
         total_neg = 0
         total_neu = 0

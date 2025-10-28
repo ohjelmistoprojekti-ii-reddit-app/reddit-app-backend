@@ -61,13 +61,11 @@ def extract_topics(posts):
 
     model.update_topics(docs, vectorizer_model=vectorizer_model)
     # Combine similar topics
-    print(model.get_topic_info())
+
     model = model.reduce_topics(docs, nr_topics="auto")
     topics = model.topics_ 
     # Get presentative comments
     rep_docs_by_topic = model.get_representative_docs()
-
-    print(model.get_topic_info())
 
     topic_with_posts = {}
     results = []
@@ -78,14 +76,16 @@ def extract_topics(posts):
         # initialize a list to store posts for each topic
         topic_with_posts[topic_id] = []
 
-
     for i, topic_id in enumerate(topics):
         if topic_id == -1:
             continue
         # link post to the right topic
         topic_with_posts[topic_id].append(posts[i])
 
-    for topic_id, topic_posts in topic_with_posts.items():
+    # Sort topics by topic id and keep only the top 12
+    sorted_topics = sorted(topic_with_posts.items(), key=lambda k: k[0])[:12]
+
+    for topic_id, topic_posts in sorted_topics:
         topic_list = model.get_topic(topic_id)
         if not isinstance(topic_list, list):
             continue
@@ -97,7 +97,6 @@ def extract_topics(posts):
             representative_docs = [doc for doc in rep_docs_by_topic[topic_id]]
             # for i, doc in enumerate (representative_docs):
             #     print(str(i) + '.' + doc)
-        
         else:
             representative_docs = []
             print(f"No representative docs for topic {topic_id}")
@@ -108,7 +107,6 @@ def extract_topics(posts):
         else:
             summarized_text = "No representative documents available for this topic."
         
-    
         results.append({
             "topic_id": topic_id,
             "topic": topic_words,
@@ -121,5 +119,5 @@ def extract_topics(posts):
     end = datetime.datetime.now()
     print(f"Topic modeling and summarizing duration: {end - start}")
 
-    return sorted(results, key=lambda k: k['topic_id'])
+    return results
 
