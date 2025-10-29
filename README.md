@@ -16,14 +16,11 @@ This is the **backend service** for a web application that:
   - [Connecting to MongoDb Atlas](#connecting-to-mongodb-atlas)
   - [Run the demo](#run-the-demo)
 - [🌐 REST API](#-rest-api)
-  - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
-  - [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
-  - [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
-  - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
-  - [Get post number statistics from the database](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
-  - [Get top topics statistics from the database](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
-  - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
-  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
+  - [Trending topics analysis endpoints](#trending-topics-analysis-endpoints)
+  - [Statistics endpoints](#statistics-endpoints)
+  - [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
+  - [Subscriptions endpoints](#subscriptions-endpoints)
+  - [No database endpoints](#no-database-endpoints)
 - [🔎 Solutions Overview](#-solutions-overview)
 - [➡️ See Also](#see-also)
 
@@ -106,14 +103,27 @@ python run.py
 ✅ When everything is working, you will see this message on your console: 'Running on http://127.0.0.1:5000'
 
 **Available endpoints:**
-- [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
-- [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
-- [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
-- [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
-- [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
-- [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
-- [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
-- [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
+- [No database endpoints](#no-database-endpoints)
+  - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
+  - [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
+- [Trending topics analysis endpoints](#trending-topics-analysis-endpoints)
+  - [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
+  - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
+- [Statistics endpoints](#statistics-endpoints)
+  - [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
+  - [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
+- [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
+  - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
+  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
+- [Subscriptions endpoints](#subscriptions-endpoints)
+  - [Get list of active subscriptions by analysis type](#get-list-of-active-subscriptions-by-analysis-type)
+  - [Get subscriptions for current user](#get-subscription-for-current-user)
+  - [Add new subscription for current user](#add-new-subscriptions-for-current-user)
+  - [Deactivate subscription for current user](#deactivate-subscription-for-current-user)
+  - [Get latest analyzed data for current user's active subscription](#get-latest-analyzed-data-for-current-users-active-subscription)
+
+
+## No database endpoints
 
 ### Get analyzed posts from Reddit (no database)
 
@@ -183,6 +193,61 @@ Note that the order of fields may vary.
 }
 ```
 </details>
+
+### Get translated and analyzed posts from Reddit (no database)
+
+> GET /posts/hot/{subreddit}
+
+**Description**: Fetches 10 hot posts directly from Reddit, translates their title, content and comments into English, performs sentiment analysis on the comments, and returns the analyzed data. The data is not stored in the database.
+
+ℹ️ This endpoint supports the map feature on the front end. We use it primarily to fetch country-specific subreddits, but it can also be used to retrieve data about any subreddit with supported language.
+
+
+| Parameter | Description | Examples |
+| --------- | ----------- | ------- |
+| subreddit | [name of any subreddit](https://www.reddit.com/r/ListOfSubreddits/wiki/listofsubreddits/) | `suomi`, `sweden`, `spain`, `mexico`, `italia`
+
+**Example request**:
+```
+http://127.0.0.1:5000/posts/hot/italia
+```
+➡️ **Returns** Posts with original and translated content, including sentiment analysis on comments.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  {
+    "comments": [
+      "Immagino sia successo a [Firenze](https://www.ilgiornale.it/news/cronaca-locale/vandalismo-pro-pal-firenze-blocchi-cemento-sui-binari-2546511.html), cerchiamo di mettere le fonti, thanks.",
+      "Attaccato da chi? Questo è un gesto molto pericoloso e non ha nessun senso e non c’entra niente con le manifestazioni pacifiche che ci sono state in questi giorni. Se davvero l’hanno fatto dei manifestanti vanno fermati.\nFortunatamente con tutte le telecamere di sicurezza di una stazione ferroviaria sarà facilissimo risalire ai responsabili, per caso il tuo amico ti ha detto dove è successo? Vedo che è notte quindi immagino tra ieri e oggi",
+      "“manifestanti”.."
+    ],
+    "comments_eng": [
+      "The image has been successfully re-created in [French] ( we are asking for the fonts, thanks.",
+      "Accused of who? This is a very dangerous move and there is no sense and there is no sense in the peaceful demonstrations that we are experiencing in these days. If they really did make the manifestos. Unfortunately, with all the security cameras at a railway station, it will be easy to get to the responsible, if your friend has told you where it happened? I see that I am now comparing yesterday and today.",
+      "This language is so far unsupported"
+    ],
+    "content": "So che verrò attaccato da molti, ma dopo questa ennesima bravata inizio a convincermi sempre di più che qui la situazione sta sfuggendo di mano a tutti. Volete manifestare? Bene, avete tutto il diritto di farlo, ma fatelo usando la testa e pensando alle conseguenze di ciò che fate. Proprio ieri avevo letto un post di un utente che raccontava che sua nonna è rimasta bloccata nel traffico per ore quando doveva andare a fare il suo ciclo di chemio… Una cosa a mio parere molto grave. Ieri sera ricevo questo video da un mio amico che lavora come macchinista. Questo gesto non è un gesto di protesta ma un vero e proprio attentato. Se un treno in corsa passava su quei blocchi c’era un alta possibilità che deragliasse… Risultato? Feriti e possibili morti di innocenti che stavano viaggiando su un semplice treno.",
+    "content_eng": "So he would be beaten by many, but after this latest bravery he started to convince me constantly that the situation is worse than here. Volete manifestare? Well, you have all the directions to do it, but you kill it using the test and thinking about the consequences of what you kill. Yesterday I had a post on a poet who told me that his wife was stranded in traffic for hours when she needed to take her chemotherapy... A thing that makes me feel very bad. I'll be taking this video from a friend who works as a mechanic. This gesture is not a protest gesture but a real and committed one. If a train was in the path on those blocks there was a high possibility of crashing... result? Feriti and possible deaths of innocents traveling on a simple train.",
+    "score": 579,
+    "sentiment_values": {
+      "average_compound": 0.242,
+      "average_neg": 17.133,
+      "average_neu": 66.767,
+      "average_pos": 16.1
+    },
+    "title": "Manifestanti cercano di bloccare il traffico ferroviario mettendo blocchi di cemento sui binari",
+    "title_eng": "Manifestos are trying to block traffic by putting cement blocks on the bridges."
+  }
+]
+  
+```
+</details>
+
+
+## Trending topics analysis endpoints
 
 ### Get subreddits that have data available in the database
 > GET /subreddits
@@ -282,6 +347,8 @@ Note that the order of fields may vary.
 ```
 </details>
 
+## Statistics endpoints
+
 ### Get post number statistics for a subreddit in a given timeperiod
 
 > GET /posts/numbers/{subreddit}/{days}
@@ -363,57 +430,8 @@ http://127.0.0.1:5000/posts/numbers/topics/programming/7/8
 ```
 </details>
 
-### Get translated and analyzed posts from Reddit (no database)
 
-> GET /posts/hot/{subreddit}
-
-**Description**: Fetches 10 hot posts directly from Reddit, translates their title, content and comments into English, performs sentiment analysis on the comments, and returns the analyzed data. The data is not stored in the database.
-
-ℹ️ This endpoint supports the map feature on the front end. We use it primarily to fetch country-specific subreddits, but it can also be used to retrieve data about any subreddit with supported language.
-
-
-| Parameter | Description | Examples |
-| --------- | ----------- | ------- |
-| subreddit | [name of any subreddit](https://www.reddit.com/r/ListOfSubreddits/wiki/listofsubreddits/) | `suomi`, `sweden`, `spain`, `mexico`, `italia`
-
-**Example request**:
-```
-http://127.0.0.1:5000/posts/hot/italia
-```
-➡️ **Returns** Posts with original and translated content, including sentiment analysis on comments.
-
-<details>
-<summary><strong>Example response format</strong> (click to open)</summary>
-
-```json
-[
-  {
-    "comments": [
-      "Immagino sia successo a [Firenze](https://www.ilgiornale.it/news/cronaca-locale/vandalismo-pro-pal-firenze-blocchi-cemento-sui-binari-2546511.html), cerchiamo di mettere le fonti, thanks.",
-      "Attaccato da chi? Questo è un gesto molto pericoloso e non ha nessun senso e non c’entra niente con le manifestazioni pacifiche che ci sono state in questi giorni. Se davvero l’hanno fatto dei manifestanti vanno fermati.\nFortunatamente con tutte le telecamere di sicurezza di una stazione ferroviaria sarà facilissimo risalire ai responsabili, per caso il tuo amico ti ha detto dove è successo? Vedo che è notte quindi immagino tra ieri e oggi",
-      "“manifestanti”.."
-    ],
-    "comments_eng": [
-      "The image has been successfully re-created in [French] ( we are asking for the fonts, thanks.",
-      "Accused of who? This is a very dangerous move and there is no sense and there is no sense in the peaceful demonstrations that we are experiencing in these days. If they really did make the manifestos. Unfortunately, with all the security cameras at a railway station, it will be easy to get to the responsible, if your friend has told you where it happened? I see that I am now comparing yesterday and today.",
-      "This language is so far unsupported"
-    ],
-    "content": "So che verrò attaccato da molti, ma dopo questa ennesima bravata inizio a convincermi sempre di più che qui la situazione sta sfuggendo di mano a tutti. Volete manifestare? Bene, avete tutto il diritto di farlo, ma fatelo usando la testa e pensando alle conseguenze di ciò che fate. Proprio ieri avevo letto un post di un utente che raccontava che sua nonna è rimasta bloccata nel traffico per ore quando doveva andare a fare il suo ciclo di chemio… Una cosa a mio parere molto grave. Ieri sera ricevo questo video da un mio amico che lavora come macchinista. Questo gesto non è un gesto di protesta ma un vero e proprio attentato. Se un treno in corsa passava su quei blocchi c’era un alta possibilità che deragliasse… Risultato? Feriti e possibili morti di innocenti che stavano viaggiando su un semplice treno.",
-    "content_eng": "So he would be beaten by many, but after this latest bravery he started to convince me constantly that the situation is worse than here. Volete manifestare? Well, you have all the directions to do it, but you kill it using the test and thinking about the consequences of what you kill. Yesterday I had a post on a poet who told me that his wife was stranded in traffic for hours when she needed to take her chemotherapy... A thing that makes me feel very bad. I'll be taking this video from a friend who works as a mechanic. This gesture is not a protest gesture but a real and committed one. If a train was in the path on those blocks there was a high possibility of crashing... result? Feriti and possible deaths of innocents traveling on a simple train.",
-    "score": 579,
-    "sentiment_values": {
-      "average_compound": 0.242,
-      "average_neg": 17.133,
-      "average_neu": 66.767,
-      "average_pos": 16.1
-    },
-    "title": "Manifestanti cercano di bloccare il traffico ferroviario mettendo blocchi di cemento sui binari",
-    "title_eng": "Manifestos are trying to block traffic by putting cement blocks on the bridges."
-  }
-]
-  
-```
-</details>
+## Country subreddit analysis endpoints
 
 ### Get country subreddits that have data available in the database
 > GET /subreddits/countries
@@ -527,6 +545,162 @@ Also note that the response does not contain all comments: currently, we only st
 ```
 </details>
 
+## Subscriptions endpoints
+
+### Get list of active subscriptions by analysis type
+> GET /subscriptions/type/{type}
+
+**Description**: Retrieves list of active subscriptions for a given analysis type.
+
+| Parameter | Description | Options |
+| --------- | ----------- | ------- |
+| type | analysis type | `topics`, `posts` |
+
+**Example request**:
+```
+http://127.0.0.1:5000/subscriptions/type/topics
+```
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  {
+    "subreddit": "python",
+    "analysis_type": "topics",
+    "active": true,
+    "subscribers": ["user1", "user2", "..."],
+    "created_at": "2025-10-01T10:00:00.000Z"
+  },
+  {
+    "subreddit": "stocks",
+    "analysis_type": "topics",
+    "active": true,
+    "subscribers": ["user3", "user4", "..."],
+    "created_at": "2025-10-02T11:30:00.000Z"
+  }
+]
+```
+</details>
+
+### Get subscriptions for current user
+> GET /subscriptions/current-user
+
+**Description**: Retrieves active subscriptions for the current user.
+
+**Example request**:
+```
+http://127.0.0.1:5000/subscriptions/current-user
+```
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  {
+    "subreddit": "python",
+    "analysis_type": "topics",
+    "active": true,
+    "subscribers": ["user1", "user2", "..."],
+    "created_at": "2025-10-01T10:00:00.000Z"
+  }
+]
+```
+</details>
+
+### Create a new subscription for current user
+> POST /subscriptions/current-user/add/{subreddit}/{type}
+
+**Description**: Creates a subscription for the current user with the preferred analysis type. If the same subreddit already has active subscriptions with the same analysis type, user is added to the subscribers list; if not, a new subscription is created. Currently, user can only subscribe to **1 subreddit at a time**.
+
+| Parameter | Description | Examples |
+| --------- | ----------- | -------- |
+| subreddit | **any subreddit** with preferably 1000+ weekly contributions<br>- the existence of the subreddit is checked in the save process | `baseball`, `python`, `stocks`, `lifeprotips` |
+| type | **analysis type**<br>- topic analysis identifies recurring themes within the subreddit, and analyses overall sentiment of the topic<br>- posts analysis focuses on individual posts and their sentiment | `topics`, `posts` |
+
+**Example request**:
+```
+http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
+```
+
+### Deactivate subscription for current user
+> PATCH /subscriptions/current-user/deactivate
+
+**Description**: Deactivates the current user's active subscription. The active subscription is checked in the process and not required as a parameter. If no active subscription exists, an error message is returned.
+
+**Example request**:
+```
+http://127.0.0.1:5000/subscriptions/current-user/deactivate
+```
+
+### Get latest analyzed data for current user's subscription
+> GET /subscriptions/current-user/latest-analyzed
+
+**Description**: Retrieves the latest analyzed data for the current user's active subscription. The active subscription is checked in the process and not required as a parameter. If no active subscription exists, an error message is returned.
+
+**Example request**:
+```
+http://127.0.0.1:5000/subscriptions/current-user/latest-analyzed
+```
+
+The response format depends on the analysis type of the subscription (topics or posts):
+
+<details>
+<summary><strong>Example response format for 'topics' analysis type</strong></summary>
+
+```jsonc
+[
+  {
+    "topic_id": 1,
+    "topic": ["python", "code", "programming", "..."],
+    "label": "Python Code Programming",
+    "subreddit": "python",
+    "summary": "Discussion about Python programming, coding tips, and best practices.",
+    "num_posts": 30,
+    "posts": [ ... ],
+    "sentiment_values": { ... },
+    "timestamp": "2025-10-05T14:23:45.678Z"
+  }
+]
+```
+</details>
+
+<details>
+<summary><strong>Example response format for 'posts' analysis type</strong></summary>
+
+```jsonc
+[
+  {
+    "subreddit": "python",
+    "posts": [
+      {
+        "id": "ghijk789",
+        "title": "How to optimize Python code for performance?",
+        "content": "Looking for tips on optimizing Python code for better performance.",
+        "content_link": "https://reddit.com/r/python/...", // Link to the post's media content. If the post has no additional media content, this matches 'link'
+        "link": "https://reddit.com/r/python/...", // Direct link to the original Reddit post
+        "comments": [
+          "Consider using built-in libraries for efficiency."
+        ],
+        "num_comments": 20,
+        "score": 85,
+        "upvote_ratio": 0.95,
+        "sentiment_values": {
+          "average_compound": 0.15,
+          "average_neg": 5.0,
+          "average_neu": 80.0,
+          "average_pos": 15.0
+        }
+      }
+    ],
+    "timestamp": "2025-10-05T14:23:45.678Z"
+  }
+]
+```
+</details>
+
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## 🔎 Solutions Overview
@@ -626,14 +800,6 @@ We use **GitHub Actions** to automate data processing and keep our database up-t
 
 ### 1. Trending topics analysis
 
-```mermaid
-flowchart LR
-    A[Fetch Reddit Data<br>via Async PRAW] --> B[Topic Modeling<br>with BERTopic]
-    B --> C[Summarize Topics<br>with Flan-T5]
-    C --> D[Sentiment Analysis<br>with VADER]
-    D --> E[Store Results<br>in MongoDB Atlas]
-```
-
 This pipeline:
 - Fetches 500 posts with a few example comments from a predefined set of subreddits
 - Processes the data with topic modeling, summarization and sentiment analysis
@@ -647,13 +813,6 @@ This pipeline:
 
 
 ### 2. Country subreddit analysis
-
-```mermaid
-flowchart LR
-    A[Fetch Data<br>via Async PRAW] --> B[Translate to English<br>with Flan-T5]
-    B --> C[Sentiment Analysis<br>with VADER]
-    C --> D[Store Results<br>in MongoDB Atlas]
-```
 
 This pipeline:
 - Fetches 10 hot posts with comments from a predefined set of country subreddits
@@ -682,7 +841,7 @@ python -m scripts.topics_pipeline
 python -m scripts.countries_pipeline
 ```
 
-⏳ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
+⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
 
 ### Why automate data processing?
 
