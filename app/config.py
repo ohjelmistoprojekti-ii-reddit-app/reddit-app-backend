@@ -1,20 +1,14 @@
 class Config:
-    # What is this key for? Remove if not necessary
-    SECRET_KEY = 'your-secret-key'
 
     # Subreddits that are analyzed daily via our GitHub Actions workflow
     # Also used for filtering categories in frontend
     SUBREDDITS = [
         "worldnews",
         "technology",
+        "science",
         "entertainment",
-        "movies",
-        "gaming",
         "sports",
-        "travel",
-        "jobs",
-        "futurology",
-        "programming",
+        "programming"
     ]
 
     # Country subreddits that are analyzed daily via our GitHub Actions workflow
