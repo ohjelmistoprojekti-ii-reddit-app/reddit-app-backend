@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_for_map_feature
-from app.services.db import get_latest_posts_by_subreddit, get_post_numbers_by_timeperiod, get_top_topics_by_timeperiod
+from app.services.db import get_latest_data_by_subreddit, get_post_numbers_by_timeperiod, get_top_topics_by_timeperiod
 from app.services.reddit_api import get_posts
 from app.helpers.post_util import get_top_posts_with_translations
 import asyncio
@@ -24,9 +24,9 @@ def get_posts_subreddit(subreddit,type,amount):
 # connected to database
 @bp.route('/latest/<subreddit>', methods=['GET'])
 def get_latest_posts_from_db(subreddit):
-    data = get_latest_posts_by_subreddit(subreddit, "posts")
+    data = get_latest_data_by_subreddit("posts", subreddit)
 
-    if len(data) == 0:
+    if not data:
         return jsonify({"error": "No data found for this subreddit"}), 404
     
     return jsonify(data)
