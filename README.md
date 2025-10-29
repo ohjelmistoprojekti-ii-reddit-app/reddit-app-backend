@@ -23,7 +23,7 @@ This is the **backend service** for a web application that:
   - [Get post number statistics from the database](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
   - [Get top topics statistics from the database](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
   - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
-  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-subreddit-data-from-the-database)
+  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
 - [🔎 Solutions Overview](#-solutions-overview)
 - [➡️ See Also](#see-also)
 
@@ -113,7 +113,7 @@ python run.py
 - [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
 - [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
 - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
-- [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-subreddit-data-from-the-database)
+- [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
 
 ### Get analyzed posts from Reddit (no database)
 
@@ -292,7 +292,7 @@ Note that the order of fields may vary.
 
 | Parameter | Description | Variable|
 | --------- | ----------- | ------- |
-| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming` |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `science`, `programming` |
 | days | Last amount of days | int |
 
 **Example request**:
@@ -332,7 +332,7 @@ http://127.0.0.1:5000/posts/numbers/programming/7
 
 | Parameter | Description | Variable|
 | --------- | ----------- | ------- |
-| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming` |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `science`, `programming` |
 | days | Last amount of days | int |
 | limit | The length of the top topics list to be displayed | int |
 
@@ -626,19 +626,18 @@ We use **GitHub Actions** to automate data processing and keep our database up-t
 
 ### 1. Trending topics analysis
 
+```mermaid
+flowchart LR
+    A[Fetch Reddit Data<br>via Async PRAW] --> B[Topic Modeling<br>with BERTopic]
+    B --> C[Summarize Topics<br>with Flan-T5]
+    C --> D[Sentiment Analysis<br>with VADER]
+    D --> E[Store Results<br>in MongoDB Atlas]
+```
+
 This pipeline:
 - Fetches 500 posts with a few example comments from a predefined set of subreddits
 - Processes the data with topic modeling, summarization and sentiment analysis
 - Stores the processed data in MongoDB Atlas
-
-```mermaid
-flowchart LR
-    A([🕒  Actions Trigger]) --> B([📥  Fetch Reddit Data<br>via Async PRAW])
-    B --> C([🗂️  Topic Modeling<br>with BERTopic])
-    C --> D([📝  Summarize Topics<br>with Flan-T5])
-    D --> E([💬  Sentiment Analysis<br>with VADER])
-    E --> F([💾  Store Results<br>in MongoDB Atlas])
-```
 
 💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for tracking long-term trends.
 
@@ -649,18 +648,18 @@ flowchart LR
 
 ### 2. Country subreddit analysis
 
+```mermaid
+flowchart LR
+    A[Fetch Data<br>via Async PRAW] --> B[Translate to English<br>with Flan-T5]
+    B --> C[Sentiment Analysis<br>with VADER]
+    C --> D[Store Results<br>in MongoDB Atlas]
+```
+
 This pipeline:
 - Fetches 10 hot posts with comments from a predefined set of country subreddits
 - Processes the data with language translation (if needed) and sentiment analysis
 - Stores the processed data in MongoDB Atlas
-
-```mermaid
-flowchart LR
-    A([🕒  Actions Trigger]) --> B([📥  Fetch Data<br>via Async PRAW])
-    B --> C([🌐  Translate to English<br>with Flan-T5])
-    C --> D([💬  Sentiment Analysis<br>with VADER])
-    D --> E([💾  Store Results<br>in MongoDB Atlas])
-```
+  
 💡 We use the data in a SVG map in frontend to visualize popular discussions and their sentiment across different countries and regions.
 
 **🔗 API Access**
