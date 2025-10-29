@@ -23,7 +23,7 @@ def summarize_texts(texts, summarizer):
             + chunk
         )
         try:
-            summary = summarizer(prompt, max_length=100, min_length=10, do_sample=False)
+            summary = summarizer(prompt, max_new_tokens=100, min_length=10, do_sample=False)
             partial_summaries.append(summary[0]['summary_text'])
         except Exception as e:
             print(f"Error summarizing chunk: {e}")
@@ -39,7 +39,7 @@ def summarize_texts(texts, summarizer):
     )
 
     try:
-        final_summary = summarizer(final_prompt, max_length=300, min_length=80, do_sample=False)
+        final_summary = summarizer(final_prompt, max_new_tokens=300, min_length=80, do_sample=False)
         final_text = re.sub(r'\s+', ' ', final_summary[0]['summary_text']).strip()
         return final_text
     except Exception as e:
