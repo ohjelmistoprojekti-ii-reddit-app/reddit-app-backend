@@ -28,9 +28,8 @@ This is the **backend service** for a web application that:
 - [➡️ See Also](#see-also)
 
 </details>
-<br>
 
-> This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
+> Note! This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
 
 ## 🛠️ Tech Stack
 - **Language:** [Python](https://docs.python.org/3/)
@@ -539,7 +538,7 @@ An overview of our solutions and approaches across the project's key areas.
 
 There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern framework that leverages advanced sentence-transformer models and statistical techniques to uncover easily interpretable topics.
 
-<strong>Core concepts of BERTopic</strong>
+### Core concepts of BERTopic
 
 BERTopic is highly flexible, allowing you to customize or swap components based on your needs. For example, you can control how broad or detailed the topic groups are by changing the clustering model, or generate embeddings using almost any sentence-transformer model. Adjusting different components can have a significant impact on the results.
 
@@ -554,8 +553,7 @@ Here are the key steps in BERTopic and the models we used for each stage:
 4. **Topic representation**: Labels each cluster with a few key words summarizing its main theme.
     - Model: BERTopic default, [c-TF-IDF](https://maartengr.github.io/BERTopic/getting_started/ctfidf/ctfidf.html)
 
-
-<strong>Why use BERTopic on Reddit data?</strong>
+### Why use BERTopic on Reddit data?
 
 Reddit discussions are already organized into different topics as **subreddits**, so someone might wonder why we would use topic modeling on Reddit at all. We wanted to take our Reddit analysis a step further and see if recurring themes or topics could be found *within* large subreddits.
 
@@ -626,16 +624,8 @@ We use **GitHub Actions** to automate data processing and keep our database up-t
 
 ### 1. Trending topics analysis
 
-```mermaid
-flowchart LR
-    A[Fetch Reddit Data<br>via Async PRAW] --> B[Topic Modeling<br>with BERTopic]
-    B --> C[Summarize Topics<br>with Flan-T5]
-    C --> D[Sentiment Analysis<br>with VADER]
-    D --> E[Store Results<br>in MongoDB Atlas]
-```
-
 This pipeline:
-- Fetches 500 posts with a few example comments from a predefined set of subreddits
+- Fetches 500 popular posts with example comments per subreddit
 - Processes the data with topic modeling, summarization and sentiment analysis
 - Stores the processed data in MongoDB Atlas
 
@@ -645,18 +635,10 @@ This pipeline:
 - The subreddit options for this pipeline can be accessed via [`/subreddits`](#get-subreddits-that-have-data-available-in-the-database) endpoint
 - The processed data can be accessed via [`/posts/latest/{subreddit}`](#get-latest-analyzed-posts-from-the-database) endpoint
 
-
 ### 2. Country subreddit analysis
 
-```mermaid
-flowchart LR
-    A[Fetch Data<br>via Async PRAW] --> B[Translate to English<br>with Flan-T5]
-    B --> C[Sentiment Analysis<br>with VADER]
-    C --> D[Store Results<br>in MongoDB Atlas]
-```
-
 This pipeline:
-- Fetches 10 hot posts with comments from a predefined set of country subreddits
+- Fetches 10 popular posts with example comments per subreddit
 - Processes the data with language translation (if needed) and sentiment analysis
 - Stores the processed data in MongoDB Atlas
   
@@ -682,7 +664,7 @@ python -m scripts.topics_pipeline
 python -m scripts.countries_pipeline
 ```
 
-⏳ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
+⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
 
 ### Why automate data processing?
 
