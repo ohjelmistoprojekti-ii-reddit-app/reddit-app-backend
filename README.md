@@ -17,10 +17,13 @@ This is the **backend service** for a web application that:
   - [Run the demo](#run-the-demo)
 - [🌐 REST API](#-rest-api)
   - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
+  - [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
+  - [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
   - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
   - [Get post number statistics from the database](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
   - [Get top topics statistics from the database](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
-  - [Get analyzed example comments on hot topics](#get-analyzed-example-comments-on-hot-topics)
+  - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
+  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-subreddit-data-from-the-database)
 - [🔎 Solutions Overview](#-solutions-overview)
 - [➡️ See Also](#see-also)
 
@@ -186,8 +189,6 @@ Note that the order of fields may vary.
 
 **Description**: Retrieves list of subreddits that our `GitHub Actions` pipeline currently analyzes regularly. The analyzed data is stored in the database and can be accessed via `/posts/latest/{subreddit}` endpoint.
 
-ℹ️ The subreddit options can be modified in `app/config.py` file
-
 **Example request**:
 ```
 http://127.0.0.1:5000/subreddits
@@ -203,12 +204,8 @@ http://127.0.0.1:5000/subreddits
   "worldnews",
   "technology",
   "entertainment",
-  "movies",
-  "gaming",
   "sports",
-  "travel",
-  "jobs",
-  "futurology",
+  "science",
   "programming"
 ]
 ```
@@ -421,7 +418,7 @@ http://127.0.0.1:5000/posts/hot/italia
 ### Get country subreddits that have data available in the database
 > GET /subreddits/countries
 
-**Description**: Retrieves list of country subreddits that our `GitHub Actions` pipeline currently analyzes regularly. The analyzed data is stored in the database and can be accessed via `/countries/latest/{subreddit}` endpoint.
+**Description**: Retrieves list of country subreddits that our `GitHub Actions` pipeline currently analyzes daily. The analyzed data is stored in the database and can be accessed via `/countries/latest/{subreddit}` endpoint.
 
 **Example request**:
 ```
@@ -469,7 +466,7 @@ http://127.0.0.1:5000/subreddits/countries
 
 **Description**: Retrieves the latest analyzed posts for a given country subreddit from the database. The analysis process for country subreddits includes translation to English (if needed), and sentiment analysis on comments.
 
-ℹ️ Our `GitHub Actions` pipeline automatically fetches, translates, analyzes, and stores country subreddit data twice a day for a **predefined** set of country subreddits.
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, translates, analyzes, and stores country subreddit data every day for a **predefined** set of country subreddits. To read more about the automated pipeline, see the [Solutions Overview](#-solutions-overview) section.
 
 | Parameter | Description | Examples | All options |
 | --------- | ----------- | -------- | ----------- |
@@ -623,58 +620,80 @@ We use typical threshold values to determine sentiments:
 </details>
 
 <details>
-<summary><strong>Automated Data Processing</strong></summary>
+<summary><strong>GitHub Actions</strong></summary>
 
-⚠️ Our Actions pipeline is under active development, and this section does not currently cover all features. Updates coming soon.
+We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have two main pipelines that run daily:
 
-We use **GitHub Actions** to automatically fetch, analyze, and store Reddit data once per day. The pipeline currently only runs for a predefined set of subreddits (see table below).
+### 1. Trending topics analysis
 
-**How it works**
-- Runs daily at midnight (UTC) or on demand via manual trigger
-- Fetches ~500 hot posts and up to 8 comments per subreddit
-- Processes content with topic modeling and sentiment analysis
-- Stores processed data in MongoDB Atlas
+This pipeline:
+- Fetches 500 posts with a few example comments from a predefined set of subreddits
+- Processes the data with topic modeling, summarization and sentiment analysis
+- Stores the processed data in MongoDB Atlas
 
-🔑 The processed data can be accessed via the `/posts/latest/{subreddit}` endpoint (see [REST documentation](#get-latest-analyzed-posts-from-the-database))
+```mermaid
+flowchart LR
+    A([🕒  Actions Trigger]) --> B([📥  Fetch Reddit Data<br>via Async PRAW])
+    B --> C([🗂️  Topic Modeling<br>with BERTopic])
+    C --> D([📝  Summarize Topics<br>with Flan-T5])
+    D --> E([💬  Sentiment Analysis<br>with VADER])
+    E --> F([💾  Store Results<br>in MongoDB Atlas])
+```
 
-💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for historical analysis and tracking long-term trends.
+💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for tracking long-term trends.
 
-**Available subreddits**
+**🔗 API Access**
+- The subreddit options for this pipeline can be accessed via [`/subreddits`](#get-subreddits-that-have-data-available-in-the-database) endpoint
+- The processed data can be accessed via [`/posts/latest/{subreddit}`](#get-latest-analyzed-posts-from-the-database) endpoint
 
-The pipeline processes a predefined set of active subreddits to ensure diverse and relevant content for our users:
 
-| Subreddit    | Description                      |
-|--------------|----------------------------------|
-| worldnews    | International news               |
-| technology   | Tech news and discussions        |
-| entertainment| Entertainment & pop culture      |
-| movies       | Movie news, reviews & discussions|
-| gaming       | Game news, reviews & discussions |
-| sports       | Sports news and updates          |
-| travel       | Travel tips and stories          |
-| jobs         | Careers and job postings         |
-| futurology   | Future tech and trends           |
-| programming  | Programming discussions          |
+### 2. Country subreddit analysis
 
-🔑 To access subreddit options via REST, see the [Get available subreddits](#get-available-subreddits) endpoint
+This pipeline:
+- Fetches 10 hot posts with comments from a predefined set of country subreddits
+- Processes the data with language translation (if needed) and sentiment analysis
+- Stores the processed data in MongoDB Atlas
 
-⚙️ The subreddit list can be modified in `app/config.py`. Note that the GitHub Actions pipeline currently runs once a day, so new data may not be immediately available for all subreddits.
+```mermaid
+flowchart LR
+    A([🕒  Actions Trigger]) --> B([📥  Fetch Data<br>via Async PRAW])
+    B --> C([🌐  Translate to English<br>with Flan-T5])
+    C --> D([💬  Sentiment Analysis<br>with VADER])
+    D --> E([💾  Store Results<br>in MongoDB Atlas])
+```
+💡 We use the data in a SVG map in frontend to visualize popular discussions and their sentiment across different countries and regions.
 
-**Run the pipeline locally**
+**🔗 API Access**
+- The subreddit options for this pipeline can be accessed via [`/subreddits/countries`](#get-country-subreddits-that-have-data-available-in-the-database) endpoint
+- The processed data can be accessed via [`/countries/latest/{subreddit}`](#get-latest-analyzed-country-data-from-the-database) endpoint
 
-For testing purposes, you can also run the data pipeline locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following command in your terminal:
+### Configuring subreddit options
+
+The subreddit options for both pipelines can be modified in `app/config.py`. Note that the GitHub Actions pipelines currently run once a day, so new data may not be immediately available for all subreddits. To get immediate analysis results, you can run the data pipeline manually via command line (see instructions below) or via GitHub Actions.
+
+### Run the pipelines locally
+
+For testing purposes, you can also run the data pipelines locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following commands in your terminal:
+1. Trending topics analysis pipeline:
 ```
 python -m scripts.topics_pipeline
 ```
+2. Country subreddit analysis pipeline:
+```
+python -m scripts.countries_pipeline
+```
 
-**Benefits of automated data processing**
+⏳ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
 
+### Why automate data processing?
+
+Automating data processing with GitHub Actions offers several benefits:
 - Ensures consistent and reliable daily updates
 - Keeps the frontend up-to-date with fresh data
 - Enables historical analysis and long-term trend tracking
 - Delivers fast frontend performance without waiting for real-time processing
 
-**Learn more**
+**Learn more:**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
 </details>
 
