@@ -36,10 +36,10 @@ def save_data_to_database(data_to_save, collection):
 
 """
 Get data from collection based on filter dict
-Example usage: get_data_from_db_collection("example_collection", {"id": 123}) -> returns all documents with id 123
+Example usage: fetch_collection_data("example_collection", {"id": 123}) -> returns all documents with id 123
 If no filter is provided, returns all data in the collection
 """
-def get_data_from_db_collection(collection, filter={}):
+def fetch_collection_data(collection, filter={}):
     client, db = connect_db()
     try:
         coll = db[collection]
@@ -58,10 +58,10 @@ def get_data_from_db_collection(collection, filter={}):
 
 """
 Update data in collection based on filter and update dict
-Example usage: update_data_in_db_collection("example_collection", {"id": 123}, {"$set": {"active": False}})
+Example usage: update_collection_data("example_collection", {"id": 123}, {"$set": {"active": False}})
 -> updates all documents with id 123, setting their 'active' field to False
 """
-def update_data_in_db_collection(collection, filter, update):
+def update_collection_data(collection, filter, update):
     print("Updating data in database..")
     client, db = connect_db()
     try:
@@ -76,7 +76,7 @@ def update_data_in_db_collection(collection, filter, update):
 
 
 # Get most recently added data for a given subreddit
-def get_latest_data_by_subreddit(collection, subreddit):
+def get_latest_data_by_subreddit(collection, subreddit, type=None):
     client, db = connect_db()
     
     try:
@@ -87,7 +87,11 @@ def get_latest_data_by_subreddit(collection, subreddit):
             return []
 
         latest_timestamp = latest_entry["timestamp"]
-        data = list(coll.find({"subreddit": subreddit, "timestamp": latest_timestamp}))
+        query = {"subreddit": subreddit, "timestamp": latest_timestamp}
+        if type:
+            query["type"] = type
+
+        data = list(coll.find(query))
 
         for post in data:
             post["_id"] = str(post["_id"])  # convert Mongo ObjectId to string

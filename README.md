@@ -596,6 +596,7 @@ http://127.0.0.1:5000/subscriptions/current-user
 
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
+The subscribers list includes the current user. Users are represented by user ids (string).
 
 ```json
 [
@@ -603,7 +604,7 @@ http://127.0.0.1:5000/subscriptions/current-user
     "subreddit": "python",
     "analysis_type": "topics",
     "active": true,
-    "subscribers": ["user1", "user2", "..."],
+    "subscribers": ["current-user", "user2", "..."],
     "created_at": "2025-10-01T10:00:00.000Z"
   }
 ]
@@ -654,14 +655,34 @@ The response format depends on the analysis type of the subscription (topics or 
 [
   {
     "topic_id": 1,
-    "topic": ["python", "code", "programming", "..."],
-    "label": "Python Code Programming",
+    "type": "topics", // Subscription analysis type
+    "topic": ["python", "code", "programming", "..."], // Keywords representing the topic
+    "label": "Python Code Programming", // Official topic label
     "subreddit": "python",
-    "summary": "Discussion about Python programming, coding tips, and best practices.",
+    "summary": "Discussion about Python programming, coding tips, and best practices.", // LLM generated summary of the topic
     "num_posts": 30,
-    "posts": [ ... ],
-    "sentiment_values": { ... },
-    "timestamp": "2025-10-05T14:23:45.678Z"
+    "posts": [
+      {
+        "id": "lmnop456",
+        "subreddit": "python",
+        "title": "Best practices for writing clean Python code",
+        "content": "Looking for tips on how to write clean and maintainable Python code",
+        "comments": [
+          "Use meaningful variable names"
+        ],
+        "num_comments": 15,
+        "score": 95,
+        "upvote_ratio": 0.92
+      }
+    ],
+    "sentiment_values": {
+      "average_compound": 0.12,
+      "average_neg": 8.0,
+      "average_neu": 78.0,
+      "average_pos": 14.0,
+      "comment_count": 30
+    },
+    "timestamp": "2025-10-05T14:23:45.678Z" // Time when the data was saved to db
   }
 ]
 ```
@@ -674,6 +695,7 @@ The response format depends on the analysis type of the subscription (topics or 
 [
   {
     "subreddit": "python",
+    "type": "posts", // Subscription analysis type
     "posts": [
       {
         "id": "ghijk789",
@@ -695,7 +717,7 @@ The response format depends on the analysis type of the subscription (topics or 
         }
       }
     ],
-    "timestamp": "2025-10-05T14:23:45.678Z"
+    "timestamp": "2025-10-05T14:23:45.678Z" // Time when the data was saved to db
   }
 ]
 ```

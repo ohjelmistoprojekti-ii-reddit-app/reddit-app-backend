@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_for_posts
-from app.services.db import get_data_from_db_collection, save_data_to_database
+from app.services.db import fetch_collection_data, save_data_to_database
 import sys
 
 """
@@ -29,8 +29,9 @@ def subscriptions_pipeline(subreddit, amount_of_posts, topics):
         for item in results:
             item["subreddit"] = subreddit  # add subreddit info to each topic
             item["timestamp"] = datetime.now(timezone.utc)  # add timestamp to each topic
+            item["type"] = "topics" if topics else "posts"
 
-        save_data_to_database(results, "analyzed_subscriptions")
+        save_data_to_database(results, "subscriptions_data")
         return True
     except Exception as e:
         print(f"::error::Pipeline failed for '{subreddit}': {e}")
@@ -39,7 +40,7 @@ def subscriptions_pipeline(subreddit, amount_of_posts, topics):
 if __name__ == "__main__":
     # Fetch active subscriptions from the database
     if '--posts' in sys.argv:
-        subscriptions = get_data_from_db_collection("subscriptions", {"analysis_type": "posts", "active": True})
+        subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "posts", "active": True})
         amount_of_posts = 10
         topics=False
 
@@ -47,7 +48,7 @@ if __name__ == "__main__":
             print("No active subscriptions found for posts analysis.")
             sys.exit(0)
     elif '--topics' in sys.argv:
-        subscriptions = get_data_from_db_collection("subscriptions", {"analysis_type": "topics", "active": True})
+        subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "topics", "active": True})
         amount_of_posts = 500
         topics=True
 
