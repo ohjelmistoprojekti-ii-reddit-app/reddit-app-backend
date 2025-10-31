@@ -117,10 +117,10 @@ python run.py
   - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
 - [Subscriptions endpoints](#subscriptions-endpoints)
   - [Get list of active subscriptions by analysis type](#get-list-of-active-subscriptions-by-analysis-type)
-  - [Get subscriptions for current user](#get-subscription-for-current-user)
-  - [Add new subscription for current user](#add-new-subscriptions-for-current-user)
+  - [Get subscriptions for current user](#get-subscriptions-for-current-user)
+  - [Create a new subscription for current user](#create-a-new-subscription-for-current-user)
   - [Deactivate subscription for current user](#deactivate-subscription-for-current-user)
-  - [Get latest analyzed data for current user's active subscription](#get-latest-analyzed-data-for-current-users-active-subscription)
+  - [Get latest analyzed data for current user's active subscription](#get-latest-analyzed-data-for-current-user-s-active-subscription)
 
 
 ## No database endpoints
@@ -646,7 +646,7 @@ http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
 http://127.0.0.1:5000/subscriptions/current-user/deactivate
 ```
 
-### Get latest analyzed data for current user's subscription
+### Get latest analyzed data for current user's active subscription
 > GET /subscriptions/current-user/latest-analyzed
 
 🔑 **This endpoint requires user authentication**
