@@ -2,16 +2,11 @@ import asyncio
 from datetime import datetime, timezone
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
-from app.helpers.auth_utils import get_current_user_id
+from app.helpers.auth_utils import get_current_user_id, convert_userids_to_string
 from app.services.db import fetch_collection_data, get_latest_data_by_subreddit, save_data_to_database, update_collection_data
 from app.services.reddit_api import get_posts
 
 bp = Blueprint('subscriptions', __name__, url_prefix='/subscriptions')
-
-def convert_userids_to_string(data):
-    for entry in data:
-        entry["subscribers"] = [str(sub_id) for sub_id in entry["subscribers"]]
-    return data
 
 
 # Get list of active subscriptions by analysis type
@@ -176,4 +171,9 @@ def get_latest_analyzed_subscription_data_for_current_user():
     if not data:
         return jsonify({"error": "No analyzed data found for this subreddit"}), 404
     
-    return jsonify(data)
+    organized_data = {
+        "type": type,
+        "data": data
+    }
+
+    return jsonify(organized_data)

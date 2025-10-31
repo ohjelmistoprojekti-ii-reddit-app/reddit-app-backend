@@ -8,7 +8,7 @@ import sys
 
 """
 For GitHub Actions workflow:
-Fetches and analyzes posts from the given subreddits, and inserts the results into the database
+Fetches and analyzes posts from the subreddits with active subscriptions, and inserts the results into the database
 
 Usage: python -m scripts.subscriptions_pipeline --posts | --topics
 """
@@ -27,9 +27,9 @@ def subscriptions_pipeline(subreddit, amount_of_posts, topics):
             results = [{"posts": analyzed_data}]
 
         for item in results:
-            item["subreddit"] = subreddit  # add subreddit info to each topic
-            item["timestamp"] = datetime.now(timezone.utc)  # add timestamp to each topic
-            item["type"] = "topics" if topics else "posts"
+            item["subreddit"] = subreddit  # add subreddit info to each item
+            item["timestamp"] = datetime.now(timezone.utc)  # add timestamp to each item
+            item["type"] = "topics" if topics else "posts" # add analysis type info to each item
 
         save_data_to_database(results, "subscriptions_data")
         return True
@@ -38,7 +38,7 @@ def subscriptions_pipeline(subreddit, amount_of_posts, topics):
         return False
 
 if __name__ == "__main__":
-    # Fetch active subscriptions from the database
+    # Fetch active subscriptions from the database based on analysis type
     if '--posts' in sys.argv:
         subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "posts", "active": True})
         amount_of_posts = 10

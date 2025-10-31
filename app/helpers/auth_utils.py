@@ -18,3 +18,9 @@ def get_current_user_id():
         raise ValueError("Failed to validate user ID: " + str(e))
 
     return current_user_id
+
+# Convert ObjectId user IDs to strings for JSON serialization
+def convert_userids_to_string(data):
+    for entry in data:
+        entry["subscribers"] = [str(sub_id) for sub_id in entry["subscribers"]]
+    return data

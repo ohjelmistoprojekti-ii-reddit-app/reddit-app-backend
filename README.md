@@ -547,10 +547,12 @@ Also note that the response does not contain all comments: currently, we only st
 
 ## Subscriptions endpoints
 
+ℹ️ The subscription feature allows users to **subscribe to subreddits** with preferred analysis type (topics or posts). This way, the user can receive **personalized insights** based on their interests. Currently, the user can subscribe to one subreddit at a time. The subscribed subreddits will be analyzed regularly by our `GitHub Actions` pipeline.
+
 ### Get list of active subscriptions by analysis type
 > GET /subscriptions/type/{type}
 
-**Description**: Retrieves list of active subscriptions for a given analysis type.
+**Description**: Retrieves list of active subscriptions by analysis type.
 
 | Parameter | Description | Options |
 | --------- | ----------- | ------- |
@@ -618,7 +620,7 @@ The subscribers list includes the current user. Users are represented by user id
 
 | Parameter | Description | Examples |
 | --------- | ----------- | -------- |
-| subreddit | **any subreddit** with preferably 1000+ weekly contributions<br>- the existence of the subreddit is checked in the save process | `baseball`, `python`, `stocks`, `lifeprotips` |
+| subreddit | **any subreddit** with preferably 1000+ weekly contributions<br>- the existence of the subreddit is checked in the save process | `baseball`, `python`, `stocks`, `lifeprotips`, `gaming` |
 | type | **analysis type**<br>- topic analysis identifies recurring themes within the subreddit, and analyses overall sentiment of the topic<br>- posts analysis focuses on individual posts and their sentiment | `topics`, `posts` |
 
 **Example request**:
@@ -646,45 +648,48 @@ http://127.0.0.1:5000/subscriptions/current-user/deactivate
 http://127.0.0.1:5000/subscriptions/current-user/latest-analyzed
 ```
 
-The response format depends on the analysis type of the subscription (topics or posts):
+The response format depends on the analysis type of the subscription:
 
 <details>
 <summary><strong>Example response format for 'topics' analysis type</strong></summary>
 
 ```jsonc
-[
-  {
-    "topic_id": 1,
-    "type": "topics", // Subscription analysis type
-    "topic": ["python", "code", "programming", "..."], // Keywords representing the topic
-    "label": "Python Code Programming", // Official topic label
-    "subreddit": "python",
-    "summary": "Discussion about Python programming, coding tips, and best practices.", // LLM generated summary of the topic
-    "num_posts": 30,
-    "posts": [
-      {
-        "id": "lmnop456",
-        "subreddit": "python",
-        "title": "Best practices for writing clean Python code",
-        "content": "Looking for tips on how to write clean and maintainable Python code",
-        "comments": [
-          "Use meaningful variable names"
-        ],
-        "num_comments": 15,
-        "score": 95,
-        "upvote_ratio": 0.92
-      }
-    ],
-    "sentiment_values": {
-      "average_compound": 0.12,
-      "average_neg": 8.0,
-      "average_neu": 78.0,
-      "average_pos": 14.0,
-      "comment_count": 30
-    },
-    "timestamp": "2025-10-05T14:23:45.678Z" // Time when the data was saved to db
-  }
-]
+{
+  "type": "topics", // Subscription analysis type
+  "data": [
+    {
+      "topic_id": 1,
+      "topic": ["python", "code", "programming", "..."], // Keywords representing the topic
+      "label": "Python Code Programming", // Official topic label
+      "subreddit": "python",
+      "summary": "Discussion about Python programming, coding tips, and best practices.", // LLM generated summary of the topic
+      "num_posts": 30,
+      "posts": [
+        {
+          "id": "lmnop456",
+          "subreddit": "python",
+          "title": "Best practices for writing clean Python code",
+          "content": "Looking for tips on how to write clean and maintainable Python code",
+          "comments": [
+            "Use meaningful variable names"
+          ],
+          "num_comments": 15,
+          "score": 95,
+          "upvote_ratio": 0.92
+        }
+      ],
+      "sentiment_values": {
+        "average_compound": 0.12,
+        "average_neg": 8.0,
+        "average_neu": 78.0,
+        "average_pos": 14.0,
+        "comment_count": 30
+      },
+      "timestamp": "2025-10-05T14:23:45.678Z", // Time when the data was saved to db
+      "type": "topics" // Subscription analysis type
+    }
+  ]
+}
 ```
 </details>
 
@@ -692,34 +697,37 @@ The response format depends on the analysis type of the subscription (topics or 
 <summary><strong>Example response format for 'posts' analysis type</strong></summary>
 
 ```jsonc
-[
-  {
-    "subreddit": "python",
-    "type": "posts", // Subscription analysis type
-    "posts": [
-      {
-        "id": "ghijk789",
-        "title": "How to optimize Python code for performance?",
-        "content": "Looking for tips on optimizing Python code for better performance.",
-        "content_link": "https://reddit.com/r/python/...", // Link to the post's media content. If the post has no additional media content, this matches 'link'
-        "link": "https://reddit.com/r/python/...", // Direct link to the original Reddit post
-        "comments": [
-          "Consider using built-in libraries for efficiency."
-        ],
-        "num_comments": 20,
-        "score": 85,
-        "upvote_ratio": 0.95,
-        "sentiment_values": {
-          "average_compound": 0.15,
-          "average_neg": 5.0,
-          "average_neu": 80.0,
-          "average_pos": 15.0
+{
+  "type": "posts", // Subscription analysis type
+  "data": [
+    {
+      "subreddit": "python",
+      "posts": [
+        {
+          "id": "ghijk789",
+          "title": "How to optimize Python code for performance?",
+          "content": "Looking for tips on optimizing Python code for better performance.",
+          "content_link": "https://reddit.com/r/python/...", // Link to the post's media content. If the post has no additional media content, this matches 'link'
+          "link": "https://reddit.com/r/python/...", // Direct link to the original Reddit post
+          "comments": [
+            "Consider using built-in libraries for efficiency."
+          ],
+          "num_comments": 20,
+          "score": 85,
+          "upvote_ratio": 0.95,
+          "sentiment_values": {
+            "average_compound": 0.15,
+            "average_neg": 5.0,
+            "average_neu": 80.0,
+            "average_pos": 15.0
+          }
         }
-      }
-    ],
-    "timestamp": "2025-10-05T14:23:45.678Z" // Time when the data was saved to db
-  }
-]
+      ],
+      "timestamp": "2025-10-05T14:23:45.678Z", // Time when the data was saved to db
+      "type": "posts" // Subscription analysis type
+    }
+  ]
+}
 ```
 </details>
 
