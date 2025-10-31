@@ -10,7 +10,6 @@ bp = Blueprint('countries', __name__, url_prefix='/countries')
 @bp.route('/latest/<subreddit>', methods=['GET'])
 @jwt_required(optional=True)
 def get_latest_country_data(subreddit):
-    data = get_latest_data_by_subreddit("countries", subreddit)
 
     current_user = get_jwt_identity()
 

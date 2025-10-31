@@ -42,7 +42,7 @@ if __name__ == "__main__":
     if '--posts' in sys.argv:
         subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "posts", "active": True})
         amount_of_posts = 10
-        topics=False
+        topics = False
 
         if not subscriptions:
             print("No active subscriptions found for posts analysis.")
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     elif '--topics' in sys.argv:
         subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "topics", "active": True})
         amount_of_posts = 500
-        topics=True
+        topics = True
 
         if not subscriptions:
             print("No active subscriptions found for topics analysis.")

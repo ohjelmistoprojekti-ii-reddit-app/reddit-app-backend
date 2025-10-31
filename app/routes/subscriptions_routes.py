@@ -144,7 +144,7 @@ def deactivate_current_subscription():
             {"subreddit": subreddit, "analysis_type": analysis_type, "active": True}
         )
 
-        if len(updated_subscription[0]["subscribers"]) == 0:
+        if updated_subscription and len(updated_subscription[0]["subscribers"]) == 0:
             update_collection_data(
                 "subscriptions",
                 {"subreddit": subreddit, "analysis_type": analysis_type, "active": True},
