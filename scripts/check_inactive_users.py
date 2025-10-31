@@ -90,14 +90,15 @@ if __name__ == "__main__":
     results = check_inactive_users_and_subscriptions()
 
     if results:
-        print(f"::info::Inactive users found: {results['inactive_users_found']}")
-        print(f"::info::Inactive users with no active subscriptions: {results['no_active_subscriptions']}")
-        print(f"::info::Subscriptions deactivated: {results['subscriptions_deactivated']}")
-        
+        print("==== CHECK COMPLETE ====")
+        print(f"Inactive users found: {results['inactive_users_found']}")
+        print(f"Inactive users with no active subscriptions: {results['no_active_subscriptions']}")
+        print(f"Subscriptions deactivated: {results['subscriptions_deactivated']}")
+
         if results['errors']:
-            print("::error::Errors occurred during the process:")
+            print("Errors occurred during the process:")
             for error in results['errors']:
-                print(f"::error::{error}")
+                print(f"- {error}")
 
             # Make sure that GitHub Actions workflow fails if any errors occurred
             sys.exit(1)

@@ -5,10 +5,6 @@ on:
     # runs once a day at 04:00 UTC / 06:00 Finnish time
     - cron: '0 4 * * *'
   workflow_dispatch:
-  push:
-    branches:
-      # allow test runs in branch
-      - subreddit-subscriptions
 
 jobs:
   run-subscriptions_pipeline:
