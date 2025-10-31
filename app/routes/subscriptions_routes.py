@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
 from app.helpers.auth_utils import get_current_user_id, convert_userids_to_string
+from app.helpers.jwt_utils import is_token_revoked
 from app.services.db import fetch_collection_data, get_latest_data_by_subreddit, save_data_to_database, update_collection_data
 from app.services.reddit_api import get_posts
 
@@ -29,6 +30,9 @@ def fetch_current_user_subscriptions():
         current_user_id = get_current_user_id()
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+    if is_token_revoked():
+        return jsonify({"msg": "Token revoked"}), 401
 
     subscriptions = fetch_collection_data("subscriptions", {"subscribers": current_user_id})
 
@@ -48,6 +52,9 @@ def add_subscription(subreddit, type):
         current_user_id = get_current_user_id()
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+    if is_token_revoked():
+        return jsonify({"msg": "Token revoked"}), 401
 
     if type not in ["posts", "topics"]:
         return jsonify({"error": "Analysis type must be 'posts' or 'topics'"}), 400
@@ -109,6 +116,9 @@ def deactivate_current_subscription():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
     
+    if is_token_revoked():
+        return jsonify({"msg": "Token revoked"}), 401
+    
     # Get users active subscriptions
     active_subscriptions = fetch_collection_data("subscriptions", {"subscribers": current_user_id})
 
@@ -158,6 +168,9 @@ def get_latest_analyzed_subscription_data_for_current_user():
         current_user_id = get_current_user_id()
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+    
+    if is_token_revoked():
+        return jsonify({"msg": "Token revoked"}), 401
 
     active_subscriptions = fetch_collection_data("subscriptions", {"subscribers": current_user_id})
 
