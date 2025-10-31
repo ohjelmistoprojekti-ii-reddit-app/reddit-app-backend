@@ -1,4 +1,4 @@
-name: Subreddit Subscriptions Analysis
+name: Subscription-based Subreddit Analysis
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-subscriptions_pipeline:
+  run-subscriptions-pipeline:
     runs-on: ubuntu-latest
     env:
       REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
