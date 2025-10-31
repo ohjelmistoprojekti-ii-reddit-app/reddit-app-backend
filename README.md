@@ -547,7 +547,7 @@ Also note that the response does not contain all comments: currently, we only st
 
 ## Subscriptions endpoints
 
-ℹ️ The subscription feature allows users to **subscribe to subreddits** with preferred analysis type (topics or posts). This way, the user can receive **personalized insights** based on their interests. Currently, the user can subscribe to one subreddit at a time. The subscribed subreddits will be analyzed regularly by our `GitHub Actions` pipeline.
+ℹ️ The subscription feature allows users to subscribe to subreddits with preferred analysis type (topics or posts). This way, the user can receive **personalized insights** based on their interests. Currently, the user can subscribe to one subreddit at a time. The subscribed subreddits are analyzed regularly by our `GitHub Actions` pipeline.
 
 ### Get list of active subscriptions by analysis type
 > GET /subscriptions/type/{type}
@@ -557,6 +557,8 @@ Also note that the response does not contain all comments: currently, we only st
 | Parameter | Description | Options |
 | --------- | ----------- | ------- |
 | type | analysis type | `topics`, `posts` |
+
+ℹ️ This endpoint is used in our `GitHub Actions` pipeline to determine which subreddits to analyze regularly based on user subscriptions.
 
 **Example request**:
 ```
@@ -589,7 +591,7 @@ http://127.0.0.1:5000/subscriptions/type/topics
 ### Get subscriptions for current user
 > GET /subscriptions/current-user
 
-**Description**: Retrieves active subscriptions for the current user.
+**Description**: Retrieves active subscriptions for the current user. User identity is checked in the process and not required as a parameter.
 
 **Example request**:
 ```
@@ -616,7 +618,7 @@ The subscribers list includes the current user. Users are represented by user id
 ### Create a new subscription for current user
 > POST /subscriptions/current-user/add/{subreddit}/{type}
 
-**Description**: Creates a subscription for the current user with the preferred analysis type. If the same subreddit already has active subscriptions with the same analysis type, user is added to the subscribers list; if not, a new subscription is created. Currently, user can only subscribe to **1 subreddit at a time**.
+**Description**: Creates a subscription for the current user with the preferred analysis type. If the same subreddit already has active subscriptions with the same analysis type, user is added to the subscribers list; if not, a new subscription is created. Currently, user can only subscribe to **1 subreddit at a time** and trying to subscribe to another subreddit will result in an error. User identity is checked in the process and not required as a parameter.
 
 | Parameter | Description | Examples |
 | --------- | ----------- | -------- |
@@ -631,7 +633,7 @@ http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
 ### Deactivate subscription for current user
 > PATCH /subscriptions/current-user/deactivate
 
-**Description**: Deactivates the current user's active subscription. The active subscription is checked in the process and not required as a parameter. If no active subscription exists, an error message is returned.
+**Description**: Deactivates the current user's active subscription. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned.
 
 **Example request**:
 ```
@@ -641,7 +643,11 @@ http://127.0.0.1:5000/subscriptions/current-user/deactivate
 ### Get latest analyzed data for current user's subscription
 > GET /subscriptions/current-user/latest-analyzed
 
-**Description**: Retrieves the latest analyzed data for the current user's active subscription. The active subscription is checked in the process and not required as a parameter. If no active subscription exists, an error message is returned.
+**Description**: Retrieves the latest analyzed data for the current user's active subscription. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned. If no analyzed data is found, it is also indicated in the response.
+
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores data once a day for the subreddits that have active subscriptions. To read more about the automated pipeline, see the [Solutions Overview](#-solutions-overview) section.
+
+❓ After subscribing, it may take up to 24 hours before the first analyzed data is available, as the analysis happens once a day. If the chosen subreddit already has other active subscriptions, the data may be available sooner.
 
 **Example request**:
 ```
@@ -826,42 +832,57 @@ We use typical threshold values to determine sentiments:
 <details>
 <summary><strong>GitHub Actions</strong></summary>
 
-We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have two main pipelines that run daily:
+We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have three pipelines that run daily:
 
 ### 1. Trending topics analysis
 
 This pipeline:
-- Fetches 500 posts with a few example comments from a predefined set of subreddits
+- Fetches 500 posts with example comments from a predefined set of subreddits
 - Processes the data with topic modeling, summarization and sentiment analysis
 - Stores the processed data in MongoDB Atlas
 
-💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for tracking long-term trends.
+ℹ️ We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for tracking long-term trends.
 
-**🔗 API Access**
-- The subreddit options for this pipeline can be accessed via [`/subreddits`](#get-subreddits-that-have-data-available-in-the-database) endpoint
-- The processed data can be accessed via [`/posts/latest/{subreddit}`](#get-latest-analyzed-posts-from-the-database) endpoint
-
+🔗 **API access:** [Trending topics analysis endpoints](#trending-topics-analysis-endpoints)
 
 ### 2. Country subreddit analysis
 
 This pipeline:
-- Fetches 10 hot posts with comments from a predefined set of country subreddits
-- Processes the data with language translation (if needed) and sentiment analysis
+- Fetches 10 hot posts with example comments from a predefined set of country subreddits
+- Processes the posts with language translation (if needed) and sentiment analysis
 - Stores the processed data in MongoDB Atlas
   
-💡 We use the data in a SVG map in frontend to visualize popular discussions and their sentiment across different countries and regions.
+ℹ️ We use the data in a SVG map in frontend to visualize popular discussions and their sentiment across different countries and regions.
 
-**🔗 API Access**
-- The subreddit options for this pipeline can be accessed via [`/subreddits/countries`](#get-country-subreddits-that-have-data-available-in-the-database) endpoint
-- The processed data can be accessed via [`/countries/latest/{subreddit}`](#get-latest-analyzed-country-data-from-the-database) endpoint
+🔗 **API access:** [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
+
+### 3. Subscription-based subreddit analysis
+
+This pipeline:
+- Checks for inactive users and deactivates their subscriptions if the user has not logged in for over two weeks
+- Checks for active subscriptions based on analysis type (topics or posts)
+- If there are active subscriptions, the appropriate analysis is run:
+
+1. **Topics analysis**:
+    - Fetches 500 posts with example comments from subreddits that have subscriptions
+    - Processes the data with topic modeling, summarization and sentiment analysis
+    - Stores the processed data in MongoDB Atlas
+2. **Posts analysis**:
+    - Fetches 10 hot posts with example comments from subreddits that have subscriptions
+    - Processes the comments with sentiment analysis
+    - Stores the processed data in MongoDB Atlas
+
+ℹ️ We use the data to provide personalized content for users based on their subscribed subreddits.
+
+🔗 **API access:** [Subscriptions endpoints](#subscriptions-endpoints)
 
 ### Configuring subreddit options
 
-The subreddit options for both pipelines can be modified in `app/config.py`. Note that the GitHub Actions pipelines currently run once a day, so new data may not be immediately available for all subreddits. To get immediate analysis results, you can run the data pipeline manually via command line (see instructions below) or via GitHub Actions.
+The subreddit options for **trending topics** and **country subreddit** pipelines can be modified in `app/config.py`. Note that the GitHub Actions pipelines currently run once a day, so after changes new data may not be immediately available for all subreddits. To get immediate analysis results, you can run the data pipeline manually via command line (see instructions below) or via GitHub Actions.
 
-### Run the pipelines locally
+### Running the pipelines locally
 
-For testing purposes, you can also run the data pipelines locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following commands in your terminal:
+For testing purposes, you can also run the data pipelines locally to populate your database. To do this, ensure your `.env` file is set up with **Reddit API** and **MongoDB Atlas** credentials, then run the following commands in your terminal:
 1. Trending topics analysis pipeline:
 ```
 python -m scripts.topics_pipeline
@@ -870,8 +891,24 @@ python -m scripts.topics_pipeline
 ```
 python -m scripts.countries_pipeline
 ```
+3. Subscription-based subreddit analysis pipeline:
 
-⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
+  - Choose either `--posts` or `--topics` flag based on the analysis type you want to run
+
+```
+python -m scripts.subscriptions_pipeline --posts | --topics
+```
+
+⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options for *trending topics* and *country subreddit* pipelines in `app/config.py` to limit the amount of data processed. For subreddit subscriptions, only the subreddits that have active subscriptions saved in the database will be processed.
+
+### Configuring secrets for GitHub Actions
+To run the data pipelines in GitHub Actions, you need to set up the following secrets in your GitHub repository:
+- REDDIT_CLIENT_ID
+- REDDIT_CLIENT_SECRET
+- REDDIT_USER_AGENT
+- ATLAS_CONNECTION_STR
+
+The secrets can be added in the repository settings: `Settings` > `Security` > `Secrets and variables` > `Actions` > `Repository secrets`
 
 ### Why automate data processing?
 
