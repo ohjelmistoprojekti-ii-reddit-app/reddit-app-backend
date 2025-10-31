@@ -1,0 +1,29 @@
+name: Subreddit Subscriptions Analysis
+
+on:
+  schedule:
+    # runs once a day at 04:00 UTC / 06:00 Finnish time
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-subscriptions_pipeline:
+    runs-on: ubuntu-latest
+    env:
+      REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+      REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+      REDDIT_USER_AGENT: ${{ secrets.REDDIT_USER_AGENT }}
+      ATLAS_CONNECTION_STR: ${{ secrets.ATLAS_CONNECTION_STR }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Check inactive users and subscriptions
+        run: python -m scripts.check_inactive_users
+      - name: Run pipeline for posts analysis
+        run: python -m scripts.subscriptions_pipeline --posts
+      - name: Run pipeline for topics analysis
+        run: python -m scripts.subscriptions_pipeline --topics

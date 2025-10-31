@@ -45,7 +45,7 @@ if __name__ == "__main__":
         topics=False
 
         if not subscriptions:
-            print("No active subscriptions found for posts analysis.")
+            print("::info::No active subscriptions found for posts analysis.")
             sys.exit(0)
     elif '--topics' in sys.argv:
         subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "topics", "active": True})
@@ -53,10 +53,11 @@ if __name__ == "__main__":
         topics=True
 
         if not subscriptions:
-            print("No active subscriptions found for topics analysis.")
+            print("::info::No active subscriptions found for topics analysis.")
             sys.exit(0)
     else:
-        print("Please specify either --posts or --topics as an argument.")
+        print("::error::Please specify either --posts or --topics as an argument.")
+        sys.exit(1)
 
     failure = False
 

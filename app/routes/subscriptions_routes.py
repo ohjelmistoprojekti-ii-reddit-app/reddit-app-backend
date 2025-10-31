@@ -157,7 +157,7 @@ def deactivate_current_subscription():
         else:
             return jsonify({"message": f"User removed from subscription to subreddit '{subreddit}'"}), 200
     except Exception as e:
-        return jsonify({"error": "Failed to update subscription", "details": str(e)}), 500
+        return jsonify({"error": "Failed to deactivate subscription", "details": str(e)}), 500
 
 
 # Get latest analyzed data for current user's active subscription
