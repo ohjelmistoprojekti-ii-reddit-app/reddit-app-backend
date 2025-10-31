@@ -3,6 +3,7 @@
 This is the **backend service** for a web application that:
 - fetches **popular Reddit posts**
 - identifies **trending topics** using topic modeling
+- makes a brief **summary of the topic** based on the posts
 - analyzes **sentiment** of public discussions
 - and enables **filtering** topics by sentiment (positive, negative, neutral) and category (e.g., technology, entertainment, sports)
 
@@ -37,6 +38,7 @@ This is the **backend service** for a web application that:
 - **Reddit API:** [Async PRAW](https://asyncpraw.readthedocs.io/en/stable/)
 - **Topic modeling:** [BERTopic](https://maartengr.github.io/BERTopic/index.html)
 - **Sentiment analysis:** [VADER](https://vadersentiment.readthedocs.io/en/latest/index.html)
+- **Translation and summarization:** [Flan-T5](https://huggingface.co/docs/transformers/model_doc/flan-t5)
 - **Database:** [MongoDB](https://www.mongodb.com/)
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
@@ -680,6 +682,40 @@ Automating data processing with GitHub Actions offers several benefits:
 
 <details>
 <summary><strong>Language Translation</strong></summary>
+
+**Translation** is a core Natural Language Processing (NLP) task that involves automatically converting text from one language to another while preserving its meaning, tone, and context.
+
+In this project, we implemented translation based on Google’s FLAN-T5 model to translate multilingual Reddit data into English, enabling the presentation of discussion threads and the associated comment sentiments from different countries’ Reddit communities.
+
+⚙️ **Overview of the Translation System**
+The translation component:
+
+- Detects the original language of a Reddit post or comment.
+- Splits the text into sentences for better translation quality.
+- Uses a large-scale transformer model to generate fluent English translations.
+
+Key libraries and models:
+
+- **Language detection — Langid**: Automatically detects the input text’s language and returns the language code (e.g., `es` for Spanish).
+- **Sentence tokenization — NLTK**: Splits text into sentences to translate long posts in manageable segments.
+- **Translation model — FLAN-T5-Large**: A large instruction-tuned Transformer model from Google. We use prompts like:
+    ```text
+    Translate from {original_language} to English: [sentences]
+    ```
+
+## 🚫 Limitations and Considerations
+While FLAN-T5 performs robustly across many languages, there are several caveats specific to our Reddit translation project:
+
+- **Limited low-resource language coverage** — Translation quality may drop for languages that are not well represented in the model’s training data. Since project participants have limited multilingual skills, manually testing translations across all languages is challenging.
+
+- **Context fragmentation** — Reddit comments often contain multiple sentences, indirect references, or idiomatic expressions. Translating sentence-by-sentence can sometimes lose cross-sentence context or subtle nuances, which may affect downstream tasks like topic modeling or sentiment analysis. At the moment, the quality of translations is not sufficient to reliably perform topic modeling on the translated text.
+
+- **Translation latency** — Translating Reddit data takes time and real-time analysis is not possible. Translations are processed a few times per day. 
+
+</details>
+
+<details>
+<summary><strong>Text Summarization</strong></summary>
 Coming soon
 </details>
 
