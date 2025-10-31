@@ -591,6 +591,8 @@ http://127.0.0.1:5000/subscriptions/type/topics
 ### Get subscriptions for current user
 > GET /subscriptions/current-user
 
+🔑 **This endpoint requires user authentication**
+
 **Description**: Retrieves active subscriptions for the current user. User identity is checked in the process and not required as a parameter.
 
 **Example request**:
@@ -618,6 +620,8 @@ The subscribers list includes the current user. Users are represented by user id
 ### Create a new subscription for current user
 > POST /subscriptions/current-user/add/{subreddit}/{type}
 
+🔑 **This endpoint requires user authentication**
+
 **Description**: Creates a subscription for the current user with the preferred analysis type. If the same subreddit already has active subscriptions with the same analysis type, user is added to the subscribers list; if not, a new subscription is created. Currently, user can only subscribe to **1 subreddit at a time** and trying to subscribe to another subreddit will result in an error. User identity is checked in the process and not required as a parameter.
 
 | Parameter | Description | Examples |
@@ -633,6 +637,8 @@ http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
 ### Deactivate subscription for current user
 > PATCH /subscriptions/current-user/deactivate
 
+🔑 **This endpoint requires user authentication**
+
 **Description**: Deactivates the current user's active subscription. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned.
 
 **Example request**:
@@ -642,6 +648,8 @@ http://127.0.0.1:5000/subscriptions/current-user/deactivate
 
 ### Get latest analyzed data for current user's subscription
 > GET /subscriptions/current-user/latest-analyzed
+
+🔑 **This endpoint requires user authentication**
 
 **Description**: Retrieves the latest analyzed data for the current user's active subscription. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned. If no analyzed data is found, it is also indicated in the response.
 
@@ -899,7 +907,7 @@ python -m scripts.countries_pipeline
 python -m scripts.subscriptions_pipeline --posts | --topics
 ```
 
-⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options for *trending topics* and *country subreddit* pipelines in `app/config.py` to limit the amount of data processed. For subreddit subscriptions, only the subreddits that have active subscriptions saved in the database will be processed.
+⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options for **trending topics** and **country subreddit** pipelines in `app/config.py` to limit the amount of data processed. For subreddit subscriptions, only the subreddits that have active subscriptions saved in the database will be processed.
 
 ### Configuring secrets for GitHub Actions
 To run the data pipelines in GitHub Actions, you need to set up the following secrets in your GitHub repository:
