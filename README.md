@@ -591,11 +591,13 @@ http://127.0.0.1:5000/subscriptions/type/topics
 
 🔑 **This endpoint requires user authentication**
 
-**Description**: Retrieves list of active subscriptions for the current user from the database. User identity is checked in the process and not required as a parameter.
+**Description**: Retrieves list of active subscriptions for the current user from the database.
 
 **Example request**:
 ```
-http://127.0.0.1:5000/subscriptions/current-user
+GET http://127.0.0.1:5000/subscriptions/current-user
+Headers:
+  Authorization: Bearer <your_access_token>
 ```
 
 <details>
@@ -620,7 +622,7 @@ The subscribers list includes the current user. Users are represented by user id
 
 🔑 **This endpoint requires user authentication**
 
-**Description**: Creates a subscription for the current user with the preferred analysis type. If the same subreddit already has active subscriptions with the same analysis type, user is added to the subscribers list; if not, a new subscription is created. Currently, user can only subscribe to **1 subreddit at a time** and trying to subscribe to another subreddit will result in an error. User identity is checked in the process and not required as a parameter.
+**Description**: Creates a subscription for the current user with the preferred analysis type. If the same subreddit already has active subscriptions with the same analysis type, user is added to the subscribers list; if not, a new subscription is created. Currently, user can only subscribe to **1 subreddit at a time** and trying to subscribe to another subreddit will result in an error.
 
 | Parameter | Description | Examples |
 | --------- | ----------- | -------- |
@@ -629,7 +631,9 @@ The subscribers list includes the current user. Users are represented by user id
 
 **Example request**:
 ```
-http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
+POST http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
+Headers:
+  Authorization: Bearer <your_access_token>
 ```
 
 ### Deactivate subscription for current user
@@ -637,11 +641,13 @@ http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
 
 🔑 **This endpoint requires user authentication**
 
-**Description**: Deactivates the current user's active subscription. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned.
+**Description**: Deactivates the current user's active subscription. If no active subscription exists, an error message is returned.
 
 **Example request**:
 ```
-http://127.0.0.1:5000/subscriptions/current-user/deactivate
+PATCH http://127.0.0.1:5000/subscriptions/current-user/deactivate
+Headers:
+  Authorization: Bearer <your_access_token>
 ```
 
 ### Get latest analyzed data for current user's active subscription
@@ -649,7 +655,7 @@ http://127.0.0.1:5000/subscriptions/current-user/deactivate
 
 🔑 **This endpoint requires user authentication**
 
-**Description**: Retrieves the latest analyzed data for the current user's active subscription from the database. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned. If no analyzed data is found, it is also indicated in the response.
+**Description**: Retrieves the latest analyzed data for the current user's active subscription from the database. If no active subscription exists, an error message is returned. If no analyzed data is found, it is also indicated in the response.
 
 ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores data once a day for the subreddits that have active subscriptions. To read more about the automated pipeline, see the [Solutions Overview](#-solutions-overview) section.
 
@@ -657,7 +663,9 @@ http://127.0.0.1:5000/subscriptions/current-user/deactivate
 
 **Example request**:
 ```
-http://127.0.0.1:5000/subscriptions/current-user/latest-analyzed
+GET http://127.0.0.1:5000/subscriptions/current-user/latest-analyzed
+Headers:
+  Authorization: Bearer <your_access_token>
 ```
 
 The response format depends on the analysis type of the subscription:
