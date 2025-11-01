@@ -20,7 +20,7 @@ def create_app():
         app,
         origins=allowed_origins,
         supports_credentials=True,
-        methods=["GET", "POST", "DELETE"], 
+        methods=["GET", "POST", "DELETE", "OPTIONS"], 
         allow_headers=["Content-Type", "Authorization"],
         )
     
