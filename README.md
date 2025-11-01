@@ -111,6 +111,10 @@ python run.py
 - [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
 - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
 - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-subreddit-data-from-the-database)
+- [Register as a user](#register-as-a-user)
+- [Login](#login)
+- [Refresh access token](#refreshing-the-access-token)
+- [Logout](#logout)
 
 ### Get analyzed posts from Reddit (no database)
 
@@ -528,6 +532,114 @@ Also note that the response does not contain all comments: currently, we only st
   }
 ]
 ```
+</details>
+
+### Register as a user
+
+> POST /auth/register
+
+**Description**: Create a new user account
+
+- Request JSON:
+  - `username`: string (required, must be 3–20 characters)
+  - `email`: string (required, must be a valid email format)
+  - `password`: string (required, minimum 8 characters)
+
+- Behavior:
+  - `username` and `email` are stored lowercased
+  - `password` is hashed before storage
+  - initial fields: `last_login = null`, `revoked_access_tokens = []`, `refresh_revoked = False`
+
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/register" `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":<your username here in "">,"email":<your email here in "">,"password":<your password here in "">}'
+```  
+
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `201 Created`  
+    `{ "msg": "User created successfully", "user_id": "<object_id>" }`
+  - `400 Bad Request`  
+    `{ "msg": "All fields (username, email, password) required" }`  
+    `{ "msg": "Password must be at least 8 characters" }`
+    `{ "msg": "Username must be from 3 to 20 characters" }`
+    `{ "msg": "Invalid email format" }`
+    `{ "msg": "Username already exists" }`  
+    `{ "msg": "Email already registered" }`
+
+</details>
+
+### Login
+
+> POST /auth/login
+
+**Description**: Authenticate user and return access + refresh tokens. On successful login `last_login` is updated and `refresh_revoked` reset to `False`.
+
+- Request JSON:
+  - `username`: string (required)
+  - `password`: string (required)
+  
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/login" `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":<your username here in "","password":<your password here in ""}'
+```  
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `200 OK`  
+    `{ "access_token": "<jwt>", "refresh_token": "<jwt>" }`
+  - `400 Bad Request`  
+    `{ "msg": "Username and password required" }`
+  - `401 Unauthorized`  
+    `{ "msg": "Wrong username or password" }`
+
+</details>
+
+### Refreshing the access token
+
+> POST /auth/refresh
+
+**Description**: Exchange a valid refresh token for a new access token. The refresh token is valid for 24 hours, and the access token for 15 minutes. 
+
+
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/refresh" `
+  -Method POST `
+  -Headers @{ "Authorization" = "Bearer <refresh_token>" }
+```  
+
+### Logout
+
+> DELETE /auth/logout
+
+**Description**: Revoke current access token and revoke refresh token for the user with valid access token.
+
+Behavior:
+- Removes old revoked access tokens
+- Marks current access token as revoked
+- Revokes the refresh token
+  
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/logout" `
+  -Method DELETE `
+  -Headers @{ "Authorization" = "Bearer <access_token>" }
+
+```  
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `200 OK`  
+    `{ "msg": "Access and refresh token revoked" }`
+
 </details>
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
