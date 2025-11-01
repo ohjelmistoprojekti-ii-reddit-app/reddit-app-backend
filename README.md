@@ -3,6 +3,7 @@
 This is the **backend service** for a web application that:
 - fetches **popular Reddit posts**
 - identifies **trending topics** using topic modeling
+- makes a brief **summary of the topic** based on the posts
 - analyzes **sentiment** of public discussions
 - and enables **filtering** topics by sentiment (positive, negative, neutral) and category (e.g., technology, entertainment, sports)
 
@@ -17,17 +18,19 @@ This is the **backend service** for a web application that:
   - [Run the demo](#run-the-demo)
 - [🌐 REST API](#-rest-api)
   - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
+  - [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
+  - [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
   - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
   - [Get post number statistics from the database](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
   - [Get top topics statistics from the database](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
-  - [Get analyzed example comments on hot topics](#get-analyzed-example-comments-on-hot-topics)
+  - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
+  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
 - [🔎 Solutions Overview](#-solutions-overview)
 - [➡️ See Also](#see-also)
 
 </details>
-<br>
 
-> This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
+> Note! This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
 
 ## 🛠️ Tech Stack
 - **Language:** [Python](https://docs.python.org/3/)
@@ -35,6 +38,7 @@ This is the **backend service** for a web application that:
 - **Reddit API:** [Async PRAW](https://asyncpraw.readthedocs.io/en/stable/)
 - **Topic modeling:** [BERTopic](https://maartengr.github.io/BERTopic/index.html)
 - **Sentiment analysis:** [VADER](https://vadersentiment.readthedocs.io/en/latest/index.html)
+- **Translation and summarization:** [Flan-T5](https://huggingface.co/docs/transformers/model_doc/flan-t5)
 - **Database:** [MongoDB](https://www.mongodb.com/)
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
@@ -110,11 +114,12 @@ python run.py
 - [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
 - [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
 - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
-- [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-subreddit-data-from-the-database)
+- [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
 - [Register as a user](#register-as-a-user)
 - [Login](#login)
 - [Refresh access token](#refreshing-the-access-token)
 - [Logout](#logout)
+
 
 ### Get analyzed posts from Reddit (no database)
 
@@ -190,8 +195,6 @@ Note that the order of fields may vary.
 
 **Description**: Retrieves list of subreddits that our `GitHub Actions` pipeline currently analyzes regularly. The analyzed data is stored in the database and can be accessed via `/posts/latest/{subreddit}` endpoint.
 
-ℹ️ The subreddit options can be modified in `app/config.py` file
-
 **Example request**:
 ```
 http://127.0.0.1:5000/subreddits
@@ -207,12 +210,8 @@ http://127.0.0.1:5000/subreddits
   "worldnews",
   "technology",
   "entertainment",
-  "movies",
-  "gaming",
   "sports",
-  "travel",
-  "jobs",
-  "futurology",
+  "science",
   "programming"
 ]
 ```
@@ -299,7 +298,7 @@ Note that the order of fields may vary.
 
 | Parameter | Description | Variable|
 | --------- | ----------- | ------- |
-| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming` |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `science`, `programming` |
 | days | Last amount of days | int |
 
 **Example request**:
@@ -339,7 +338,7 @@ http://127.0.0.1:5000/posts/numbers/programming/7
 
 | Parameter | Description | Variable|
 | --------- | ----------- | ------- |
-| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `movies`, `gaming`, `sports`, `travel`, `jobs`, `futurology`, `programming` |
+| subreddit | name of subreddit from the predefined options | `worldnews`, `technology`, `entertainment`, `science`, `programming` |
 | days | Last amount of days | int |
 | limit | The length of the top topics list to be displayed | int |
 
@@ -425,7 +424,7 @@ http://127.0.0.1:5000/posts/hot/italia
 ### Get country subreddits that have data available in the database
 > GET /subreddits/countries
 
-**Description**: Retrieves list of country subreddits that our `GitHub Actions` pipeline currently analyzes regularly. The analyzed data is stored in the database and can be accessed via `/countries/latest/{subreddit}` endpoint.
+**Description**: Retrieves list of country subreddits that our `GitHub Actions` pipeline currently analyzes daily. The analyzed data is stored in the database and can be accessed via `/countries/latest/{subreddit}` endpoint.
 
 **Example request**:
 ```
@@ -473,7 +472,7 @@ http://127.0.0.1:5000/subreddits/countries
 
 **Description**: Retrieves the latest analyzed posts for a given country subreddit from the database. The analysis process for country subreddits includes translation to English (if needed), and sentiment analysis on comments.
 
-ℹ️ Our `GitHub Actions` pipeline automatically fetches, translates, analyzes, and stores country subreddit data twice a day for a **predefined** set of country subreddits.
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, translates, analyzes, and stores country subreddit data every day for a **predefined** set of country subreddits. To read more about the automated pipeline, see the [Solutions Overview](#-solutions-overview) section.
 
 | Parameter | Description | Examples | All options |
 | --------- | ----------- | -------- | ----------- |
@@ -654,7 +653,7 @@ An overview of our solutions and approaches across the project's key areas.
 
 There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern framework that leverages advanced sentence-transformer models and statistical techniques to uncover easily interpretable topics.
 
-<strong>Core concepts of BERTopic</strong>
+### Core concepts of BERTopic
 
 BERTopic is highly flexible, allowing you to customize or swap components based on your needs. For example, you can control how broad or detailed the topic groups are by changing the clustering model, or generate embeddings using almost any sentence-transformer model. Adjusting different components can have a significant impact on the results.
 
@@ -669,8 +668,7 @@ Here are the key steps in BERTopic and the models we used for each stage:
 4. **Topic representation**: Labels each cluster with a few key words summarizing its main theme.
     - Model: BERTopic default, [c-TF-IDF](https://maartengr.github.io/BERTopic/getting_started/ctfidf/ctfidf.html)
 
-
-<strong>Why use BERTopic on Reddit data?</strong>
+### Why use BERTopic on Reddit data?
 
 Reddit discussions are already organized into different topics as **subreddits**, so someone might wonder why we would use topic modeling on Reddit at all. We wanted to take our Reddit analysis a step further and see if recurring themes or topics could be found *within* large subreddits.
 
@@ -735,63 +733,102 @@ We use typical threshold values to determine sentiments:
 </details>
 
 <details>
-<summary><strong>Automated Data Processing</strong></summary>
+<summary><strong>GitHub Actions</strong></summary>
 
-⚠️ Our Actions pipeline is under active development, and this section does not currently cover all features. Updates coming soon.
+We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have two main pipelines that run daily:
 
-We use **GitHub Actions** to automatically fetch, analyze, and store Reddit data once per day. The pipeline currently only runs for a predefined set of subreddits (see table below).
+### 1. Trending topics analysis
 
-**How it works**
-- Runs daily at midnight (UTC) or on demand via manual trigger
-- Fetches ~500 hot posts and up to 8 comments per subreddit
-- Processes content with topic modeling and sentiment analysis
-- Stores processed data in MongoDB Atlas
+This pipeline:
+- Fetches 500 popular posts with example comments per subreddit
+- Processes the data with topic modeling, summarization and sentiment analysis
+- Stores the processed data in MongoDB Atlas
 
-🔑 The processed data can be accessed via the `/posts/latest/{subreddit}` endpoint (see [REST documentation](#get-latest-analyzed-posts-from-the-database))
+💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for tracking long-term trends.
 
-💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for historical analysis and tracking long-term trends.
+**🔗 API Access**
+- The subreddit options for this pipeline can be accessed via [`/subreddits`](#get-subreddits-that-have-data-available-in-the-database) endpoint
+- The processed data can be accessed via [`/posts/latest/{subreddit}`](#get-latest-analyzed-posts-from-the-database) endpoint
 
-**Available subreddits**
+### 2. Country subreddit analysis
 
-The pipeline processes a predefined set of active subreddits to ensure diverse and relevant content for our users:
+This pipeline:
+- Fetches 10 popular posts with example comments per subreddit
+- Processes the data with language translation (if needed) and sentiment analysis
+- Stores the processed data in MongoDB Atlas
+  
+💡 We use the data in a SVG map in frontend to visualize popular discussions and their sentiment across different countries and regions.
 
-| Subreddit    | Description                      |
-|--------------|----------------------------------|
-| worldnews    | International news               |
-| technology   | Tech news and discussions        |
-| entertainment| Entertainment & pop culture      |
-| movies       | Movie news, reviews & discussions|
-| gaming       | Game news, reviews & discussions |
-| sports       | Sports news and updates          |
-| travel       | Travel tips and stories          |
-| jobs         | Careers and job postings         |
-| futurology   | Future tech and trends           |
-| programming  | Programming discussions          |
+**🔗 API Access**
+- The subreddit options for this pipeline can be accessed via [`/subreddits/countries`](#get-country-subreddits-that-have-data-available-in-the-database) endpoint
+- The processed data can be accessed via [`/countries/latest/{subreddit}`](#get-latest-analyzed-country-data-from-the-database) endpoint
 
-🔑 To access subreddit options via REST, see the [Get available subreddits](#get-available-subreddits) endpoint
+### Configuring subreddit options
 
-⚙️ The subreddit list can be modified in `app/config.py`. Note that the GitHub Actions pipeline currently runs once a day, so new data may not be immediately available for all subreddits.
+The subreddit options for both pipelines can be modified in `app/config.py`. Note that the GitHub Actions pipelines currently run once a day, so new data may not be immediately available for all subreddits. To get immediate analysis results, you can run the data pipeline manually via command line (see instructions below) or via GitHub Actions.
 
-**Run the pipeline locally**
+### Run the pipelines locally
 
-For testing purposes, you can also run the data pipeline locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following command in your terminal:
+For testing purposes, you can also run the data pipelines locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following commands in your terminal:
+1. Trending topics analysis pipeline:
 ```
 python -m scripts.topics_pipeline
 ```
+2. Country subreddit analysis pipeline:
+```
+python -m scripts.countries_pipeline
+```
 
-**Benefits of automated data processing**
+⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
 
+### Why automate data processing?
+
+Automating data processing with GitHub Actions offers several benefits:
 - Ensures consistent and reliable daily updates
 - Keeps the frontend up-to-date with fresh data
 - Enables historical analysis and long-term trend tracking
 - Delivers fast frontend performance without waiting for real-time processing
 
-**Learn more**
+**Learn more:**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
 </details>
 
 <details>
 <summary><strong>Language Translation</strong></summary>
+
+**Translation** is a core Natural Language Processing (NLP) task that involves automatically converting text from one language to another while preserving its meaning, tone, and context.
+
+In this project, we implemented translation based on Google’s FLAN-T5 model to translate multilingual Reddit data into English, enabling the presentation of discussion threads and the associated comment sentiments from different countries’ Reddit communities.
+
+⚙️ **Overview of the Translation System**
+The translation component:
+
+- Detects the original language of a Reddit post or comment.
+- Splits the text into sentences for better translation quality.
+- Uses a large-scale transformer model to generate fluent English translations.
+
+Key libraries and models:
+
+- **Language detection — Langid**: Automatically detects the input text’s language and returns the language code (e.g., `es` for Spanish).
+- **Sentence tokenization — NLTK**: Splits text into sentences to translate long posts in manageable segments.
+- **Translation model — FLAN-T5-Large**: A large instruction-tuned Transformer model from Google. We use prompts like:
+    ```text
+    Translate from {original_language} to English: [sentences]
+    ```
+
+## 🚫 Limitations and Considerations
+While FLAN-T5 performs robustly across many languages, there are several caveats specific to our Reddit translation project:
+
+- **Limited low-resource language coverage** — Translation quality may drop for languages that are not well represented in the model’s training data. Since project participants have limited multilingual skills, manually testing translations across all languages is challenging.
+
+- **Context fragmentation** — Reddit comments often contain multiple sentences, indirect references, or idiomatic expressions. Translating sentence-by-sentence can sometimes lose cross-sentence context or subtle nuances, which may affect downstream tasks like topic modeling or sentiment analysis. At the moment, the quality of translations is not sufficient to reliably perform topic modeling on the translated text.
+
+- **Translation latency** — Translating Reddit data takes time and real-time analysis is not possible. Translations are processed a few times per day. 
+
+</details>
+
+<details>
+<summary><strong>Text Summarization</strong></summary>
 Coming soon
 </details>
 
