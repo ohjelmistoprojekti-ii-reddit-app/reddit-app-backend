@@ -7,6 +7,11 @@ def connect_db():
     client = MongoClient(uri)
     return client
 
+def get_db():
+    client = connect_db()
+    db = client.reddit
+    return db, client
+
 def save_posts_to_database(posts_to_save, subreddit, collection):
     print("Inserting into database..\n")
     client = connect_db()
