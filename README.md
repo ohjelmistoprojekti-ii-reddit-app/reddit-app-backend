@@ -120,7 +120,7 @@ python run.py
   - [Get subscriptions for current user](#get-subscriptions-for-current-user)
   - [Create a new subscription for current user](#create-a-new-subscription-for-current-user)
   - [Deactivate subscription for current user](#deactivate-subscription-for-current-user)
-  - [Get latest analyzed data for current user's active subscription](#get-latest-analyzed-data-for-current-user-s-active-subscription)
+  - [Get latest analyzed data for current user's active subscription](#get-latest-analyzed-data-for-current-users-active-subscription)
 
 
 ## No database endpoints
@@ -552,13 +552,11 @@ Also note that the response does not contain all comments: currently, we only st
 ### Get list of active subscriptions by analysis type
 > GET /subscriptions/type/{type}
 
-**Description**: Retrieves list of active subscriptions by analysis type.
+**Description**: Retrieves list of active subscriptions by analysis type from the database.
 
 | Parameter | Description | Options |
 | --------- | ----------- | ------- |
 | type | analysis type | `topics`, `posts` |
-
-ℹ️ This endpoint is used in our `GitHub Actions` pipeline to determine which subreddits to analyze regularly based on user subscriptions.
 
 **Example request**:
 ```
@@ -593,7 +591,7 @@ http://127.0.0.1:5000/subscriptions/type/topics
 
 🔑 **This endpoint requires user authentication**
 
-**Description**: Retrieves active subscriptions for the current user. User identity is checked in the process and not required as a parameter.
+**Description**: Retrieves list of active subscriptions for the current user from the database. User identity is checked in the process and not required as a parameter.
 
 **Example request**:
 ```
@@ -626,7 +624,7 @@ The subscribers list includes the current user. Users are represented by user id
 
 | Parameter | Description | Examples |
 | --------- | ----------- | -------- |
-| subreddit | **any subreddit** with preferably 1000+ weekly contributions<br>- the existence of the subreddit is checked in the save process | `baseball`, `python`, `stocks`, `lifeprotips`, `gaming` |
+| subreddit | **any subreddit** with preferably 1000+ weekly contributions<br>- the existence of the subreddit is checked in the process | `baseball`, `python`, `stocks`, `lifeprotips`, `gaming` |
 | type | **analysis type**<br>- topic analysis identifies recurring themes within the subreddit, and analyses overall sentiment of the topic<br>- posts analysis focuses on individual posts and their sentiment | `topics`, `posts` |
 
 **Example request**:
@@ -651,7 +649,7 @@ http://127.0.0.1:5000/subscriptions/current-user/deactivate
 
 🔑 **This endpoint requires user authentication**
 
-**Description**: Retrieves the latest analyzed data for the current user's active subscription. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned. If no analyzed data is found, it is also indicated in the response.
+**Description**: Retrieves the latest analyzed data for the current user's active subscription from the database. The user identity and active subscription are checked in the process and not required as a parameter. If no active subscription exists, an error message is returned. If no analyzed data is found, it is also indicated in the response.
 
 ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores data once a day for the subreddits that have active subscriptions. To read more about the automated pipeline, see the [Solutions Overview](#-solutions-overview) section.
 
@@ -860,24 +858,22 @@ This pipeline:
 - Processes the posts with language translation (if needed) and sentiment analysis
 - Stores the processed data in MongoDB Atlas
   
-ℹ️ We use the data in a SVG map in frontend to visualize popular discussions and their sentiment across different countries and regions.
+ℹ️ We use the data in a SVG map in the frontend to visualize popular discussions and their sentiment across different countries and regions.
 
 🔗 **API access:** [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
 
 ### 3. Subscription-based subreddit analysis
 
 This pipeline:
-- Checks for inactive users and deactivates their subscriptions if the user has not logged in for over two weeks
-- Checks for active subscriptions based on analysis type (topics or posts)
-- If there are active subscriptions, the appropriate analysis is run:
-
-1. **Topics analysis**:
-    - Fetches 500 posts with example comments from subreddits that have subscriptions
-    - Processes the data with topic modeling, summarization and sentiment analysis
-    - Stores the processed data in MongoDB Atlas
-2. **Posts analysis**:
-    - Fetches 10 hot posts with example comments from subreddits that have subscriptions
+- Checks for inactive users and **deactivates** their subscriptions if the user has not logged in for over **two weeks**
+- Executes the analyses sequentially for each analysis type (**posts** or **topics**), processing only the subscriptions that match the selected type:
+1. **Posts analysis**:
+    - Fetches 10 hot posts with example comments from subreddits that have active subscriptions
     - Processes the comments with sentiment analysis
+    - Stores the processed data in MongoDB Atlas
+2. **Topics analysis**:
+    - Fetches 500 posts with example comments from subreddits that have active subscriptions
+    - Processes the data with topic modeling, summarization and sentiment analysis
     - Stores the processed data in MongoDB Atlas
 
 ℹ️ We use the data to provide personalized content for users based on their subscribed subreddits.
@@ -907,7 +903,7 @@ python -m scripts.countries_pipeline
 python -m scripts.subscriptions_pipeline --posts | --topics
 ```
 
-⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options for **trending topics** and **country subreddit** pipelines in `app/config.py` to limit the amount of data processed. For subreddit subscriptions, only the subreddits that have active subscriptions saved in the database will be processed.
+⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options for **trending topics** and **country subreddit** pipelines in `app/config.py` to limit the amount of data processed. For **subreddit subscriptions**, only the subreddits that have active subscriptions saved in the database will be processed.
 
 ### Configuring secrets for GitHub Actions
 To run the data pipelines in GitHub Actions, you need to set up the following secrets in your GitHub repository:
@@ -921,10 +917,11 @@ The secrets can be added in the repository settings: `Settings` > `Security` > `
 ### Why automate data processing?
 
 Automating data processing with GitHub Actions offers several benefits:
-- Ensures consistent and reliable daily updates
+- Ensures consistent and reliable regular updates
 - Keeps the frontend up-to-date with fresh data
 - Enables historical analysis and long-term trend tracking
 - Delivers fast frontend performance without waiting for real-time processing
+- Saves time by removing manual, repetitive tasks
 
 **Learn more:**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
