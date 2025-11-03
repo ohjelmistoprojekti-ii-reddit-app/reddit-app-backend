@@ -5,6 +5,7 @@ from bson import ObjectId
 from app.services.db import connect_db
 import datetime
 from datetime import timedelta
+import re
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -69,6 +70,12 @@ def register():
     if len(password) < 8:
         return jsonify({"msg": "Password must be at least 8 characters"}), 400
 
+    if len(username) < 3 or len(username) > 20:
+        return jsonify({"msg": "Username must be from 3 to 20 characters"}), 400
+    
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return jsonify({"msg": "Invalid email format"}), 400
+    
     client, db = connect_db()
     try:
         if db.users.find_one({"username": username.lower()}):

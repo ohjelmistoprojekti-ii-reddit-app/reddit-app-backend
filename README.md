@@ -3,6 +3,7 @@
 This is the **backend service** for a web application that:
 - fetches **popular Reddit posts**
 - identifies **trending topics** using topic modeling
+- makes a brief **summary of the topic** based on the posts
 - analyzes **sentiment** of public discussions
 - and enables **filtering** topics by sentiment (positive, negative, neutral) and category (e.g., technology, entertainment, sports)
 
@@ -19,15 +20,15 @@ This is the **backend service** for a web application that:
   - [Trending topics analysis endpoints](#trending-topics-analysis-endpoints)
   - [Statistics endpoints](#statistics-endpoints)
   - [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
+  - [User authentication endpoints](#user-authentication-endpoints)
   - [Subscriptions endpoints](#subscriptions-endpoints)
   - [No database endpoints](#no-database-endpoints)
 - [🔎 Solutions Overview](#-solutions-overview)
 - [➡️ See Also](#see-also)
 
 </details>
-<br>
 
-> This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
+> Note! This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
 
 ## 🛠️ Tech Stack
 - **Language:** [Python](https://docs.python.org/3/)
@@ -35,6 +36,7 @@ This is the **backend service** for a web application that:
 - **Reddit API:** [Async PRAW](https://asyncpraw.readthedocs.io/en/stable/)
 - **Topic modeling:** [BERTopic](https://maartengr.github.io/BERTopic/index.html)
 - **Sentiment analysis:** [VADER](https://vadersentiment.readthedocs.io/en/latest/index.html)
+- **Translation and summarization:** [Flan-T5](https://huggingface.co/docs/transformers/model_doc/flan-t5)
 - **Database:** [MongoDB](https://www.mongodb.com/)
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
@@ -115,6 +117,11 @@ python run.py
 - [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
   - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
   - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
+- [User authentication endpoints](#user-authentication-endpoints)
+  - [Register as a user](#register-as-a-user)
+  - [Login as a user](#login-as-a-user)
+  - [Refresh access token](#refresh-access-token)
+  - [Logout](#logout)
 - [Subscriptions endpoints](#subscriptions-endpoints)
   - [Get list of active subscriptions by analysis type](#get-list-of-active-subscriptions-by-analysis-type)
   - [Get subscriptions for current user](#get-subscriptions-for-current-user)
@@ -132,6 +139,8 @@ python run.py
 **Description**: Fetches posts directly from Reddit, performs topic modeling and sentiment analysis, and returns analyzed data. Data is not stored in the database.
 
 ⌛ This operation may take a few minutes depending on the amount of posts.
+
+ℹ️ This endpoint supported the first prototype of the project before database integration. It can be used for testing or demo purposes.
 
 | Parameter | Description | Examples |
 | --------- | ----------- | ------- |
@@ -200,8 +209,7 @@ Note that the order of fields may vary.
 
 **Description**: Fetches 10 hot posts directly from Reddit, translates their title, content and comments into English, performs sentiment analysis on the comments, and returns the analyzed data. The data is not stored in the database.
 
-ℹ️ This endpoint supports the map feature on the front end. We use it primarily to fetch country-specific subreddits, but it can also be used to retrieve data about any subreddit with supported language.
-
+ℹ️ This endpoint supported the first version of the map feature before database integration. It can be used for testing or demo purposes.
 
 | Parameter | Description | Examples |
 | --------- | ----------- | ------- |
@@ -433,8 +441,12 @@ http://127.0.0.1:5000/posts/numbers/topics/programming/7/8
 
 ## Country subreddit analysis endpoints
 
+ℹ️ These endpoints support the **map feature** in the frontend. The map allows users to explore popular Reddit posts across different countries, along with translations and sentiment analysis of public discussions.
+
 ### Get country subreddits that have data available in the database
 > GET /subreddits/countries
+
+🔑 **Some countries require user authentication**. To access all countries, user has to login.
 
 **Description**: Retrieves list of country subreddits that our `GitHub Actions` pipeline currently analyzes daily. The analyzed data is stored in the database and can be accessed via `/countries/latest/{subreddit}` endpoint.
 
@@ -447,33 +459,33 @@ http://127.0.0.1:5000/subreddits/countries
 
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
+For some countries, user authentication is required. This is indicated by the `login_required` field in the response.
 
-```json
+```jsonc
 [
   {
-    "id": "FI",
-    "name": "Finland",
-    "subreddit": "suomi"
+      "id": "FI",
+      "login_required": 0, // No authentication required
+      "name": "Finland",
+      "subreddit": "suomi"
   },
   {
-    "id": "SE",
-    "name": "Sweden",
-    "subreddit": "sweden"
+      "id": "SE",
+      "login_required": 0,
+      "name": "Sweden",
+      "subreddit": "sweden"
   },
   {
-    "id": "IT",
-    "name": "Italy",
-    "subreddit": "italia"
+      "id": "NO",
+      "login_required": 1, // Requires user authentication
+      "name": "Norway",
+      "subreddit": "norway"
   },
   {
-    "id": "MX",
-    "name": "Mexico",
-    "subreddit": "mexico"
-  },
-  {
-    "id": "ES",
-    "name": "Spain",
-    "subreddit": "spain"
+      "id": "IT",
+      "login_required": 0,
+      "name": "Italy",
+      "subreddit": "italia"
   },
 ]
 ```
@@ -481,6 +493,8 @@ http://127.0.0.1:5000/subreddits/countries
 
 ### Get latest analyzed country data from the database
 > GET /countries/latest/{subreddit}
+
+🔑 **Some countries require user authentication**. To access all countries, user has to login.
 
 **Description**: Retrieves the latest analyzed posts for a given country subreddit from the database. The analysis process for country subreddits includes translation to English (if needed), and sentiment analysis on comments.
 
@@ -492,7 +506,7 @@ http://127.0.0.1:5000/subreddits/countries
 
 **Example request**:
 ```
-http://127.0.0.1:5000/countries/latest/italia
+http://127.0.0.1:5000/countries/latest/sweden
 ```
 
 ➡️ **Returns** latest analyzed posts for the country subreddit from the most recently saved batch in the database. The response includes original and translated content, along with sentiment analysis on comments.
@@ -504,45 +518,160 @@ Note that some fields may be empty depending on the post content. For example, t
 
 Also note that the response does not contain all comments: currently, we only store a few example comments per post for brevity. `Num_comments` field indicates the total amount of comments on the post.
 
+Some countries require user authentication, which is indicated by the `requiresLogin` field in the response.
+
 ```jsonc
-[
-  {
-    "_id": "68fb7be963ba754836af3d90", // MongoDB document ID
-    "country_id": "IT",
-    "country_name": "Italy",
-    "posts": [
-      {
-        "comments": [
-          "Non c’è nulla di più pericoloso del revisionismo storico. O dei “se solo…”. Che lo si faccia con buone, o cattive intenzioni, poco cambia. Un mondo violento crea leader violenti. Al giorno d’oggi, questi personaggi sarebbero CEO di aziende altisonanti. E finirebbero per influenzare molte più vite. Non si muore solo di spada.",
-          "Khan, Cesare, Alessandro Magno, tutti genocidi assassini... infatti se non ci fossero stati il mondo antico avrebbe vissuto nel pacifismo più totale",
-          "Non c’è rosa senza spine. Chi ha cambiato il mondo o voleva cambiarlo ha spento vite. \nEgel diceva “laddove non ci sono guerre la storia presenta pagine bianche”.\nLa penso uguale."
+{
+  "country": "Italy",
+  "posts": [
+    {
+      "_id": "69084cce3b6d81a2999e91cc",
+      "country_id": "IT",
+      "country_name": "Italy",
+      "posts": [
+          {
+            "comments": [
+              "E la roba ancora più imbarazzante è che al URL non hanno tolto la query string the per un documento del genere è completamente irrisoria",
+              "Non è detto che Francesco sia quello che ha condotto le ricerche, banalmente potrebbe essere stato l’ultimo a modificare il file (magari ha solo impaginato)"
+            ],
+            "comments_eng": [
+              "And the even more irksome thing is that the URL didn't have the query string for a document of this kind is completely irritating",
+              "It is not said that Francesco is what has condoted the researches, logically he might have been the last to modify the file (maari has only impaginated)"
+            ],
+            "content": "Vi ricordate della lista dei 48 (46) siti con la verifica dell'età dal 12 novembre? Bene non solo non sono state rimosse le sessioni dei domini di secondo livello ma il pdf contiene i metadati (exif) del dipendente che ha fatto le ricerche.\nDico solo una cosa, non affidate la vostra privacy a tali incompetenti, grazie.",
+            "content_eng": "Remember the list of 48 (46) sites with the date of 12 November? Well, not only have you not missed the sessions of the second level dominions, but the pdf contains the metadata (exif) of the person who made the research. I'm just saying one thing, don't entrust your privacy to such incompetents, thank you.",
+            "content_link": "https://i.redd.it/lymvf3s47uyf1.jpeg", // Link to media content; if this matches 'link', there is no separate media content
+            "link": "https://reddit.com/r/Italia/comments/1omfxa2/grave_violazione_della_privacy_da_parte_di_agcom/", // Direct link to the Reddit post
+            "num_comments": 158,
+            "score": 984,
+            "sentiment_values": {
+                "average_compound": 0.391,
+                "average_neg": 4.429,
+                "average_neu": 75.886,
+                "average_pos": 19.657
+            },
+            "title": "Grave violazione della privacy da parte di AGCOM",
+            "title_eng": "Felony infringement of privacy by AGCOM"
+          }
         ],
-        "comments_eng": [
-          "There is nothing more dangerous than historical revisionism. Or they say \"it's just...\". If you do it with good, or strong, intentions, it changes. A violent world creates violent leaders. Today, these people would be CEOs of high-growth companies. And they would end up influencing many more lives. Not only do you die.",
-          "Khan, Cesare, Alessandro Magno, all the genocidal assassins ... in fact if we had not existed the ancient world would have lived in the most total peace",
-          "There is no rose without a spine. Whoever changed the world or wanted to change it spent his life. Egel said “there are no wars, the story of the white pages.” I think it's a universal idea."
-        ],
-        "content": "",
-        "content_eng": "",
-        "content_link": "https://i.redd.it/elut1z7650xf1.jpeg", // Link to the post's media content (e.g., image or link to a news article). If the post has no additional media content, this matches 'link'
-        "link": "https://reddit.com/r/Italia/comments/1oeq9gq/il_dualismo_di_reddit/", // Direct link to the original Reddit post
-        "num_comments": 25, // Total amount of comments on the post
-        "score": 219,
-        "sentiment_values": {
-          "average_compound": 0.001,
-          "average_neg": 9.45,
-          "average_neu": 78.15,
-          "average_pos": 12.4
-        },
-        "title": "Il dualismo di reddit",
-        "title_eng": "Reddit's Duality"
-      },
-    ],
     "subreddit": "italia",
-    "timestamp": "Fri, 24 Oct 2025 13:15:21 GMT" // Time when the data was saved to db
-  }
-]
+    "timestamp": "Mon, 03 Nov 2025 06:33:50 GMT" // Time when the data was saved to db
+    }
+  ],
+  "requestedBy": "anonymous", // Indicates the username of the requester, or "anonymous" if no authentication was used
+  "requiresLogin": false // Indicates if user authentication was required to access this data
+}
 ```
+</details>
+
+## User authentication endpoints
+
+### Register as a user
+
+> POST /auth/register
+
+**Description**: Create a new user account
+
+- Request JSON:
+  - `username`: string (required, must be 3–20 characters)
+  - `email`: string (required, must be a valid email format)
+  - `password`: string (required, minimum 8 characters)
+
+- Behavior:
+  - `username` and `email` are stored lowercased
+  - `password` is hashed before storage
+  - initial fields: `last_login = null`, `revoked_access_tokens = []`, `refresh_revoked = False`
+
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/register" `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":<your username here in "">,"email":<your email here in "">,"password":<your password here in "">}'
+```  
+
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `201 Created`  
+    `{ "msg": "User created successfully", "user_id": "<object_id>" }`
+  - `400 Bad Request`  
+    `{ "msg": "All fields (username, email, password) required" }`  
+    `{ "msg": "Password must be at least 8 characters" }`
+    `{ "msg": "Username must be from 3 to 20 characters" }`
+    `{ "msg": "Invalid email format" }`
+    `{ "msg": "Username already exists" }`  
+    `{ "msg": "Email already registered" }`
+
+</details>
+
+### Login
+
+> POST /auth/login
+
+**Description**: Authenticate user and return access + refresh tokens. On successful login `last_login` is updated and `refresh_revoked` reset to `False`.
+
+- Request JSON:
+  - `username`: string (required)
+  - `password`: string (required)
+  
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/login" `
+  -Method POST `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":<your username here in "","password":<your password here in ""}'
+```  
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `200 OK`  
+    `{ "access_token": "<jwt>", "refresh_token": "<jwt>" }`
+  - `400 Bad Request`  
+    `{ "msg": "Username and password required" }`
+  - `401 Unauthorized`  
+    `{ "msg": "Wrong username or password" }`
+
+</details>
+
+### Refreshing the access token
+
+> POST /auth/refresh
+
+**Description**: Exchange a valid refresh token for a new access token. The refresh token is valid for 24 hours, and the access token for 15 minutes. 
+
+
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/refresh" `
+  -Method POST `
+  -Headers @{ "Authorization" = "Bearer <refresh_token>" }
+```  
+
+### Logout
+
+> DELETE /auth/logout
+
+**Description**: Revoke current access token and revoke refresh token for the user with valid access token.
+
+Behavior:
+- Removes old revoked access tokens
+- Marks current access token as revoked
+- Revokes the refresh token
+  
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/logout" `
+  -Method DELETE `
+  -Headers @{ "Authorization" = "Bearer <access_token>" }
+
+```  
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `200 OK`  
+    `{ "msg": "Access and refresh token revoked" }`
+
 </details>
 
 ## Subscriptions endpoints
@@ -749,7 +878,6 @@ The response format depends on the analysis type of the subscription:
   ]
 }
 ```
-</details>
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
@@ -763,7 +891,7 @@ An overview of our solutions and approaches across the project's key areas.
 
 There are multiple tools available for this task, and for this project, we chose **BERTopic**, a modern framework that leverages advanced sentence-transformer models and statistical techniques to uncover easily interpretable topics.
 
-<strong>Core concepts of BERTopic</strong>
+### Core concepts of BERTopic
 
 BERTopic is highly flexible, allowing you to customize or swap components based on your needs. For example, you can control how broad or detailed the topic groups are by changing the clustering model, or generate embeddings using almost any sentence-transformer model. Adjusting different components can have a significant impact on the results.
 
@@ -778,8 +906,7 @@ Here are the key steps in BERTopic and the models we used for each stage:
 4. **Topic representation**: Labels each cluster with a few key words summarizing its main theme.
     - Model: BERTopic default, [c-TF-IDF](https://maartengr.github.io/BERTopic/getting_started/ctfidf/ctfidf.html)
 
-
-<strong>Why use BERTopic on Reddit data?</strong>
+### Why use BERTopic on Reddit data?
 
 Reddit discussions are already organized into different topics as **subreddits**, so someone might wonder why we would use topic modeling on Reddit at all. We wanted to take our Reddit analysis a step further and see if recurring themes or topics could be found *within* large subreddits.
 
@@ -937,6 +1064,40 @@ Automating data processing with GitHub Actions offers several benefits:
 
 <details>
 <summary><strong>Language Translation</strong></summary>
+
+**Translation** is a core Natural Language Processing (NLP) task that involves automatically converting text from one language to another while preserving its meaning, tone, and context.
+
+In this project, we implemented translation based on Google’s FLAN-T5 model to translate multilingual Reddit data into English, enabling the presentation of discussion threads and the associated comment sentiments from different countries’ Reddit communities.
+
+⚙️ **Overview of the Translation System**
+The translation component:
+
+- Detects the original language of a Reddit post or comment.
+- Splits the text into sentences for better translation quality.
+- Uses a large-scale transformer model to generate fluent English translations.
+
+Key libraries and models:
+
+- **Language detection — Langid**: Automatically detects the input text’s language and returns the language code (e.g., `es` for Spanish).
+- **Sentence tokenization — NLTK**: Splits text into sentences to translate long posts in manageable segments.
+- **Translation model — FLAN-T5-Large**: A large instruction-tuned Transformer model from Google. We use prompts like:
+    ```text
+    Translate from {original_language} to English: [sentences]
+    ```
+
+## 🚫 Limitations and Considerations
+While FLAN-T5 performs robustly across many languages, there are several caveats specific to our Reddit translation project:
+
+- **Limited low-resource language coverage** — Translation quality may drop for languages that are not well represented in the model’s training data. Since project participants have limited multilingual skills, manually testing translations across all languages is challenging.
+
+- **Context fragmentation** — Reddit comments often contain multiple sentences, indirect references, or idiomatic expressions. Translating sentence-by-sentence can sometimes lose cross-sentence context or subtle nuances, which may affect downstream tasks like topic modeling or sentiment analysis. At the moment, the quality of translations is not sufficient to reliably perform topic modeling on the translated text.
+
+- **Translation latency** — Translating Reddit data takes time and real-time analysis is not possible. Translations are processed a few times per day. 
+
+</details>
+
+<details>
+<summary><strong>Text Summarization</strong></summary>
 Coming soon
 </details>
 

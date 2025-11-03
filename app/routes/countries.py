@@ -4,10 +4,10 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.helpers.jwt_utils import is_token_revoked
 from app.config import Config
 
-bp = Blueprint('countries', __name__, url_prefix='/countries')
+countries_bp = Blueprint('countries', __name__, url_prefix='/countries')
 
 # Get latest batch of analyzed data for a given country subreddit
-@bp.route('/latest/<subreddit>', methods=['GET'])
+@countries_bp.route('/latest/<subreddit>', methods=['GET'])
 @jwt_required(optional=True)
 def get_latest_country_data(subreddit):
 
@@ -33,8 +33,9 @@ def get_latest_country_data(subreddit):
     if not data:
         return jsonify({"error": "No data found for this subreddit"}), 404
     
-    for entry in data:
-        entry["requiresLogin"] = bool(country["login_required"])
-        entry["requestedBy"] = current_user or "anonymous"
-    
-    return jsonify(data), 200
+    return jsonify({
+        "country": country["name"],
+        "requiresLogin": bool(country["login_required"]),
+        "requestedBy": current_user or "anonymous",
+        "posts": data
+    })
