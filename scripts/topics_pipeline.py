@@ -1,8 +1,9 @@
 import asyncio
+from datetime import datetime, timezone
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis
-from app.services.db import save_posts_to_database
+from app.services.db import save_data_to_database
 from app.config import Config
 import sys
 
@@ -20,7 +21,12 @@ def topics_pipeline(subreddit):
         posts = asyncio.run(get_posts(subreddit, "hot", 500, 2))
         topics = extract_topics(posts)
         analyzed_topics = sentiment_analysis(topics)
-        save_posts_to_database(analyzed_topics, subreddit, "posts")
+
+        for topic in analyzed_topics:
+            topic["subreddit"] = subreddit  # add subreddit info to each topic
+            topic["timestamp"] = datetime.now(timezone.utc)  # add timestamp to each topic
+
+        save_data_to_database(analyzed_topics, "posts")
         return True
     except Exception as e:
         print(f"::error::Pipeline failed for '{subreddit}': {e}")

@@ -6,6 +6,7 @@ from app.routes.countries import countries_bp
 # from app.routes.reddit_api import reddit_api_bp
 # from app.routes.statistics import statistics_bp
 from app.routes.subbreddits import subbreddits_bp
+from app.routes.subscriptions import bp as subscriptions_bp
 # from app.routes.topics import topics_bp
 from app.routes.user_routes import bp as user_bp
 from flask_jwt_extended import JWTManager
@@ -40,5 +41,6 @@ def create_app():
     app.register_blueprint(subbreddits_bp)
     # app.register_blueprint(topics_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(subscriptions_bp)
     
     return app

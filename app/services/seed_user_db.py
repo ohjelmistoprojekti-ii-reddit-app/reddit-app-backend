@@ -1,4 +1,4 @@
-from app.services.db import get_db
+from app.services.db import connect_db
 from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
 import os
@@ -7,7 +7,7 @@ import datetime
 load_dotenv()
 
 def seed_users():
-    db, client = get_db()
+    client, db = connect_db()
     try:
         if db.users.count_documents({}) == 0:
             

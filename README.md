@@ -17,14 +17,12 @@ This is the **backend service** for a web application that:
   - [Connecting to MongoDb Atlas](#connecting-to-mongodb-atlas)
   - [Run the demo](#run-the-demo)
 - [🌐 REST API](#-rest-api)
-  - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
-  - [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
-  - [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
-  - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
-  - [Get post number statistics from the database](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
-  - [Get top topics statistics from the database](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
-  - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
-  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
+  - [Trending topics analysis endpoints](#trending-topics-analysis-endpoints)
+  - [Statistics endpoints](#statistics-endpoints)
+  - [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
+  - [User authentication endpoints](#user-authentication-endpoints)
+  - [Subscriptions endpoints](#subscriptions-endpoints)
+  - [No database endpoints](#no-database-endpoints)
 - [🔎 Solutions Overview](#-solutions-overview)
 - [➡️ See Also](#see-also)
 
@@ -107,19 +105,32 @@ python run.py
 ✅ When everything is working, you will see this message on your console: 'Running on http://127.0.0.1:5000'
 
 **Available endpoints:**
-- [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
-- [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
-- [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
-- [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
-- [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
-- [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
-- [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
-- [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
-- [Register as a user](#register-as-a-user)
-- [Login](#login)
-- [Refresh access token](#refreshing-the-access-token)
-- [Logout](#logout)
+- [No database endpoints](#no-database-endpoints)
+  - [Get analyzed posts from Reddit (no database)](#get-analyzed-posts-from-reddit-no-database)
+  - [Get translated and analyzed posts from Reddit (no database)](#get-translated-and-analyzed-posts-from-reddit-no-database)
+- [Trending topics analysis endpoints](#trending-topics-analysis-endpoints)
+  - [Get subreddits that have data available in the database](#get-subreddits-that-have-data-available-in-the-database)
+  - [Get latest analyzed posts from the database](#get-latest-analyzed-posts-from-the-database)
+- [Statistics endpoints](#statistics-endpoints)
+  - [Get post number statistics for a subreddit in a given timeperiod](#get-post-number-statistics-for-a-subreddit-in-a-given-timeperiod)
+  - [Get top topics statistics for a subreddit in a given timeperiod](#get-top-topics-statistics-for-a-subreddit-in-a-given-timeperiod)
+- [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
+  - [Get country subreddits that have data available in the database](#get-country-subreddits-that-have-data-available-in-the-database)
+  - [Get latest analyzed country subreddit data from the database](#get-latest-analyzed-country-data-from-the-database)
+- [User authentication endpoints](#user-authentication-endpoints)
+  - [Register as a user](#register-as-a-user)
+  - [Login as a user](#login-as-a-user)
+  - [Refresh access token](#refresh-access-token)
+  - [Logout](#logout)
+- [Subscriptions endpoints](#subscriptions-endpoints)
+  - [Get list of active subscriptions by analysis type](#get-list-of-active-subscriptions-by-analysis-type)
+  - [Get subscriptions for current user](#get-subscriptions-for-current-user)
+  - [Create a new subscription for current user](#create-a-new-subscription-for-current-user)
+  - [Deactivate subscription for current user](#deactivate-subscription-for-current-user)
+  - [Get latest analyzed data for current user's active subscription](#get-latest-analyzed-data-for-current-users-active-subscription)
 
+
+## No database endpoints
 
 ### Get analyzed posts from Reddit (no database)
 
@@ -128,6 +139,8 @@ python run.py
 **Description**: Fetches posts directly from Reddit, performs topic modeling and sentiment analysis, and returns analyzed data. Data is not stored in the database.
 
 ⌛ This operation may take a few minutes depending on the amount of posts.
+
+ℹ️ This endpoint supported the first prototype of the project before database integration. It can be used for testing or demo purposes.
 
 | Parameter | Description | Examples |
 | --------- | ----------- | ------- |
@@ -189,6 +202,60 @@ Note that the order of fields may vary.
 }
 ```
 </details>
+
+### Get translated and analyzed posts from Reddit (no database)
+
+> GET /posts/hot/{subreddit}
+
+**Description**: Fetches 10 hot posts directly from Reddit, translates their title, content and comments into English, performs sentiment analysis on the comments, and returns the analyzed data. The data is not stored in the database.
+
+ℹ️ This endpoint supported the first version of the map feature before database integration. It can be used for testing or demo purposes.
+
+| Parameter | Description | Examples |
+| --------- | ----------- | ------- |
+| subreddit | [name of any subreddit](https://www.reddit.com/r/ListOfSubreddits/wiki/listofsubreddits/) | `suomi`, `sweden`, `spain`, `mexico`, `italia`
+
+**Example request**:
+```
+http://127.0.0.1:5000/posts/hot/italia
+```
+➡️ **Returns** Posts with original and translated content, including sentiment analysis on comments.
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  {
+    "comments": [
+      "Immagino sia successo a [Firenze](https://www.ilgiornale.it/news/cronaca-locale/vandalismo-pro-pal-firenze-blocchi-cemento-sui-binari-2546511.html), cerchiamo di mettere le fonti, thanks.",
+      "Attaccato da chi? Questo è un gesto molto pericoloso e non ha nessun senso e non c’entra niente con le manifestazioni pacifiche che ci sono state in questi giorni. Se davvero l’hanno fatto dei manifestanti vanno fermati.\nFortunatamente con tutte le telecamere di sicurezza di una stazione ferroviaria sarà facilissimo risalire ai responsabili, per caso il tuo amico ti ha detto dove è successo? Vedo che è notte quindi immagino tra ieri e oggi",
+      "“manifestanti”.."
+    ],
+    "comments_eng": [
+      "The image has been successfully re-created in [French] ( we are asking for the fonts, thanks.",
+      "Accused of who? This is a very dangerous move and there is no sense and there is no sense in the peaceful demonstrations that we are experiencing in these days. If they really did make the manifestos. Unfortunately, with all the security cameras at a railway station, it will be easy to get to the responsible, if your friend has told you where it happened? I see that I am now comparing yesterday and today.",
+      "This language is so far unsupported"
+    ],
+    "content": "So che verrò attaccato da molti, ma dopo questa ennesima bravata inizio a convincermi sempre di più che qui la situazione sta sfuggendo di mano a tutti. Volete manifestare? Bene, avete tutto il diritto di farlo, ma fatelo usando la testa e pensando alle conseguenze di ciò che fate. Proprio ieri avevo letto un post di un utente che raccontava che sua nonna è rimasta bloccata nel traffico per ore quando doveva andare a fare il suo ciclo di chemio… Una cosa a mio parere molto grave. Ieri sera ricevo questo video da un mio amico che lavora come macchinista. Questo gesto non è un gesto di protesta ma un vero e proprio attentato. Se un treno in corsa passava su quei blocchi c’era un alta possibilità che deragliasse… Risultato? Feriti e possibili morti di innocenti che stavano viaggiando su un semplice treno.",
+    "content_eng": "So he would be beaten by many, but after this latest bravery he started to convince me constantly that the situation is worse than here. Volete manifestare? Well, you have all the directions to do it, but you kill it using the test and thinking about the consequences of what you kill. Yesterday I had a post on a poet who told me that his wife was stranded in traffic for hours when she needed to take her chemotherapy... A thing that makes me feel very bad. I'll be taking this video from a friend who works as a mechanic. This gesture is not a protest gesture but a real and committed one. If a train was in the path on those blocks there was a high possibility of crashing... result? Feriti and possible deaths of innocents traveling on a simple train.",
+    "score": 579,
+    "sentiment_values": {
+      "average_compound": 0.242,
+      "average_neg": 17.133,
+      "average_neu": 66.767,
+      "average_pos": 16.1
+    },
+    "title": "Manifestanti cercano di bloccare il traffico ferroviario mettendo blocchi di cemento sui binari",
+    "title_eng": "Manifestos are trying to block traffic by putting cement blocks on the bridges."
+  }
+]
+  
+```
+</details>
+
+
+## Trending topics analysis endpoints
 
 ### Get subreddits that have data available in the database
 > GET /subreddits
@@ -288,6 +355,8 @@ Note that the order of fields may vary.
 ```
 </details>
 
+## Statistics endpoints
+
 ### Get post number statistics for a subreddit in a given timeperiod
 
 > GET /posts/numbers/{subreddit}/{days}
@@ -369,60 +438,15 @@ http://127.0.0.1:5000/posts/numbers/topics/programming/7/8
 ```
 </details>
 
-### Get translated and analyzed posts from Reddit (no database)
 
-> GET /posts/hot/{subreddit}
+## Country subreddit analysis endpoints
 
-**Description**: Fetches 10 hot posts directly from Reddit, translates their title, content and comments into English, performs sentiment analysis on the comments, and returns the analyzed data. The data is not stored in the database.
-
-ℹ️ This endpoint supports the map feature on the front end. We use it primarily to fetch country-specific subreddits, but it can also be used to retrieve data about any subreddit with supported language.
-
-
-| Parameter | Description | Examples |
-| --------- | ----------- | ------- |
-| subreddit | [name of any subreddit](https://www.reddit.com/r/ListOfSubreddits/wiki/listofsubreddits/) | `suomi`, `sweden`, `spain`, `mexico`, `italia`
-
-**Example request**:
-```
-http://127.0.0.1:5000/posts/hot/italia
-```
-➡️ **Returns** Posts with original and translated content, including sentiment analysis on comments.
-
-<details>
-<summary><strong>Example response format</strong> (click to open)</summary>
-
-```json
-[
-  {
-    "comments": [
-      "Immagino sia successo a [Firenze](https://www.ilgiornale.it/news/cronaca-locale/vandalismo-pro-pal-firenze-blocchi-cemento-sui-binari-2546511.html), cerchiamo di mettere le fonti, thanks.",
-      "Attaccato da chi? Questo è un gesto molto pericoloso e non ha nessun senso e non c’entra niente con le manifestazioni pacifiche che ci sono state in questi giorni. Se davvero l’hanno fatto dei manifestanti vanno fermati.\nFortunatamente con tutte le telecamere di sicurezza di una stazione ferroviaria sarà facilissimo risalire ai responsabili, per caso il tuo amico ti ha detto dove è successo? Vedo che è notte quindi immagino tra ieri e oggi",
-      "“manifestanti”.."
-    ],
-    "comments_eng": [
-      "The image has been successfully re-created in [French] ( we are asking for the fonts, thanks.",
-      "Accused of who? This is a very dangerous move and there is no sense and there is no sense in the peaceful demonstrations that we are experiencing in these days. If they really did make the manifestos. Unfortunately, with all the security cameras at a railway station, it will be easy to get to the responsible, if your friend has told you where it happened? I see that I am now comparing yesterday and today.",
-      "This language is so far unsupported"
-    ],
-    "content": "So che verrò attaccato da molti, ma dopo questa ennesima bravata inizio a convincermi sempre di più che qui la situazione sta sfuggendo di mano a tutti. Volete manifestare? Bene, avete tutto il diritto di farlo, ma fatelo usando la testa e pensando alle conseguenze di ciò che fate. Proprio ieri avevo letto un post di un utente che raccontava che sua nonna è rimasta bloccata nel traffico per ore quando doveva andare a fare il suo ciclo di chemio… Una cosa a mio parere molto grave. Ieri sera ricevo questo video da un mio amico che lavora come macchinista. Questo gesto non è un gesto di protesta ma un vero e proprio attentato. Se un treno in corsa passava su quei blocchi c’era un alta possibilità che deragliasse… Risultato? Feriti e possibili morti di innocenti che stavano viaggiando su un semplice treno.",
-    "content_eng": "So he would be beaten by many, but after this latest bravery he started to convince me constantly that the situation is worse than here. Volete manifestare? Well, you have all the directions to do it, but you kill it using the test and thinking about the consequences of what you kill. Yesterday I had a post on a poet who told me that his wife was stranded in traffic for hours when she needed to take her chemotherapy... A thing that makes me feel very bad. I'll be taking this video from a friend who works as a mechanic. This gesture is not a protest gesture but a real and committed one. If a train was in the path on those blocks there was a high possibility of crashing... result? Feriti and possible deaths of innocents traveling on a simple train.",
-    "score": 579,
-    "sentiment_values": {
-      "average_compound": 0.242,
-      "average_neg": 17.133,
-      "average_neu": 66.767,
-      "average_pos": 16.1
-    },
-    "title": "Manifestanti cercano di bloccare il traffico ferroviario mettendo blocchi di cemento sui binari",
-    "title_eng": "Manifestos are trying to block traffic by putting cement blocks on the bridges."
-  }
-]
-  
-```
-</details>
+ℹ️ These endpoints support the **map feature** in the frontend. The map allows users to explore popular Reddit posts across different countries, along with translations and sentiment analysis of public discussions.
 
 ### Get country subreddits that have data available in the database
 > GET /subreddits/countries
+
+🔑 **Some countries require user authentication**. To access all countries, user has to login.
 
 **Description**: Retrieves list of country subreddits that our `GitHub Actions` pipeline currently analyzes daily. The analyzed data is stored in the database and can be accessed via `/countries/latest/{subreddit}` endpoint.
 
@@ -435,33 +459,33 @@ http://127.0.0.1:5000/subreddits/countries
 
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
+For some countries, user authentication is required. This is indicated by the `login_required` field in the response.
 
-```json
+```jsonc
 [
   {
-    "id": "FI",
-    "name": "Finland",
-    "subreddit": "suomi"
+      "id": "FI",
+      "login_required": 0, // No authentication required
+      "name": "Finland",
+      "subreddit": "suomi"
   },
   {
-    "id": "SE",
-    "name": "Sweden",
-    "subreddit": "sweden"
+      "id": "SE",
+      "login_required": 0,
+      "name": "Sweden",
+      "subreddit": "sweden"
   },
   {
-    "id": "IT",
-    "name": "Italy",
-    "subreddit": "italia"
+      "id": "NO",
+      "login_required": 1, // Requires user authentication
+      "name": "Norway",
+      "subreddit": "norway"
   },
   {
-    "id": "MX",
-    "name": "Mexico",
-    "subreddit": "mexico"
-  },
-  {
-    "id": "ES",
-    "name": "Spain",
-    "subreddit": "spain"
+      "id": "IT",
+      "login_required": 0,
+      "name": "Italy",
+      "subreddit": "italia"
   },
 ]
 ```
@@ -469,6 +493,8 @@ http://127.0.0.1:5000/subreddits/countries
 
 ### Get latest analyzed country data from the database
 > GET /countries/latest/{subreddit}
+
+🔑 **Some countries require user authentication**. To access all countries, user has to login.
 
 **Description**: Retrieves the latest analyzed posts for a given country subreddit from the database. The analysis process for country subreddits includes translation to English (if needed), and sentiment analysis on comments.
 
@@ -480,7 +506,7 @@ http://127.0.0.1:5000/subreddits/countries
 
 **Example request**:
 ```
-http://127.0.0.1:5000/countries/latest/italia
+http://127.0.0.1:5000/countries/latest/sweden
 ```
 
 ➡️ **Returns** latest analyzed posts for the country subreddit from the most recently saved batch in the database. The response includes original and translated content, along with sentiment analysis on comments.
@@ -492,46 +518,53 @@ Note that some fields may be empty depending on the post content. For example, t
 
 Also note that the response does not contain all comments: currently, we only store a few example comments per post for brevity. `Num_comments` field indicates the total amount of comments on the post.
 
+Some countries require user authentication, which is indicated by the `requiresLogin` field in the response.
+
 ```jsonc
-[
-  {
-    "_id": "68fb7be963ba754836af3d90", // MongoDB document ID
-    "country_id": "IT",
-    "country_name": "Italy",
-    "posts": [
-      {
-        "comments": [
-          "Non c’è nulla di più pericoloso del revisionismo storico. O dei “se solo…”. Che lo si faccia con buone, o cattive intenzioni, poco cambia. Un mondo violento crea leader violenti. Al giorno d’oggi, questi personaggi sarebbero CEO di aziende altisonanti. E finirebbero per influenzare molte più vite. Non si muore solo di spada.",
-          "Khan, Cesare, Alessandro Magno, tutti genocidi assassini... infatti se non ci fossero stati il mondo antico avrebbe vissuto nel pacifismo più totale",
-          "Non c’è rosa senza spine. Chi ha cambiato il mondo o voleva cambiarlo ha spento vite. \nEgel diceva “laddove non ci sono guerre la storia presenta pagine bianche”.\nLa penso uguale."
+{
+  "country": "Italy",
+  "posts": [
+    {
+      "_id": "69084cce3b6d81a2999e91cc",
+      "country_id": "IT",
+      "country_name": "Italy",
+      "posts": [
+          {
+            "comments": [
+              "E la roba ancora più imbarazzante è che al URL non hanno tolto la query string the per un documento del genere è completamente irrisoria",
+              "Non è detto che Francesco sia quello che ha condotto le ricerche, banalmente potrebbe essere stato l’ultimo a modificare il file (magari ha solo impaginato)"
+            ],
+            "comments_eng": [
+              "And the even more irksome thing is that the URL didn't have the query string for a document of this kind is completely irritating",
+              "It is not said that Francesco is what has condoted the researches, logically he might have been the last to modify the file (maari has only impaginated)"
+            ],
+            "content": "Vi ricordate della lista dei 48 (46) siti con la verifica dell'età dal 12 novembre? Bene non solo non sono state rimosse le sessioni dei domini di secondo livello ma il pdf contiene i metadati (exif) del dipendente che ha fatto le ricerche.\nDico solo una cosa, non affidate la vostra privacy a tali incompetenti, grazie.",
+            "content_eng": "Remember the list of 48 (46) sites with the date of 12 November? Well, not only have you not missed the sessions of the second level dominions, but the pdf contains the metadata (exif) of the person who made the research. I'm just saying one thing, don't entrust your privacy to such incompetents, thank you.",
+            "content_link": "https://i.redd.it/lymvf3s47uyf1.jpeg", // Link to media content; if this matches 'link', there is no separate media content
+            "link": "https://reddit.com/r/Italia/comments/1omfxa2/grave_violazione_della_privacy_da_parte_di_agcom/", // Direct link to the Reddit post
+            "num_comments": 158,
+            "score": 984,
+            "sentiment_values": {
+                "average_compound": 0.391,
+                "average_neg": 4.429,
+                "average_neu": 75.886,
+                "average_pos": 19.657
+            },
+            "title": "Grave violazione della privacy da parte di AGCOM",
+            "title_eng": "Felony infringement of privacy by AGCOM"
+          }
         ],
-        "comments_eng": [
-          "There is nothing more dangerous than historical revisionism. Or they say \"it's just...\". If you do it with good, or strong, intentions, it changes. A violent world creates violent leaders. Today, these people would be CEOs of high-growth companies. And they would end up influencing many more lives. Not only do you die.",
-          "Khan, Cesare, Alessandro Magno, all the genocidal assassins ... in fact if we had not existed the ancient world would have lived in the most total peace",
-          "There is no rose without a spine. Whoever changed the world or wanted to change it spent his life. Egel said “there are no wars, the story of the white pages.” I think it's a universal idea."
-        ],
-        "content": "",
-        "content_eng": "",
-        "content_link": "https://i.redd.it/elut1z7650xf1.jpeg", // Link to the post's media content (e.g., image or link to a news article). If the post has no additional media content, this matches 'link'
-        "link": "https://reddit.com/r/Italia/comments/1oeq9gq/il_dualismo_di_reddit/", // Direct link to the original Reddit post
-        "num_comments": 25, // Total amount of comments on the post
-        "score": 219,
-        "sentiment_values": {
-          "average_compound": 0.001,
-          "average_neg": 9.45,
-          "average_neu": 78.15,
-          "average_pos": 12.4
-        },
-        "title": "Il dualismo di reddit",
-        "title_eng": "Reddit's Duality"
-      },
-    ],
     "subreddit": "italia",
-    "timestamp": "Fri, 24 Oct 2025 13:15:21 GMT" // Time when the data was saved to db
-  }
-]
+    "timestamp": "Mon, 03 Nov 2025 06:33:50 GMT" // Time when the data was saved to db
+    }
+  ],
+  "requestedBy": "anonymous", // Indicates the username of the requester, or "anonymous" if no authentication was used
+  "requiresLogin": false // Indicates if user authentication was required to access this data
+}
 ```
 </details>
+
+## User authentication endpoints
 
 ### Register as a user
 
@@ -641,6 +674,212 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/auth/logout" `
 
 </details>
 
+## Subscriptions endpoints
+
+ℹ️ The subscription feature allows users to subscribe to subreddits with preferred analysis type (topics or posts). This way, the user can receive **personalized insights** based on their interests. Currently, the user can subscribe to one subreddit at a time. The subscribed subreddits are analyzed regularly by our `GitHub Actions` pipeline.
+
+### Get list of active subscriptions by analysis type
+> GET /subscriptions/type/{type}
+
+**Description**: Retrieves list of active subscriptions by analysis type from the database.
+
+| Parameter | Description | Options |
+| --------- | ----------- | ------- |
+| type | analysis type | `topics`, `posts` |
+
+**Example request**:
+```
+http://127.0.0.1:5000/subscriptions/type/topics
+```
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+
+```json
+[
+  {
+    "subreddit": "python",
+    "analysis_type": "topics",
+    "active": true,
+    "subscribers": ["user1", "user2", "..."],
+    "created_at": "2025-10-01T10:00:00.000Z"
+  },
+  {
+    "subreddit": "stocks",
+    "analysis_type": "topics",
+    "active": true,
+    "subscribers": ["user3", "user4", "..."],
+    "created_at": "2025-10-02T11:30:00.000Z"
+  }
+]
+```
+</details>
+
+### Get subscriptions for current user
+> GET /subscriptions/current-user
+
+🔑 **This endpoint requires user authentication**
+
+**Description**: Retrieves list of active subscriptions for the current user from the database.
+
+**Example request**:
+```
+GET http://127.0.0.1:5000/subscriptions/current-user
+Headers:
+  Authorization: Bearer <your_access_token>
+```
+
+<details>
+<summary><strong>Example response format</strong> (click to open)</summary>
+The subscribers list includes the current user. Users are represented by user ids (string).
+
+```json
+[
+  {
+    "subreddit": "python",
+    "analysis_type": "topics",
+    "active": true,
+    "subscribers": ["current-user", "user2", "..."],
+    "created_at": "2025-10-01T10:00:00.000Z"
+  }
+]
+```
+</details>
+
+### Create a new subscription for current user
+> POST /subscriptions/current-user/add/{subreddit}/{type}
+
+🔑 **This endpoint requires user authentication**
+
+**Description**: Creates a subscription for the current user with the preferred analysis type. If the same subreddit already has active subscriptions with the same analysis type, user is added to the subscribers list; if not, a new subscription is created. Currently, user can only subscribe to **1 subreddit at a time** and trying to subscribe to another subreddit will result in an error.
+
+| Parameter | Description | Examples |
+| --------- | ----------- | -------- |
+| subreddit | **any subreddit** with preferably 1000+ weekly contributions<br>- the existence of the subreddit is checked in the process | `baseball`, `python`, `stocks`, `lifeprotips`, `gaming` |
+| type | **analysis type**<br>- topic analysis identifies recurring themes within the subreddit, and analyses overall sentiment of the topic<br>- posts analysis focuses on individual posts and their sentiment | `topics`, `posts` |
+
+**Example request**:
+```
+POST http://127.0.0.1:5000/subscriptions/current-user/add/python/topics
+Headers:
+  Authorization: Bearer <your_access_token>
+```
+
+### Deactivate subscription for current user
+> PATCH /subscriptions/current-user/deactivate
+
+🔑 **This endpoint requires user authentication**
+
+**Description**: Deactivates the current user's active subscription. If no active subscription exists, an error message is returned.
+
+**Example request**:
+```
+PATCH http://127.0.0.1:5000/subscriptions/current-user/deactivate
+Headers:
+  Authorization: Bearer <your_access_token>
+```
+
+### Get latest analyzed data for current user's active subscription
+> GET /subscriptions/current-user/latest-analyzed
+
+🔑 **This endpoint requires user authentication**
+
+**Description**: Retrieves the latest analyzed data for the current user's active subscription from the database. If no active subscription exists, an error message is returned. If no analyzed data is found, it is also indicated in the response.
+
+ℹ️ Our `GitHub Actions` pipeline automatically fetches, analyzes, and stores data once a day for the subreddits that have active subscriptions. To read more about the automated pipeline, see the [Solutions Overview](#-solutions-overview) section.
+
+❓ After subscribing, it may take up to 24 hours before the first analyzed data is available, as the analysis happens once a day. If the chosen subreddit already has other active subscriptions, the data may be available sooner.
+
+**Example request**:
+```
+GET http://127.0.0.1:5000/subscriptions/current-user/latest-analyzed
+Headers:
+  Authorization: Bearer <your_access_token>
+```
+
+The response format depends on the analysis type of the subscription:
+
+<details>
+<summary><strong>Example response format for 'topics' analysis type</strong></summary>
+
+```jsonc
+{
+  "type": "topics", // Subscription analysis type
+  "data": [
+    {
+      "topic_id": 1,
+      "topic": ["python", "code", "programming", "..."], // Keywords representing the topic
+      "label": "Python Code Programming", // Official topic label
+      "subreddit": "python",
+      "summary": "Discussion about Python programming, coding tips, and best practices.", // LLM generated summary of the topic
+      "num_posts": 30,
+      "posts": [
+        {
+          "id": "lmnop456",
+          "subreddit": "python",
+          "title": "Best practices for writing clean Python code",
+          "content": "Looking for tips on how to write clean and maintainable Python code",
+          "comments": [
+            "Use meaningful variable names"
+          ],
+          "num_comments": 15,
+          "score": 95,
+          "upvote_ratio": 0.92
+        }
+      ],
+      "sentiment_values": {
+        "average_compound": 0.12,
+        "average_neg": 8.0,
+        "average_neu": 78.0,
+        "average_pos": 14.0,
+        "comment_count": 30
+      },
+      "timestamp": "2025-10-05T14:23:45.678Z", // Time when the data was saved to db
+      "type": "topics" // Subscription analysis type
+    }
+  ]
+}
+```
+</details>
+
+<details>
+<summary><strong>Example response format for 'posts' analysis type</strong></summary>
+
+```jsonc
+{
+  "type": "posts", // Subscription analysis type
+  "data": [
+    {
+      "subreddit": "python",
+      "posts": [
+        {
+          "id": "ghijk789",
+          "title": "How to optimize Python code for performance?",
+          "content": "Looking for tips on optimizing Python code for better performance.",
+          "content_link": "https://reddit.com/r/python/...", // Link to the post's media content. If the post has no additional media content, this matches 'link'
+          "link": "https://reddit.com/r/python/...", // Direct link to the original Reddit post
+          "comments": [
+            "Consider using built-in libraries for efficiency."
+          ],
+          "num_comments": 20,
+          "score": 85,
+          "upvote_ratio": 0.95,
+          "sentiment_values": {
+            "average_compound": 0.15,
+            "average_neg": 5.0,
+            "average_neu": 80.0,
+            "average_pos": 15.0
+          }
+        }
+      ],
+      "timestamp": "2025-10-05T14:23:45.678Z", // Time when the data was saved to db
+      "type": "posts" // Subscription analysis type
+    }
+  ]
+}
+```
+</details>
+
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## 🔎 Solutions Overview
@@ -735,41 +974,55 @@ We use typical threshold values to determine sentiments:
 <details>
 <summary><strong>GitHub Actions</strong></summary>
 
-We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have two main pipelines that run daily:
+We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have three pipelines that run daily:
 
 ### 1. Trending topics analysis
 
 This pipeline:
-- Fetches 500 popular posts with example comments per subreddit
+- Fetches 500 posts with example comments from a predefined set of subreddits
 - Processes the data with topic modeling, summarization and sentiment analysis
 - Stores the processed data in MongoDB Atlas
 
-💡 We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for tracking long-term trends.
+ℹ️ We use the data for displaying trending topics and sentiment analysis results in the frontend. The data can also be used for tracking long-term trends.
 
-**🔗 API Access**
-- The subreddit options for this pipeline can be accessed via [`/subreddits`](#get-subreddits-that-have-data-available-in-the-database) endpoint
-- The processed data can be accessed via [`/posts/latest/{subreddit}`](#get-latest-analyzed-posts-from-the-database) endpoint
+🔗 **API access:** [Trending topics analysis endpoints](#trending-topics-analysis-endpoints)
 
 ### 2. Country subreddit analysis
 
 This pipeline:
-- Fetches 10 popular posts with example comments per subreddit
-- Processes the data with language translation (if needed) and sentiment analysis
+- Fetches 10 hot posts with example comments from a predefined set of country subreddits
+- Processes the posts with language translation (if needed) and sentiment analysis
 - Stores the processed data in MongoDB Atlas
   
-💡 We use the data in a SVG map in frontend to visualize popular discussions and their sentiment across different countries and regions.
+ℹ️ We use the data in a SVG map in the frontend to visualize popular discussions and their sentiment across different countries and regions.
 
-**🔗 API Access**
-- The subreddit options for this pipeline can be accessed via [`/subreddits/countries`](#get-country-subreddits-that-have-data-available-in-the-database) endpoint
-- The processed data can be accessed via [`/countries/latest/{subreddit}`](#get-latest-analyzed-country-data-from-the-database) endpoint
+🔗 **API access:** [Country subreddit analysis endpoints](#country-subreddit-analysis-endpoints)
+
+### 3. Subscription-based subreddit analysis
+
+This pipeline:
+- Checks for inactive users and **deactivates** their subscriptions if the user has not logged in for over **two weeks**
+- Executes the analyses sequentially for each analysis type (**posts** or **topics**), processing only the subscriptions that match the selected type:
+1. **Posts analysis**:
+    - Fetches 10 hot posts with example comments from subreddits that have active subscriptions
+    - Processes the comments with sentiment analysis
+    - Stores the processed data in MongoDB Atlas
+2. **Topics analysis**:
+    - Fetches 500 posts with example comments from subreddits that have active subscriptions
+    - Processes the data with topic modeling, summarization and sentiment analysis
+    - Stores the processed data in MongoDB Atlas
+
+ℹ️ We use the data to provide personalized content for users based on their subscribed subreddits.
+
+🔗 **API access:** [Subscriptions endpoints](#subscriptions-endpoints)
 
 ### Configuring subreddit options
 
-The subreddit options for both pipelines can be modified in `app/config.py`. Note that the GitHub Actions pipelines currently run once a day, so new data may not be immediately available for all subreddits. To get immediate analysis results, you can run the data pipeline manually via command line (see instructions below) or via GitHub Actions.
+The subreddit options for **trending topics** and **country subreddit** pipelines can be modified in `app/config.py`. Note that the GitHub Actions pipelines currently run once a day, so after changes new data may not be immediately available for all subreddits. To get immediate analysis results, you can run the data pipeline manually via command line (see instructions below) or via GitHub Actions.
 
-### Run the pipelines locally
+### Running the pipelines locally
 
-For testing purposes, you can also run the data pipelines locally to populate your database. To do this, ensure your `.env` file is set up with Reddit API and MongoDB Atlas credentials, then run the following commands in your terminal:
+For testing purposes, you can also run the data pipelines locally to populate your database. To do this, ensure your `.env` file is set up with **Reddit API** and **MongoDB Atlas** credentials, then run the following commands in your terminal:
 1. Trending topics analysis pipeline:
 ```
 python -m scripts.topics_pipeline
@@ -778,16 +1031,33 @@ python -m scripts.topics_pipeline
 ```
 python -m scripts.countries_pipeline
 ```
+3. Subscription-based subreddit analysis pipeline:
 
-⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options in `app/config.py` to limit the amount of data processed.
+  - Choose either `--posts` or `--topics` flag based on the analysis type you want to run
+
+```
+python -m scripts.subscriptions_pipeline --posts | --topics
+```
+
+⚠️ Note that processing all current subreddit options will take several minutes. Depending on your needs, you can modify the subreddit options for **trending topics** and **country subreddit** pipelines in `app/config.py` to limit the amount of data processed. For **subreddit subscriptions**, only the subreddits that have active subscriptions saved in the database will be processed.
+
+### Configuring secrets for GitHub Actions
+To run the data pipelines in GitHub Actions, you need to set up the following secrets in your GitHub repository:
+- REDDIT_CLIENT_ID
+- REDDIT_CLIENT_SECRET
+- REDDIT_USER_AGENT
+- ATLAS_CONNECTION_STR
+
+The secrets can be added in the repository settings: `Settings` > `Security` > `Secrets and variables` > `Actions` > `Repository secrets`
 
 ### Why automate data processing?
 
 Automating data processing with GitHub Actions offers several benefits:
-- Ensures consistent and reliable daily updates
+- Ensures consistent and reliable regular updates
 - Keeps the frontend up-to-date with fresh data
 - Enables historical analysis and long-term trend tracking
 - Delivers fast frontend performance without waiting for real-time processing
+- Saves time by removing manual, repetitive tasks
 
 **Learn more:**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)

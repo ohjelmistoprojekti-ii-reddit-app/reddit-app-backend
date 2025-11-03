@@ -1,8 +1,9 @@
 import asyncio
+from datetime import datetime, timezone
 from app.helpers.post_util import get_top_posts_with_translations
 from app.services.reddit_api import get_posts
 from app.models.sentiment_analysis import sentiment_analysis_for_map_feature
-from app.services.db import save_posts_to_database
+from app.services.db import save_data_to_database
 from app.config import Config
 import sys
 
@@ -26,10 +27,12 @@ async def countries_pipeline(country_id, country_name, subreddit):
         combined_data = {
             "country_id": country_id,
             "country_name": country_name,
-            "posts": analyzed_posts
+            "posts": analyzed_posts,
+            "subreddit": subreddit,
+            "timestamp": datetime.now(timezone.utc)
         }
 
-        save_posts_to_database([combined_data], subreddit, "countries")
+        save_data_to_database([combined_data], "countries")
         return True
     except Exception as e:
         print(f"::error::Pipeline failed for '{subreddit}': {e}")

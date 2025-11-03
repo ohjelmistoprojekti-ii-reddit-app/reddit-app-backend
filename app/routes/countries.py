@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify
-from app.services.db import get_latest_posts_by_subreddit
-from app.services.db import get_db
+from app.services.db import get_latest_data_by_subreddit
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.helpers.jwt_utils import is_token_revoked
 from app.config import Config
@@ -11,6 +10,7 @@ countries_bp = Blueprint('countries', __name__, url_prefix='/countries')
 @countries_bp.route('/latest/<subreddit>', methods=['GET'])
 @jwt_required(optional=True)
 def get_latest_country_data(subreddit):
+
     current_user = get_jwt_identity()
 
     country = None
@@ -28,9 +28,9 @@ def get_latest_country_data(subreddit):
     
     if country.get("login_required") and not current_user:
         return jsonify({"error": "Login required to access this subreddit"}), 401
-    
-    data = get_latest_posts_by_subreddit(subreddit, "countries")
-    if len(data) == 0:
+
+    data = get_latest_data_by_subreddit("countries", subreddit)
+    if not data:
         return jsonify({"error": "No data found for this subreddit"}), 404
     
     return jsonify({

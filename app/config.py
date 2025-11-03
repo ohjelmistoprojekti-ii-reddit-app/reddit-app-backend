@@ -4,9 +4,6 @@ class Config:
     
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=1)
-    
-    # What is this key for? Remove if not necessary
-    SECRET_KEY = 'your-secret-key'
 
     # Subreddits that are analyzed daily via our GitHub Actions workflow
     # Also used for filtering categories in frontend

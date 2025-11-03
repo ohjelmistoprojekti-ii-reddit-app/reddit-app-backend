@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
-from app.services.db import get_db
+from app.services.db import connect_db
 import datetime
 from datetime import timedelta
 import re
@@ -17,7 +17,7 @@ def login():
     if not username or not password:
         return jsonify({"msg": "Username and password required"}), 400
 
-    db, client = get_db()
+    client, db = connect_db()
     try:
         user = db.users.find_one({"username": username})
         
@@ -45,7 +45,7 @@ def login():
 @jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()
-    db, client = get_db()
+    client, db = connect_db()
     try:
         user = db.users.find_one({"_id": ObjectId(user_id)})
         if not user or user.get("refresh_revoked"):
@@ -69,14 +69,14 @@ def register():
     
     if len(password) < 8:
         return jsonify({"msg": "Password must be at least 8 characters"}), 400
-    
+
     if len(username) < 3 or len(username) > 20:
         return jsonify({"msg": "Username must be from 3 to 20 characters"}), 400
     
     if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
         return jsonify({"msg": "Invalid email format"}), 400
     
-    db, client = get_db()
+    client, db = connect_db()
     try:
         if db.users.find_one({"username": username.lower()}):
             return jsonify({"msg": "Username already exists"}), 400
@@ -114,7 +114,7 @@ def logout():
     exp_timestamp = datetime.datetime.fromtimestamp(get_jwt()["exp"], datetime.timezone.utc)
     now = datetime.datetime.now(datetime.timezone.utc)
 
-    db, client = get_db()
+    client, db = connect_db()
     try:
         fifteen_minutes_ago = now - timedelta(minutes=15)
 

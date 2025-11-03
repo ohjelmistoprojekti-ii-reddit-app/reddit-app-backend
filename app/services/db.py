@@ -3,65 +3,121 @@ from datetime import datetime, timedelta, timezone
 import os
 
 def connect_db():
-    uri = os.getenv("ATLAS_CONNECTION_STR")
-    client = MongoClient(uri)
-    return client
+    try:
+        uri = os.getenv("ATLAS_CONNECTION_STR")
+        if not uri:
+            raise ValueError("ATLAS_CONNECTION_STR is not set")
+        
+        client = MongoClient(uri)
+        db = client.reddit
+        return client, db
+    except Exception as e:
+        raise ConnectionError(f"Could not connect to database: {e}")
 
-def get_db():
-    client = connect_db()
-    db = client.reddit
-    return db, client
 
-def save_posts_to_database(posts_to_save, subreddit, collection):
+""" Save data (list or dict) to specified collection """
+def save_data_to_database(data_to_save, collection):
     print("Inserting into database..\n")
-    client = connect_db()
-    db = client.reddit
+    if not isinstance(data_to_save, (list, dict)):
+        raise TypeError("Data to save must be a list or a dictionary")
+
+    client, db = connect_db()
     coll = db[collection]
+    try:
+        if isinstance(data_to_save, list):
+            coll.insert_many(data_to_save)
+        elif isinstance(data_to_save, dict):
+            coll.insert_one(data_to_save)
+    except Exception as e:
+        raise ConnectionError(f"Database error: {e}")
+    finally:
+        client.close()
 
-    # add timestamp and subreddit to each object for easier filtering
-    for p in posts_to_save:
-        p["timestamp"] = datetime.now(timezone.utc)
-        p["subreddit"] = subreddit
 
-    coll.insert_many(posts_to_save)
-    client.close()
+"""
+Get data from collection based on filter dict
+Example usage: fetch_data_from_collection("example_collection", {"id": 123}) -> returns all documents with id 123
 
-# get most recently analyzed data for a given subreddit
-def get_latest_posts_by_subreddit(subreddit, collection):
-    client = connect_db()
-    db = client.reddit
-    coll = db[collection]
-
-    latest_entry = coll.find_one(
-        {"subreddit": subreddit},
-        sort=[("timestamp", DESCENDING)]
-    )
-
-    if latest_entry is None:
-        return []
-
-    latest_timestamp = latest_entry["timestamp"]
-
-    # get all posts with the most recent timestamp for a given subreddit
-    data = list(coll.find({
-        "timestamp": latest_timestamp,
-        "subreddit": subreddit
-    }))
+If no filter is provided, returns all data in the collection
+"""
+def fetch_data_from_collection(collection, filter=None):
+    if filter is not None and not isinstance(filter, dict):
+        raise TypeError("Parameter 'filter' must be a dictionary or None")
     
-    for post in data:
-        post["_id"] = str(post["_id"])  # convert Mongo ObjectId to string
+    client, db = connect_db()
+    try:
+        coll = db[collection]
+        data = list(coll.find(filter or {}))
+        if not data:
+            return []
 
-    sorted_data = []
-    if collection == 'posts':
-        sorted_data = sorted(data, key=lambda k: k['topic_id'])
+        for item in data:
+            item["_id"] = str(item["_id"])  # convert Mongo ObjectId to string
+        return data
+    except Exception as e:
+        raise ConnectionError(f"Database error: {e}")
+    finally:
+        client.close()
 
-    client.close()
-    return sorted_data if sorted_data else data
+
+"""
+Update data in collection based on filter and update dict
+Example usage: update_one_item_in_collection("example_collection", {"id": 123}, {"$set": {"active": False}})
+-> updates all documents with id 123, setting their 'active' field to False
+"""
+def update_one_item_in_collection(collection, filter, update):
+    if not isinstance(filter, dict):
+        raise TypeError("Parameter 'filter' must be a dictionary")
+    if not isinstance(update, dict):
+        raise TypeError("Parameter 'update' must be a dictionary")
+    
+    print("Updating data in database..")
+    client, db = connect_db()
+    try:
+        coll = db[collection]
+        result = coll.update_one(filter, update)
+        if result.matched_count == 0:
+            raise ValueError("Update failed: no matching documents found")
+    except Exception as e:
+        raise ConnectionError(f"Database error: {e}")
+    finally:
+        client.close()
+
+
+""" Get most recently added data for a given subreddit """
+def get_latest_data_by_subreddit(collection, subreddit, type=None):
+    if type is not None and type not in ["posts", "topics"]:
+        raise ValueError("Parameter 'type' must be either 'posts', 'topics', or None")
+
+    client, db = connect_db()
+    
+    try:
+        coll = db[collection]
+        latest_entry = coll.find_one({"subreddit": subreddit}, sort=[("timestamp", DESCENDING)])
+
+        if not latest_entry:
+            return []
+
+        latest_timestamp = latest_entry["timestamp"]
+        query = {"subreddit": subreddit, "timestamp": latest_timestamp}
+        if type:
+            query["type"] = type
+
+        data = list(coll.find(query))
+
+        for post in data:
+            post["_id"] = str(post["_id"])  # convert Mongo ObjectId to string
+
+        if data and 'topic_id' in data[0]:
+            return sorted(data, key=lambda k: k['topic_id'])
+        return data
+    finally:
+        client.close()
+
 
 # get daily post numbers and total number of posts for a subreddit in a given timeperiod
 def get_post_numbers_by_timeperiod(subreddit, number_of_days):
-    client = connect_db()
-    db = client.reddit
+    client, db = connect_db()
     collection = db["posts"]
 
     date_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
@@ -108,10 +164,10 @@ def get_post_numbers_by_timeperiod(subreddit, number_of_days):
     
     return post_numbers
 
+
 # get limit number of top topics and their frequency count for a subreddit in a given timeperiod
 def get_top_topics_by_timeperiod(subreddit, number_of_days, limit):
-    client = connect_db()
-    db = client.reddit
+    client, db = connect_db()
     collection = db["posts"]
 
     date_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
