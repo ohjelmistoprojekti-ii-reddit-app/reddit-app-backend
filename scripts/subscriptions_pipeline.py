@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from app.services.reddit_api import get_posts
 from app.models.topic_modeling import extract_topics
 from app.models.sentiment_analysis import sentiment_analysis, sentiment_analysis_for_posts
-from app.services.db import fetch_collection_data, save_data_to_database
+from app.services.db import fetch_data_from_collection, save_data_to_database
 import sys
 
 """
@@ -40,17 +40,17 @@ def subscriptions_pipeline(subreddit, amount_of_posts, topics):
 if __name__ == "__main__":
     # Fetch active subscriptions from the database based on analysis type
     if '--posts' in sys.argv:
-        subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "posts", "active": True})
+        subscriptions = fetch_data_from_collection("subscriptions", {"analysis_type": "posts", "active": True})
         amount_of_posts = 10
-        topics = False
+        analyze_topics = False
 
         if not subscriptions:
             print("No active subscriptions found for posts analysis.")
             sys.exit(0)
     elif '--topics' in sys.argv:
-        subscriptions = fetch_collection_data("subscriptions", {"analysis_type": "topics", "active": True})
+        subscriptions = fetch_data_from_collection("subscriptions", {"analysis_type": "topics", "active": True})
         amount_of_posts = 500
-        topics = True
+        analyze_topics = True
 
         if not subscriptions:
             print("No active subscriptions found for topics analysis.")
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     for subscription in subscriptions:
         subreddit = subscription['subreddit']
-        success = subscriptions_pipeline(subreddit, amount_of_posts, topics=topics)
+        success = subscriptions_pipeline(subreddit, amount_of_posts, topics=analyze_topics)
         if success:
             print(f"✔️  Successfully analyzed '{subreddit}'\n")
         else:

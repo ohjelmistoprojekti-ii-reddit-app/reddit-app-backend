@@ -15,11 +15,11 @@ def connect_db():
         raise ConnectionError(f"Could not connect to database: {e}")
 
 
-# Save data (list or dict) to specified collection
+""" Save data (list or dict) to specified collection """
 def save_data_to_database(data_to_save, collection):
     print("Inserting into database..\n")
     if not isinstance(data_to_save, (list, dict)):
-        raise ValueError("Error while inserting to db: data must be a list or a dictionary")
+        raise TypeError("Data to save must be a list or a dictionary")
 
     client, db = connect_db()
     coll = db[collection]
@@ -36,14 +36,18 @@ def save_data_to_database(data_to_save, collection):
 
 """
 Get data from collection based on filter dict
-Example usage: fetch_collection_data("example_collection", {"id": 123}) -> returns all documents with id 123
+Example usage: fetch_data_from_collection("example_collection", {"id": 123}) -> returns all documents with id 123
+
 If no filter is provided, returns all data in the collection
 """
-def fetch_collection_data(collection, filter={}):
+def fetch_data_from_collection(collection, filter=None):
+    if filter is not None and not isinstance(filter, dict):
+        raise TypeError("Parameter 'filter' must be a dictionary or None")
+    
     client, db = connect_db()
     try:
         coll = db[collection]
-        data = list(coll.find(filter))
+        data = list(coll.find(filter or {}))
         if not data:
             return []
 
@@ -58,10 +62,15 @@ def fetch_collection_data(collection, filter={}):
 
 """
 Update data in collection based on filter and update dict
-Example usage: update_collection_data("example_collection", {"id": 123}, {"$set": {"active": False}})
+Example usage: update_one_item_in_collection("example_collection", {"id": 123}, {"$set": {"active": False}})
 -> updates all documents with id 123, setting their 'active' field to False
 """
-def update_collection_data(collection, filter, update):
+def update_one_item_in_collection(collection, filter, update):
+    if not isinstance(filter, dict):
+        raise TypeError("Parameter 'filter' must be a dictionary")
+    if not isinstance(update, dict):
+        raise TypeError("Parameter 'update' must be a dictionary")
+    
     print("Updating data in database..")
     client, db = connect_db()
     try:
@@ -75,8 +84,11 @@ def update_collection_data(collection, filter, update):
         client.close()
 
 
-# Get most recently added data for a given subreddit
+""" Get most recently added data for a given subreddit """
 def get_latest_data_by_subreddit(collection, subreddit, type=None):
+    if type is not None and type not in ["posts", "topics"]:
+        raise ValueError("Parameter 'type' must be either 'posts', 'topics', or None")
+
     client, db = connect_db()
     
     try:

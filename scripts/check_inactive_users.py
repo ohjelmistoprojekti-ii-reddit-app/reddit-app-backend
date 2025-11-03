@@ -1,4 +1,4 @@
-from app.services.db import fetch_collection_data, update_collection_data
+from app.services.db import fetch_data_from_collection, update_one_item_in_collection
 from datetime import datetime, timezone, timedelta
 import sys
 
@@ -9,7 +9,7 @@ def check_inactive_users_and_subscriptions():
     errors = []
     try:
         # Fetch users who have not logged in for more than 15 days
-        inactive_users = fetch_collection_data("users", {"last_login": {"$lt": max_date}})
+        inactive_users = fetch_data_from_collection("users", {"last_login": {"$lt": max_date}})
         if not inactive_users:
             return {
                 "inactive_users_found": 0,
@@ -28,7 +28,7 @@ def check_inactive_users_and_subscriptions():
         user_id = user['_id']
         inactive_users_found += 1
         try:
-            user_subscription = fetch_collection_data("subscriptions", {"subscribers": user_id})
+            user_subscription = fetch_data_from_collection("subscriptions", {"subscribers": user_id})
         except Exception as e:
             errors.append(f"Error while fetching subscriptions for user '{user_id}': {e}")
             continue
@@ -36,13 +36,17 @@ def check_inactive_users_and_subscriptions():
         if not user_subscription:
             no_active_subscriptions += 1
             continue
+        
+        if len(user_subscription) > 1:
+            errors.append(f"Multiple active subscriptions found for user '{user_id}', even though the limit is 1. Please check manually")
+            continue
 
         subreddit = user_subscription[0]["subreddit"]
         analysis_type = user_subscription[0]["analysis_type"]
 
         try:
             # Remove inactive user from subscribers list
-            update_collection_data(
+            update_one_item_in_collection(
                 "subscriptions",
                 {"subreddit": subreddit, "analysis_type": analysis_type, "active": True},
                 {"$pull": {"subscribers": user_id}}
@@ -56,13 +60,13 @@ def check_inactive_users_and_subscriptions():
         try:
             set_to_inactive = False
             # Check if subscribers list is empty, and set subscription to inactive if it is
-            updated_subscription = fetch_collection_data(
+            updated_subscription = fetch_data_from_collection(
                 "subscriptions",
                 {"subreddit": subreddit, "analysis_type": analysis_type, "active": True}
             )
 
             if updated_subscription and len(updated_subscription[0]["subscribers"]) == 0:
-                update_collection_data(
+                update_one_item_in_collection(
                     "subscriptions",
                     {"subreddit": subreddit, "analysis_type": analysis_type, "active": True},
                     {"$set": {"active": False}}
