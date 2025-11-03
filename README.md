@@ -878,6 +878,7 @@ The response format depends on the analysis type of the subscription:
   ]
 }
 ```
+</details>
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
