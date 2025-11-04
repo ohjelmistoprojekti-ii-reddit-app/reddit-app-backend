@@ -11,6 +11,7 @@ This is the **backend service** for a web application that:
 <summary><strong>Table of Contents</strong></summary>
 
 - [🛠️ Tech Stack](#️-tech-stack)
+- [🏛️ Architecture Overview](#️-architecture-overview)
 - [🚀 Getting Started](#-getting-started)
   - [Development Setup](#development-setup)
   - [Connecting to Reddit API (Async PRAW)](#connecting-to-reddit-api-async-praw)
@@ -38,6 +39,48 @@ This is the **backend service** for a web application that:
 - **Sentiment analysis:** [VADER](https://vadersentiment.readthedocs.io/en/latest/index.html)
 - **Translation and summarization:** [Flan-T5](https://huggingface.co/docs/transformers/model_doc/flan-t5)
 - **Database:** [MongoDB](https://www.mongodb.com/)
+- **Automations:** [GitHub Actions](https://docs.github.com/en/actions)
+
+## 🏛️ Architecture Overview
+
+```mermaid
+graph TD
+  subgraph Flask-backend
+      A[**API endpoints**: topics, subscriptions, statistics, and other features]
+      N[**Authentication endpoints**: user registration, login, token management]
+  end
+
+  subgraph Automated data pipelines
+      I[**GitHub Actions**]
+      I -->|Runs daily| J[**Trending topics analysis pipeline**]
+      I -->|Runs daily| K[**Country subreddit analysis pipeline**]
+      I -->|Runs daily| L[**Subscription-based analysis pipeline**]
+
+      J --> J1[Fetch 500 posts from predefined subreddits] --> J2[Topic modeling, summarization, sentiment analysis]
+      K --> K1[Fetch 10 posts from predefined country-specific subreddits] --> K2[Translation, sentiment analysis]
+      L --> |Topics analysis| L1[Fetch 500 posts from subscribed subreddits] --> L2[Topic modeling, summarization, sentiment analysis]
+      L --> |Posts analysis| L3[Fetch 10 posts from subscribed subreddits] --> L4[Sentiment analysis]
+      L --> X[**Inactive user check**: automatic subscription deactivation]
+  end
+
+  J2 --> D
+  K2 --> D
+  L2 --> D
+  L4 --> D
+  X <--> D
+
+  subgraph User interaction
+      M[Frontend]
+      M -->|Request| A
+      A -->|Response| M
+      M -->|Request| N
+      N -->|Response| M
+  end
+
+  D[(**MongoDB Atlas**)]
+  A <-->|Interacts with| D
+  N <-->|Interacts with| D
+```
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
