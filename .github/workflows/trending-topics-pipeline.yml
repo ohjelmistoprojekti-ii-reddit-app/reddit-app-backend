@@ -37,4 +37,3 @@ jobs:
         run: python -m nltk.downloader punkt punkt_tab vader_lexicon
       - name: Run pipeline
         run: python -m scripts.topics_pipeline
-
