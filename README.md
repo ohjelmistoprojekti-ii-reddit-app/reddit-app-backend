@@ -56,18 +56,18 @@ graph TD
       I -->|Runs daily| K[**Country subreddit analysis pipeline**]
       I -->|Runs daily| L[**Subscription-based analysis pipeline**]
 
-      J --> J1[Topic modeling, summarization, sentiment analysis]
-      K --> K1[Translation if needed, sentiment analysis]
-      L --> L1[**Topics analysis**: topic modeling, summarization, sentiment analysis]
-      L --> L2[**Posts analysis**: sentiment analysis]
+      J --> J1[Fetch 500 posts from predefined subreddits] --> J2[Topic modeling, summarization, sentiment analysis]
+      K --> K1[Fetch 10 posts from predefined country-specific subreddits] --> K2[Translation, sentiment analysis]
+      L --> |Topics analysis| L1[Fetch 500 posts from subscribed subreddits] --> L2[Topic modeling, summarization, sentiment analysis]
+      L --> |Posts analysis| L3[Fetch 10 posts from subscribed subreddits] --> L4[Sentiment analysis]
       L --> X[**Inactive user check**: automatic subscription deactivation]
   end
 
-  J1 --> D
-  K1 --> D
-  L1 --> D
+  J2 --> D
+  K2 --> D
   L2 --> D
-  X --> D
+  L4 --> D
+  X <--> D
 
   subgraph User interaction
       M[Frontend]
@@ -78,8 +78,8 @@ graph TD
   end
 
   D[(**MongoDB Atlas**)]
-  A -->|Interacts with| D
-  N -->|Interacts with| D
+  A <-->|Interacts with| D
+  N <-->|Interacts with| D
 ```
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
