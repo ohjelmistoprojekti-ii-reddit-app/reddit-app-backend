@@ -79,7 +79,7 @@ def register():
 
     """
     Jsonschema validate function below compares new user to the user schema to
-    validate the correct data before database insertion
+    validate the correct data before database insertion.
     
     Type checking and validation messages are included to the schema and can be modified if needed
     Try using postman, user obj {"username":"name","email":"mail","password":"password"}
