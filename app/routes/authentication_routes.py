@@ -83,7 +83,8 @@ def register():
     
     Type checking and validation messages are included to the schema and can be modified if needed
     Try using postman, user obj {"username":"name","email":"mail","password":"password"}
-    User schema can be found here: app/schema/user.py
+    User schema can be found here: app/schema/user.
+    Read more about jsonschema: https://json-schema.org/learn
     """
 
     try:
