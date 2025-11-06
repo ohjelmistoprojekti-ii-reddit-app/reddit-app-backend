@@ -1,9 +1,9 @@
 name: Subscription-based subreddit analysis
 
 on:
-  schedule:
-    # runs once a day at 04:00 UTC / 06:00 Finnish time
-    - cron: '0 4 * * *'
+  # schedule:
+  #   # runs once a day at 04:00 UTC / 06:00 Finnish time
+  #   - cron: '0 4 * * *'
   workflow_dispatch:
 
 jobs:
