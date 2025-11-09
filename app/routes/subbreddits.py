@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 from app.config import Config
+from app.services.db import connect_db
 
 subbreddits_bp = Blueprint('subreddits', __name__)
 
@@ -15,3 +16,4 @@ def get_subreddits():
 def get_countries():
     country_subreddits = Config.COUNTRY_SUBREDDITS
     return jsonify(country_subreddits)
+
