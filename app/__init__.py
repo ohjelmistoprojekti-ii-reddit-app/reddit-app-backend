@@ -40,6 +40,7 @@ def create_app():
     app.register_blueprint(subscription_bp, url_prefix='/api/subscriptions')
     app.register_blueprint(topics_bp, url_prefix='/api/topics')
     app.register_blueprint(user_bp, url_prefix='/api/user')
+
     
     
     return app
