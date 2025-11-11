@@ -6,9 +6,6 @@ from app.services.db import connect_db
 import datetime
 from datetime import timedelta
 import re
-from jsonschema import validate
-from jsonschema.exceptions import ValidationError
-from app.schema.user import user_schema
 
 authentication_bp = Blueprint('authentication', __name__)
 
@@ -63,48 +60,50 @@ def refresh():
 
 @authentication_bp.route("/register", methods=["POST"])
 def register():
-    username = request.json.get("username").lower()
-    email = request.json.get("email").lower()
+    username = request.json.get("username")
+    email = request.json.get("email")
     password = request.json.get("password")
-    hashed_password = generate_password_hash(password)
- 
-    new_user = {
-        "username": username,
-        "email": email,
-        "password": hashed_password,
-        "last_login": None,
-        "revoked_access_tokens": [],
-        "refresh_revoked": False
-    }
 
-    """
-    Jsonschema validate function below compares new user to the user schema to
-    validate the correct data before database insertion.
+    if not username or not email or not password:
+        return jsonify({"msg": "All fields (username, email, password) required"}), 400
     
-    Type checking and validation messages are included to the schema and can be modified if needed
-    Try using postman, user obj {"username":"name","email":"mail","password":"password"}
-    User schema can be found here: app/schema/user.
-    Read more about jsonschema: https://json-schema.org/learn
-    """
+    if len(password) < 8:
+        return jsonify({"msg": "Password must be at least 8 characters"}), 400
 
+    if len(username) < 3 or len(username) > 20:
+        return jsonify({"msg": "Username must be from 3 to 20 characters"}), 400
+    
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return jsonify({"msg": "Invalid email format"}), 400
+    
+    client, db = connect_db()
     try:
-        validate(instance=new_user, schema=user_schema)
-    except ValidationError as e:
-        return jsonify({"msg": e.schema["validationMessage"]}), 400
+        if db.users.find_one({"username": username.lower()}):
+            return jsonify({"msg": "Username already exists"}), 400
 
+        if db.users.find_one({"email": email.lower()}):
+            return jsonify({"msg": "Email already registered"}), 400
     
-    client,db = connect_db()
+        hashed_password = generate_password_hash(password)
+        
+        new_user = {
+            "username": username.lower(),
+            "email": email.lower(),
+            "password": hashed_password,
+            "last_login": None,
+            "revoked_access_tokens": [],
+            "refresh_revoked": False
+        }
 
-    if db.users.find_one({"username": username}):
-        return jsonify({"msg": "Username already exists"}), 400
+        result = db.users.insert_one(new_user)
 
-    if db.users.find_one({"email": email}):
-        return jsonify({"msg": "Email already registered"}), 400
-    
-    result = db.users.insert_one(new_user)
+        return jsonify({
+            "msg": "User created successfully",
+            "user_id": str(result.inserted_id)
+        }), 201
 
-    return jsonify({"msg": "User created successfully",
-                        "user_id": str(result.inserted_id) }), 
+    finally:
+        client.close()
 
 
 

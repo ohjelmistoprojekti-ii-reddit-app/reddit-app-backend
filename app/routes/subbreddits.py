@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify
 from app.config import Config
-from app.services.db import connect_db
 
 subbreddits_bp = Blueprint('subreddits', __name__)
 
