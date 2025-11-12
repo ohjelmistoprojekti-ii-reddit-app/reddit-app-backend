@@ -4,7 +4,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.helpers.jwt_utils import is_token_revoked
 from app.config import Config
 
-countries_bp = Blueprint('countries', __name__, url_prefix='/countries')
+countries_bp = Blueprint('countries', __name__)
 
 # Get latest batch of analyzed data for a given country subreddit
 @countries_bp.route('/latest/<subreddit>', methods=['GET'])

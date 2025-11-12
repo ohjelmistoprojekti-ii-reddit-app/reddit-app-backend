@@ -4,9 +4,9 @@ from bson import ObjectId
 from app.services.db import connect_db
 from app.helpers.jwt_utils import is_token_revoked
 
-bp = Blueprint("user", __name__)
+user_bp = Blueprint("user", __name__)
 
-@bp.route("/who_am_i", methods=["GET"])
+@user_bp.route("/who_am_i", methods=["GET"])
 @jwt_required()
 def who_am_i():
     if is_token_revoked():

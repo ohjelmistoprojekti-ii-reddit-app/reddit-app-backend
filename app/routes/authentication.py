@@ -7,9 +7,9 @@ import datetime
 from datetime import timedelta
 import re
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+authentication_bp = Blueprint('authentication', __name__)
 
-@bp.route("/login", methods=["POST"])
+@authentication_bp.route("/login", methods=["POST"])
 def login():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
@@ -41,7 +41,7 @@ def login():
         client.close()
 
 
-@bp.route("/refresh", methods=["POST"])
+@authentication_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()
@@ -58,7 +58,7 @@ def refresh():
         client.close()
 
 
-@bp.route("/register", methods=["POST"])
+@authentication_bp.route("/register", methods=["POST"])
 def register():
     username = request.json.get("username")
     email = request.json.get("email")
@@ -104,11 +104,9 @@ def register():
 
     finally:
         client.close()
-  
 
 
-
-@bp.route("/logout", methods=["DELETE"])
+@authentication_bp.route("/logout", methods=["DELETE"])
 @jwt_required()
 def logout():
     user_id = get_jwt_identity()

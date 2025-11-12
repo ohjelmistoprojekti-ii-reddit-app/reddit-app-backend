@@ -7,11 +7,11 @@ from app.helpers.jwt_utils import is_token_revoked
 from app.services.db import fetch_data_from_collection, get_latest_data_by_subreddit, save_data_to_database, update_one_item_in_collection
 from app.services.reddit_api import get_posts
 
-bp = Blueprint('subscriptions', __name__, url_prefix='/subscriptions')
+subscription_bp = Blueprint('subscriptions', __name__)
 
 
 # Get list of active subscriptions by analysis type
-@bp.route('/type/<type>', methods=['GET'])
+@subscription_bp.route('/type/<type>', methods=['GET'])
 def fetch_subscriptions_by_type(type):
     subscriptions = fetch_data_from_collection("subscriptions", {"analysis_type": type, "active": True})
 
@@ -23,7 +23,7 @@ def fetch_subscriptions_by_type(type):
 
 
 # Get subscriptions for the current user
-@bp.route('/current-user', methods=['GET'])
+@subscription_bp.route('/current-user', methods=['GET'])
 @jwt_required()
 def fetch_current_user_subscriptions():
     try:
@@ -45,7 +45,7 @@ def fetch_current_user_subscriptions():
 
 # Add new subscription for current user
 # If subreddit already has active subscriptions, add current user to subscribers list. Otherwise create a new subscription.
-@bp.route('/current-user/add/<subreddit>/<type>', methods=['POST'])
+@subscription_bp.route('/current-user/add/<subreddit>/<type>', methods=['POST'])
 @jwt_required()
 def add_subscription(subreddit, type):
     try:
@@ -108,7 +108,7 @@ def add_subscription(subreddit, type):
 
 
 # Deactivate current subscription
-@bp.route('/current-user/deactivate', methods=['PATCH'])
+@subscription_bp.route('/current-user/deactivate', methods=['PATCH'])
 @jwt_required()
 def deactivate_current_subscription():
     try:
@@ -163,7 +163,7 @@ def deactivate_current_subscription():
 
 
 # Get latest analyzed data for current user's active subscription
-@bp.route('/current-user/latest-analyzed', methods=['GET'])
+@subscription_bp.route('/current-user/latest-analyzed', methods=['GET'])
 @jwt_required()
 def get_latest_analyzed_subscription_data_for_current_user():
     try:
