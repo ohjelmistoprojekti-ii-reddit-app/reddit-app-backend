@@ -106,8 +106,6 @@ def register():
         client.close()
 
 
-
-
 @authentication_bp.route("/logout", methods=["DELETE"])
 @jwt_required()
 def logout():

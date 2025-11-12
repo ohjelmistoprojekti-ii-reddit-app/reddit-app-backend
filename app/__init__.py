@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from app.routes.authentication import authentication_bp
 from app.routes.countries import countries_bp
-from app.routes.posts import posts_bp
+from app.routes.live_data import live_bp
 from app.routes.statistics import statistics_bp
 from app.routes.subbreddits import subbreddits_bp
 from app.routes.subscriptions import subscription_bp
@@ -34,7 +34,7 @@ def create_app():
 
     app.register_blueprint(authentication_bp, url_prefix='/api/authentication')
     app.register_blueprint(countries_bp, url_prefix='/api/countries')
-    app.register_blueprint(posts_bp, url_prefix='/api/posts')
+    app.register_blueprint(live_bp, url_prefix='/api/live-data')
     app.register_blueprint(statistics_bp, url_prefix='/api/statistics')
     app.register_blueprint(subbreddits_bp, url_prefix='/api/subreddits')
     app.register_blueprint(subscription_bp, url_prefix='/api/subscriptions')

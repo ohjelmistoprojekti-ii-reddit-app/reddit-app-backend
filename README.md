@@ -175,28 +175,26 @@ python run.py
 
 ## No database endpoints
 
+ℹ️ These endpoints provide real-time Reddit data fetching and analysis without storing the data in the database. They can be used for testing or demo purposes.
+
 ### Get analyzed posts from Reddit (no database)
 
-> GET /posts/{subreddit}/{type}/{amount}
+> GET /api/live-data/topics/{subreddit}
 
 **Description**: Fetches posts directly from Reddit, performs topic modeling and sentiment analysis, and returns analyzed data. Data is not stored in the database.
 
 ⌛ This operation may take a few minutes depending on the amount of posts.
 
-ℹ️ This endpoint supported the first prototype of the project before database integration. It can be used for testing or demo purposes.
-
 | Parameter | Description | Examples |
 | --------- | ----------- | ------- |
 | subreddit | [name of any subreddit](https://www.reddit.com/r/ListOfSubreddits/wiki/listofsubreddits/) | `all`, `music`, `technology` |
-| type | type of posts | `hot`, `rising`, `new` |
-| amount | amount of posts | `500`, `1000` |
 
 **Example request**:
 ```
-http://127.0.0.1:5000/posts/technology/hot/500
+http://127.0.0.1:5000/api/live-data/topics/technology
 ```
 
-➡️ **Returns** 10 most popular topics from the subreddit along with sample posts and sentiment analysis results.
+➡️ **Returns** up to 12 most popular topics from the subreddit along with sample posts and sentiment analysis results.
 
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
@@ -248,11 +246,9 @@ Note that the order of fields may vary.
 
 ### Get translated and analyzed posts from Reddit (no database)
 
-> GET /posts/hot/{subreddit}
+> GET /api/live-data/posts/hot/{subreddit}
 
 **Description**: Fetches 10 hot posts directly from Reddit, translates their title, content and comments into English, performs sentiment analysis on the comments, and returns the analyzed data. The data is not stored in the database.
-
-ℹ️ This endpoint supported the first version of the map feature before database integration. It can be used for testing or demo purposes.
 
 | Parameter | Description | Examples |
 | --------- | ----------- | ------- |
@@ -260,7 +256,7 @@ Note that the order of fields may vary.
 
 **Example request**:
 ```
-http://127.0.0.1:5000/posts/hot/italia
+http://127.0.0.1:5000/api/live-data/posts/hot/italia
 ```
 ➡️ **Returns** Posts with original and translated content, including sentiment analysis on comments.
 
@@ -301,13 +297,13 @@ http://127.0.0.1:5000/posts/hot/italia
 ## Trending topics analysis endpoints
 
 ### Get subreddits that have data available in the database
-> GET /subreddits
+> GET /api/subreddits
 
 **Description**: Retrieves list of subreddits that our `GitHub Actions` pipeline currently analyzes regularly. The analyzed data is stored in the database and can be accessed via `/api/topics/latest/{subreddit}` endpoint.
 
 **Example request**:
 ```
-http://127.0.0.1:5000/subreddits
+http://127.0.0.1:5000/api/subreddits
 ```
 
 ➡️ **Returns** list of subreddits that have data available in the database.
@@ -344,7 +340,7 @@ http://127.0.0.1:5000/subreddits
 http://127.0.0.1:5000/api/topics/latest/technology
 ```
 
-➡️ **Returns** 10 most popular topics, along with sample posts and sentiment analysis results, from the most recently saved batch in the database.
+➡️ **Returns** up to 12 most popular topics, along with sample posts and sentiment analysis results, from the most recently saved batch in the database.
 
 <details>
 <summary><strong>Example response format</strong> (click to open)</summary>
@@ -487,7 +483,7 @@ http://127.0.0.1:5000/api/statistics/topics/programming/7/8
 ℹ️ These endpoints support the **map feature** in the frontend. The map allows users to explore popular Reddit posts across different countries, along with translations and sentiment analysis of public discussions.
 
 ### Get country subreddits that have data available in the database
-> GET api/subreddits/countries
+> GET /api/subreddits/countries
 
 🔑 **Some countries require user authentication**. To access all countries, user has to login.
 
@@ -495,7 +491,7 @@ http://127.0.0.1:5000/api/statistics/topics/programming/7/8
 
 **Example request**:
 ```
-http://127.0.0.1:5000/subreddits/countries
+http://127.0.0.1:5000/api/subreddits/countries
 ```
 
 ➡️ **Returns** list of country subreddits that have data available in the database.
@@ -535,7 +531,7 @@ For some countries, user authentication is required. This is indicated by the `l
 </details>
 
 ### Get latest analyzed country data from the database
-> GET api/countries/latest/{subreddit}
+> GET /api/countries/latest/{subreddit}
 
 🔑 **Some countries require user authentication**. To access all countries, user has to login.
 
@@ -549,7 +545,7 @@ For some countries, user authentication is required. This is indicated by the `l
 
 **Example request**:
 ```
-http://127.0.0.1:5000/api/countries/latest/sweden
+http://127.0.0.1:5000/api/countries/latest/italia
 ```
 
 ➡️ **Returns** latest analyzed posts for the country subreddit from the most recently saved batch in the database. The response includes original and translated content, along with sentiment analysis on comments.
@@ -611,7 +607,7 @@ Some countries require user authentication, which is indicated by the `requiresL
 
 ### Register as a user
 
-> POST api/authentication/register
+> POST /api/authentication/register
 
 **Description**: Create a new user account
 
@@ -650,7 +646,7 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/authentication/register" `
 
 ### Login
 
-> POST api/authentication/login
+> POST /api/authentication/login
 
 **Description**: Authenticate user and return access + refresh tokens. On successful login `last_login` is updated and `refresh_revoked` reset to `False`.
 
@@ -679,7 +675,7 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/authentication/login" `
 
 ### Refreshing the access token
 
-> POST api/authentication/refresh
+> POST /api/authentication/refresh
 
 **Description**: Exchange a valid refresh token for a new access token. The refresh token is valid for 24 hours, and the access token for 15 minutes. 
 
@@ -722,7 +718,7 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/authentication/logout" `
 ℹ️ The subscription feature allows users to subscribe to subreddits with preferred analysis type (topics or posts). This way, the user can receive **personalized insights** based on their interests. Currently, the user can subscribe to one subreddit at a time. The subscribed subreddits are analyzed regularly by our `GitHub Actions` pipeline.
 
 ### Get list of active subscriptions by analysis type
-> GET api/subscriptions/type/{type}
+> GET /api/subscriptions/type/{type}
 
 **Description**: Retrieves list of active subscriptions by analysis type from the database.
 
@@ -759,7 +755,7 @@ http://127.0.0.1:5000/api/subscriptions/type/topics
 </details>
 
 ### Get subscriptions for current user
-> GET api/subscriptions/current-user
+> GET /api/subscriptions/current-user
 
 🔑 **This endpoint requires user authentication**
 
@@ -790,7 +786,7 @@ The subscribers list includes the current user. Users are represented by user id
 </details>
 
 ### Create a new subscription for current user
-> POST api/subscriptions/current-user/add/{subreddit}/{type}
+> POST /api/subscriptions/current-user/add/{subreddit}/{type}
 
 🔑 **This endpoint requires user authentication**
 
@@ -809,7 +805,7 @@ Headers:
 ```
 
 ### Deactivate subscription for current user
-> PATCH api/subscriptions/current-user/deactivate
+> PATCH /api/subscriptions/current-user/deactivate
 
 🔑 **This endpoint requires user authentication**
 
@@ -823,7 +819,7 @@ Headers:
 ```
 
 ### Get latest analyzed data for current user's active subscription
-> GET api/subscriptions/current-user/latest-analyzed
+> GET /api/subscriptions/current-user/latest-analyzed
 
 🔑 **This endpoint requires user authentication**
 

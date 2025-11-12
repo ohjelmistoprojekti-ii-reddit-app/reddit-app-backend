@@ -9,20 +9,24 @@ from app.models.sentiment_analysis import sentiment_analysis_for_map_feature
 from app.config import Config
 import asyncio
 
-posts_bp = Blueprint('posts', __name__)
+live_bp = Blueprint('live-data', __name__)
 
-# get method for fetching and analyzing Reddit data
-# not connected to database
-@posts_bp.route('/<subreddit>/<type>/<int:amount>', methods=['GET'])
-def get_posts_subreddit(subreddit,type,amount):
-    posts = asyncio.run(get_posts(subreddit,type,amount,2))
+# Real-time Reddit fetch and analysis, including topic modeling and sentiment analysis
+# Not connected to database
+@live_bp.route('/topics/<subreddit>', methods=['GET'])
+def get_topics_from_subreddit(subreddit):
+    posts = asyncio.run(get_posts(subreddit, "hot", 400 ,2))
 
     topics = extract_topics(posts)
     analyzed_topics = sentiment_analysis(topics)
 
     return jsonify(analyzed_topics)
 
-@posts_bp.route('/hot/<subreddit>', methods=['GET'])
+
+# Real-time Reddit fetch (from country-specific subreddits), translation and sentiment analysis
+# Some country subreddits require user to be logged in
+# Not connected to database
+@live_bp.route('/posts/hot/<subreddit>', methods=['GET'])
 @jwt_required(optional=True)
 def get_hot_comments_by_country(subreddit):
     country = None
