@@ -143,37 +143,27 @@ def logout():
     finally:
         client.close()
 
-@authentication_bp.route("/delete", methods=["DELETE"])
+@authentication_bp.route("/delete_account", methods=["DELETE"])
 @jwt_required()
-def delete_user():
+def delete_account():
+    # Check whether the token has been revoked
     if is_token_revoked():
         return jsonify({"msg": "Token revoked"}), 401
-        
+
     user_id = get_jwt_identity()
     client, db = connect_db()
+
     try:
-        subscription = db.subscriptions.find_one({"subscribers": ObjectId(user_id), "active": True})
-        if subscription:
-            # Remove user from subscribers list
-            db.subscriptions.update_one(
-                {"_id": subscription["_id"]},
-                {"$pull": {"subscribers": ObjectId(user_id)}}
-            )
+        # Delete all data related to the user (example)
+        # Adjust these calls to your collections where `user_id` is stored
+        db.subscriptions.delete_many({"user_id": ObjectId(user_id)})
+        # If there are other collections with `user_id`, clean them here as well
 
-        updated_sub = db.subscriptions.find_one({"_id": subscription["_id"]})
-        if len(updated_sub["subscribers"]) == 0:
-            db.subscriptions.update_one(
-                {"_id": subscription["_id"]},
-                {"$set": {"active": False}}
-            )
-
-        user_deletion_result = db.users.delete_one({"_id": ObjectId(user_id)})
-        
-        if user_deletion_result.deleted_count == 0:
+        # Delete the user record itself
+        result = db.users.delete_one({"_id": ObjectId(user_id)})
+        if result.deleted_count == 0:
             return jsonify({"msg": "User not found"}), 404
 
-        return jsonify({"msg": "User deleted successfully"}), 200
-    
+        return jsonify({"msg": "Account deleted"}), 200
     finally:
         client.close()
-    
