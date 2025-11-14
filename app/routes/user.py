@@ -23,8 +23,9 @@ def who_am_i():
 
         return jsonify(
             id=str(user["_id"]),
-            username=user["username"]
-            # Add email if needed
+            username=user["username"],
+            email=user["email"],
+            created_at=user.get("created_at") #returns None if not present
         )
     
     finally:

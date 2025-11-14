@@ -3,6 +3,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
 from app.services.db import connect_db
+from app.helpers.jwt_utils import is_token_revoked
 import datetime
 from datetime import timedelta
 import re
@@ -92,7 +93,8 @@ def register():
             "password": hashed_password,
             "last_login": None,
             "revoked_access_tokens": [],
-            "refresh_revoked": False
+            "refresh_revoked": False,
+            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
 
         result = db.users.insert_one(new_user)
@@ -140,3 +142,38 @@ def logout():
     
     finally:
         client.close()
+
+@authentication_bp.route("/delete", methods=["DELETE"])
+@jwt_required()
+def delete_user():
+    if is_token_revoked():
+        return jsonify({"msg": "Token revoked"}), 401
+        
+    user_id = get_jwt_identity()
+    client, db = connect_db()
+    try:
+        subscription = db.subscriptions.find_one({"subscribers": ObjectId(user_id), "active": True})
+        if subscription:
+            # Remove user from subscribers list
+            db.subscriptions.update_one(
+                {"_id": subscription["_id"]},
+                {"$pull": {"subscribers": ObjectId(user_id)}}
+            )
+
+        updated_sub = db.subscriptions.find_one({"_id": subscription["_id"]})
+        if len(updated_sub["subscribers"]) == 0:
+            db.subscriptions.update_one(
+                {"_id": subscription["_id"]},
+                {"$set": {"active": False}}
+            )
+
+        user_deletion_result = db.users.delete_one({"_id": ObjectId(user_id)})
+        
+        if user_deletion_result.deleted_count == 0:
+            return jsonify({"msg": "User not found"}), 404
+
+        return jsonify({"msg": "User deleted successfully"}), 200
+    
+    finally:
+        client.close()
+    
