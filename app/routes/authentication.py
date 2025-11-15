@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
-from app.services.db import connect_db
+from app.services.db import fetch_data_from_collection, update_one_item_in_collection, save_data_to_database, delete_one_item_from_collection
 from app.helpers.jwt_utils import is_token_revoked
 import datetime
 from datetime import timedelta
@@ -18,45 +18,47 @@ def login():
     if not username or not password:
         return jsonify({"msg": "Username and password required"}), 400
 
-    client, db = connect_db()
-    try:
-        user = db.users.find_one({"username": username})
-        
-        if not user or not check_password_hash(user["password"], password):
-            return jsonify({"msg": "Wrong username or password"}), 401
-        
-        db.users.update_one(
-            {"_id": user["_id"]},
-            {"$set": {
-                "last_login": datetime.datetime.now(datetime.timezone.utc),
-                "refresh_revoked": False
-            }}
-        )
-
-        access_token = create_access_token(identity=str(user["_id"]))
-        refresh_token = create_refresh_token(identity=str(user["_id"]))
-
-        return jsonify(access_token=access_token, refresh_token=refresh_token), 200
     
-    finally:
-        client.close()
+    users = fetch_data_from_collection("users", {"username": username})
+    if not users:
+        return jsonify({"msg": "Wrong username or password"}), 401
+
+    user = users[0]
+
+    if not check_password_hash(user["password"], password):
+        return jsonify({"msg": "Wrong username or password"}), 401
+
+    update_one_item_in_collection(
+        "users",
+        {"_id": ObjectId(user["_id"])},
+        {"$set": {
+            "last_login": datetime.datetime.now(datetime.timezone.utc),
+            "refresh_revoked": False
+        }}
+    )
+
+    access_token = create_access_token(identity=user["_id"])
+    refresh_token = create_refresh_token(identity=user["_id"])
+
+    return jsonify(access_token=access_token, refresh_token=refresh_token), 200
 
 
 @authentication_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()
-    client, db = connect_db()
-    try:
-        user = db.users.find_one({"_id": ObjectId(user_id)})
-        if not user or user.get("refresh_revoked"):
-            return jsonify({"msg": "Refresh token revoked"}), 401
-
-        new_access_token = create_access_token(identity=user_id)
-        return jsonify(access_token=new_access_token), 200
+    users = fetch_data_from_collection("users", {"_id": ObjectId(user_id)})
     
-    finally:
-        client.close()
+    if not users:
+        return jsonify({"msg": "Refresh token revoked"}), 401 
+    
+    user = users[0]
+    if user.get("refresh_revoked"):
+        return jsonify({"msg": "Refresh token revoked"}), 401 
+        
+    new_access_token = create_access_token(identity=user_id)
+    return jsonify(access_token=new_access_token), 200
+    
 
 
 @authentication_bp.route("/register", methods=["POST"])
@@ -77,103 +79,109 @@ def register():
     if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
         return jsonify({"msg": "Invalid email format"}), 400
     
-    client, db = connect_db()
-    try:
-        if db.users.find_one({"username": username.lower()}):
-            return jsonify({"msg": "Username already exists"}), 400
+    if fetch_data_from_collection("users", {"username": username.lower()}):
+        return jsonify({"msg": "Username already exists"}), 400
 
-        if db.users.find_one({"email": email.lower()}):
-            return jsonify({"msg": "Email already registered"}), 400
-    
-        hashed_password = generate_password_hash(password)
-        
-        new_user = {
-            "username": username.lower(),
-            "email": email.lower(),
-            "password": hashed_password,
-            "last_login": None,
-            "revoked_access_tokens": [],
-            "refresh_revoked": False,
-            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
-        }
+    if fetch_data_from_collection("users", {"email": email.lower()}):
+        return jsonify({"msg": "Email already registered"}), 400
 
-        result = db.users.insert_one(new_user)
+    hashed_password = generate_password_hash(password)
+    new_user = {
+        "username": username.lower(),
+        "email": email.lower(),
+        "password": hashed_password,
+        "last_login": None,
+        "revoked_access_tokens": [],
+        "refresh_revoked": False,
+        "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }
 
-        return jsonify({
-            "msg": "User created successfully",
-            "user_id": str(result.inserted_id)
-        }), 201
+    save_data_to_database(new_user, "users")
 
-    finally:
-        client.close()
+    return jsonify({
+        "msg": "User created successfully",
+        "user_id": str(new_user["_id"])
+    }), 201
+
 
 
 @authentication_bp.route("/logout", methods=["DELETE"])
 @jwt_required()
 def logout():
     user_id = get_jwt_identity()
-    jti = get_jwt()["jti"]
+    token_data = get_jwt()
+
+    jti = token_data["jti"]
     exp_timestamp = datetime.datetime.fromtimestamp(get_jwt()["exp"], datetime.timezone.utc)
     now = datetime.datetime.now(datetime.timezone.utc)
+    fifteen_minutes_ago = now - timedelta(minutes=15)
 
-    client, db = connect_db()
-    try:
-        fifteen_minutes_ago = now - timedelta(minutes=15)
+    # Delete revoked access tokens older than 15 minutes
+    update_one_item_in_collection(
+        "users",
+        {"_id": ObjectId(user_id)},
+        {"$pull": {"revoked_access_tokens": {"exp": {"$lt": fifteen_minutes_ago}}}}
+    )
 
-        # Delete revoked access tokens older than 15 minutes
-        db.users.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$pull": {"revoked_access_tokens": {"exp": {"$lt": fifteen_minutes_ago}}}}
-        )
+    # Add a newly revoked access token to the database
+    update_one_item_in_collection(
+        "users",
+        {"_id": ObjectId(user_id)},
+        {"$push": {"revoked_access_tokens": {"jti": jti, "exp": exp_timestamp}}}
+    )
 
-        # Add a newly revoked access token to the database
-        db.users.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$push": {"revoked_access_tokens": {"jti": jti, "exp": exp_timestamp}}}
-        )
+    # Revoke refresh token
+    update_one_item_in_collection(
+        "users",
+        {"_id": ObjectId(user_id)},
+        {"$set": {"refresh_revoked": True}}
+    )
 
-        # Revoke refresh token
-        db.users.update_one(
-            {"_id": ObjectId(user_id)},
-            {"$set": {"refresh_revoked": True}}
-        )
-
-        return jsonify(msg="Access and refresh token revoked"), 200
+    return jsonify(msg="Access and refresh token revoked"), 200
     
-    finally:
-        client.close()
 
-@authentication_bp.route("/delete", methods=["DELETE"])
+@authentication_bp.route("/delete_account", methods=["DELETE"])
 @jwt_required()
 def delete_user():
+
     if is_token_revoked():
         return jsonify({"msg": "Token revoked"}), 401
         
-    user_id = get_jwt_identity()
-    client, db = connect_db()
-    try:
-        subscription = db.subscriptions.find_one({"subscribers": ObjectId(user_id), "active": True})
-        if subscription:
-            # Remove user from subscribers list
-            db.subscriptions.update_one(
-                {"_id": subscription["_id"]},
-                {"$pull": {"subscribers": ObjectId(user_id)}}
-            )
+    user_id = ObjectId(get_jwt_identity())
+    
+    subscriptions = fetch_data_from_collection(
+        "subscriptions", 
+        {"subscribers": user_id, "active": True}
+    )
+    
+    if subscriptions:
+        subscription = subscriptions[0]
+        # Remove user from subscribers list
+        update_one_item_in_collection(
+            "subscriptions",
+            {"_id": ObjectId(subscription["_id"])},
+            {"$pull": {"subscribers": user_id}}
+        )
 
-        updated_sub = db.subscriptions.find_one({"_id": subscription["_id"]})
+        updated_sub = fetch_data_from_collection(
+            "subscriptions", 
+            {"_id": ObjectId(subscription["_id"])}
+        )[0]
+
+        # Check if updated subscribers list is empty, and set subscription to inactive if it is
         if len(updated_sub["subscribers"]) == 0:
-            db.subscriptions.update_one(
-                {"_id": subscription["_id"]},
+            update_one_item_in_collection(
+                "subscriptions",
+                {"_id": ObjectId(subscription["_id"])},
                 {"$set": {"active": False}}
             )
 
-        user_deletion_result = db.users.delete_one({"_id": ObjectId(user_id)})
-        
-        if user_deletion_result.deleted_count == 0:
-            return jsonify({"msg": "User not found"}), 404
+    deletion_result = delete_one_item_from_collection(
+        "users",
+        {"_id": user_id}
+    )
 
-        return jsonify({"msg": "User deleted successfully"}), 200
-    
-    finally:
-        client.close()
-    
+    if deletion_result == 0:
+        return jsonify({"msg": "User not found"}), 404
+
+    return jsonify({"msg": "User deleted successfully"}), 200
