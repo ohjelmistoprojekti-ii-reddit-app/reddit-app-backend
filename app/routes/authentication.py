@@ -3,7 +3,6 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson import ObjectId
 from app.services.db import connect_db
-from app.helpers.jwt_utils import is_token_revoked
 import datetime
 from datetime import timedelta
 import re
@@ -93,8 +92,7 @@ def register():
             "password": hashed_password,
             "last_login": None,
             "revoked_access_tokens": [],
-            "refresh_revoked": False,
-            "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            "refresh_revoked": False
         }
 
         result = db.users.insert_one(new_user)
@@ -140,30 +138,5 @@ def logout():
 
         return jsonify(msg="Access and refresh token revoked"), 200
     
-    finally:
-        client.close()
-
-@authentication_bp.route("/delete_account", methods=["DELETE"])
-@jwt_required()
-def delete_account():
-    # Check whether the token has been revoked
-    if is_token_revoked():
-        return jsonify({"msg": "Token revoked"}), 401
-
-    user_id = get_jwt_identity()
-    client, db = connect_db()
-
-    try:
-        # Delete all data related to the user (example)
-        # Adjust these calls to your collections where `user_id` is stored
-        db.subscriptions.delete_many({"user_id": ObjectId(user_id)})
-        # If there are other collections with `user_id`, clean them here as well
-
-        # Delete the user record itself
-        result = db.users.delete_one({"_id": ObjectId(user_id)})
-        if result.deleted_count == 0:
-            return jsonify({"msg": "User not found"}), 404
-
-        return jsonify({"msg": "Account deleted"}), 200
     finally:
         client.close()
