@@ -83,6 +83,31 @@ def update_one_item_in_collection(collection, filter, update):
     finally:
         client.close()
 
+"""
+Delete a single item from a collection based on a filter dict.
+Example usage: delete_one_item_from_collection("users", {"_id": ObjectId(user_id)})
+→ deletes the user document with the given _id (if it exists).
+
+Returns: deleted_count (int): 1 if a document was deleted and 0 if no matching document was found.
+"""
+def delete_one_item_from_collection(collection, filter):
+    if not isinstance(filter, dict):
+        raise TypeError("Parameter 'filter' must be a dictionary")
+
+    client, db = connect_db()
+    try:
+        coll = db[collection]
+        result = coll.delete_one(filter)
+
+        # Return the number of deleted documents for checking
+        return result.deleted_count
+
+    except Exception as e:
+        raise ConnectionError(f"Database error: {e}")
+
+    finally:
+        client.close()        
+
 
 """ Get most recently added data for a given subreddit """
 def get_latest_data_by_subreddit(collection, subreddit, type=None):

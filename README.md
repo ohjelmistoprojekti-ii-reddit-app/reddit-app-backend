@@ -165,6 +165,8 @@ python run.py
   - [Login as a user](#login-as-a-user)
   - [Refresh access token](#refresh-access-token)
   - [Logout](#logout)
+  - [Delete the user account](#delete-the-user-account)
+  - [Get current user info](#get-current-user-info)
 - [Subscriptions endpoints](#subscriptions-endpoints)
   - [Get list of active subscriptions by analysis type](#get-list-of-active-subscriptions-by-analysis-type)
   - [Get subscriptions for current user](#get-subscriptions-for-current-user)
@@ -619,7 +621,7 @@ Some countries require user authentication, which is indicated by the `requiresL
 - Behavior:
   - `username` and `email` are stored lowercased
   - `password` is hashed before storage
-  - initial fields: `last_login = null`, `revoked_access_tokens = []`, `refresh_revoked = False`
+  - initial fields: `last_login = null`, `revoked_access_tokens = []`, `refresh_revoked = False`, `created_at: datetime.datetime.now(datetime.timezone.utc).isoformat()`
 
 **Example request**:
 ```bash
@@ -679,6 +681,8 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/authentication/login" `
 
 **Description**: Exchange a valid refresh token for a new access token. The refresh token is valid for 24 hours, and the access token for 15 minutes. 
 
+Requirements: 
+- Send the refresh token as the Bearer token.
 
 **Example request**:
 ```bash
@@ -686,12 +690,25 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/authentication/refresh" `
   -Method POST `
   -Headers @{ "Authorization" = "Bearer <refresh_token>" }
 ```  
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `200 OK`  
+    `{ "access_token": "<new_access_jwt>" }`
+  - `401 Unauthorized`  
+    `{ "msg": "Refresh token revoked" }` — returned when the user does not exist or `refresh_revoked` is `True`.
+
+
+</details>
 
 ### Logout
 
 > DELETE api/authentication/logout
 
 **Description**: Revoke current access token and revoke refresh token for the user with valid access token.
+
+Requirements
+- Valid access token as Bearer.
 
 Behavior:
 - Removes old revoked access tokens
@@ -710,6 +727,63 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/authentication/logout" `
   
   - `200 OK`  
     `{ "msg": "Access and refresh token revoked" }`
+
+</details>
+
+
+### Delete the user account
+
+> DELETE api/authentication/delete_account
+
+**Description**: Permanently delete the user account.
+
+Requirements
+- Send a valid access token as Bearer.
+
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/authentication/delete_account" `
+  -Method DELETE `
+  -Headers @{ "Authorization" = "Bearer <access_token>" }
+```
+
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+
+  - `200 OK`  
+    `{ "msg": "User account deleted" }`
+  - `404 Not Found`  
+    `{ "msg": "User not found" }`
+
+</details>
+
+
+### Get current user info
+
+> GET api/authentication/who_am_i
+
+**Description**: Return basic information about the currently authenticated user.
+
+Behavior
+- Verifies token and checks revocation (`is_token_revoked()`).
+- Fetches user by id from the token.
+
+**Example request**:
+```bash
+Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/user/who_am_i" `
+  -Method GET `
+  -Headers @{ "Authorization" = "Bearer <access_token>" }
+```
+
+<details>
+<summary><strong>Responses</strong> (click to open)</summary>
+  
+  - `200 OK`  
+    `{ "id": "<user_object_id>", "username": "<username>" }`
+  - `401 Unauthorized`  
+    `{ "msg": "Token revoked" }` (also returned for missing/invalid token by JWT middleware)
+  - `404 Not Found`  
+    `{ "msg": "User not found" }`
 
 </details>
 
@@ -925,6 +999,93 @@ The response format depends on the analysis type of the subscription:
 An overview of our solutions and approaches across the project's key areas.
 
 <details>
+<summary><strong>User Authentication System</strong></summary>
+
+The backend implements JWT-based authentication using Flask-JWT-Extended. User credentials are stored in MongoDB with hashed passwords (werkzeug). Authentication flow uses access tokens for API requests and longer-lived refresh tokens for obtaining new access tokens.
+
+### Key Concepts
+
+**Tokens**
+- **Access Token**: Used to authenticate API requests. Sent in the `Authorization: Bearer <access_token>` header. Expires based on Flask-JWT-Extended config.
+- **Refresh Token**: Used to obtain a new access token without re-entering credentials. Expires based on Flask-JWT-Extended config.
+- **Token Identity**: Both tokens encode the user's MongoDB `_id` as a string for identity verification.
+
+**Token Revocation**
+- When a user logs out, their current access token is revoked by storing its `jti` (JWT ID) and expiration timestamp in `user.revoked_access_tokens`.
+- Revoked access tokens older than 15 minutes are automatically removed on each logout to keep the database clean.
+- The `refresh_revoked` flag on the user document is set to `True` on logout, globally revoking all refresh tokens for that user until the next login.
+- The `is_token_revoked()` helper function checks if an incoming access token is in the revoked list before allowing requests.
+
+**User Fields**
+- `username` (string, unique, lowercased): 3–20 characters.
+- `email` (string, unique, lowercased): Valid email format.
+- `password` (string, hashed): Never stored in plaintext; hashed with werkzeug before insertion.
+- `last_login` (datetime, nullable): Updated on successful login.
+- `refresh_revoked` (boolean): Set to `False` on login, `True` on logout.
+- `revoked_access_tokens` (array): List of `{ jti, exp }` objects for revoked tokens.
+- `created_at` (datetime ISO string): Set on account creation.
+
+### Authentication Flow
+
+**Registration**
+1. User sends `username`, `email`, `password` to `/api/authentication/register`.
+2. Server validates input (length, format, uniqueness).
+3. Password is hashed and a new user document is created with `last_login = null`, `refresh_revoked = False`, `revoked_access_tokens = []`, and `created_at = now`.
+4. Server returns `user_id` (MongoDB ObjectId as string).
+
+**Login**
+1. User sends `username` and `password` to `/api/authentication/login`.
+2. Server fetches the user by username (case-insensitive), checks password hash.
+3. On success, `last_login` is updated and `refresh_revoked` is reset to `False`.
+4. Server issues an access token and refresh token (both valid for their configured lifetimes).
+5. Client stores both tokens (typically in memory or secure storage).
+
+**Making Authenticated Requests**
+1. Client includes the access token: `Authorization: Bearer <access_token>`.
+2. Server validates the token signature and checks if it is revoked via `is_token_revoked()`.
+3. If valid and not revoked, the request proceeds; user identity is available via `get_jwt_identity()`.
+
+**Refreshing Access Token**
+1. When the access token expires, client sends the refresh token to `/api/authentication/refresh`.
+2. Server verifies the refresh token and checks `user.refresh_revoked`.
+3. If not revoked, a new access token is issued.
+4. If `refresh_revoked` is `True`, the server returns 401 (user must log in again).
+
+**Logout**
+1. Client sends a DELETE request to `/api/authentication/logout` with the access token.
+2. Server extracts the token's `jti` and expiration time, then:
+   - Removes any revoked access tokens from the user document that are older than 15 minutes.
+   - Adds the current token to `revoked_access_tokens` with its `jti` and `exp`.
+   - Sets `refresh_revoked = True`.
+3. Client should discard both tokens. All subsequent requests using these tokens will be rejected.
+
+**Account Deletion**
+1. Client sends DELETE to `/api/authentication/delete_account` with an access token.
+2. Server checks token revocation and fetches the user.
+3. If the user is subscribed to any active subscriptions, the server removes the user from the subscribers list. If that leaves the subscription with no subscribers, the subscription is marked inactive.
+4. The user document is permanently deleted from the database.
+5. Client is logged out and should discard tokens.
+
+**Get Current User Info**
+1. Client sends GET to `/api/user/who_am_i` with an access token.
+2. Server validates token, checks revocation, and fetches user by id.
+3. Returns `{ id, username, email, created_at }`.
+
+### Security Notes
+
+- **Password Storage**: Passwords are hashed with werkzeug before insertion into the database. Never stored or transmitted in plaintext.
+- **Token Validation**: Access tokens are validated on every request via JWT signature and revocation check.
+- **CORS**: Configured to allow requests only from `ALLOWED_ORIGINS` (set via `.env`). Credentials are not sent by default (`supports_credentials=False`).
+- **Refresh Token Revocation**: Logging out invalidates all refresh tokens for a user globally via the `refresh_revoked` flag, preventing token reuse after logout.
+
+### Environment Variables
+
+- `JWT_SECRET_KEY`: Secret key used to sign JWT tokens. Must be set and kept secure.
+- `ALLOWED_ORIGINS`: Comma-separated list of allowed frontend origins for CORS
+
+</details>
+
+<details>
 <summary><strong>Topic Modeling</strong></summary>
 
 **Topic modeling** is a natural language processing (NLP) technique for identifying themes and topics from text data.
@@ -1138,7 +1299,29 @@ While FLAN-T5 performs robustly across many languages, there are several caveats
 
 <details>
 <summary><strong>Text Summarization</strong></summary>
-Coming soon
+
+**Text summarization** is a natural language processing (NLP) method used to condense long pieces of text into shorter, coherent summaries while preserving the essential information.
+
+This project implements an extract-and-aggregate summarization pipeline using a FLAN-T5-based transformer model (via HuggingFace pipelines) to produce factual and neutral summaries of topics identified in Reddit discussions through topic modeling. Due to the informal and noisy nature of Reddit posts, custom preprocessing steps are applied to clean the text, filter factual content, and improve the reliability of the generated summaries.
+
+**Core steps**
+- Input cleaning: remove markdown, links, extraneous characters (app.helpers.text_processing.clean_text).
+- Factual filtering: discard short, opinionated or noisy sentences (filter_factual_sentences).
+- Smart chunking: split long texts into token-aware chunks using the model tokenizer so each chunk fits model context (smart_split).
+- Partial summarization: run the summarizer on each chunk to produce short factual summaries of each representative document.
+- Final aggregation: combine partial summaries and ask the model for a final concise, factual summary.
+
+**Implementation details**
+- Summarizer: FLAN-T5 via a summarizer wrapper (app.models.summarizing.summarize_texts). Tokenizer.model_max_length is used to compute safe chunk size (max_tokens ≈ model_max_length - 32).
+- Prompts: explicitly instruct the model to output factual, neutral news-style summaries and to exclude opinions, jokes, or speculation.
+- Fallbacks: if a chunk or the final summary fails, the function returns the best partial aggregation available.
+- Helpers: textual cleaning to reduce noise and improve final summary quality.
+
+**Tradeoffs & limitations**
+- Chunking may lose some cross-sentence context.
+- Strict prompting and factual filtering reduce the risk of hallucinations, but cannot eliminate it entirely.
+- Summarization can be computationally expensive for large documents, impacting latency and cost.
+
 </details>
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
