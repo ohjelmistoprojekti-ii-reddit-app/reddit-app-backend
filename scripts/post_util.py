@@ -1,5 +1,5 @@
 import asyncio
-from app.helpers.translation import translate_into_english
+from scripts.translation import translate_into_english
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 import langid
 

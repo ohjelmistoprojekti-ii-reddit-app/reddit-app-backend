@@ -1,7 +1,7 @@
 import langid
 from transformers import T5Tokenizer, T5ForConditionalGeneration
-from app.helpers.supported_languages import get_supported_languages
-from app.helpers.text_processing import remove_links
+from scripts.supported_languages import get_supported_languages
+from scripts.text_processing import remove_links
 import nltk
 nltk.download('punkt')
 nltk.download('punkt_tab')

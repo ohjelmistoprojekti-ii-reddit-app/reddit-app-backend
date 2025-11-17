@@ -3,7 +3,7 @@ import os
 import asyncpraw
 import datetime
 from dotenv import load_dotenv
-from app.helpers.text_processing import is_bot
+from scripts.text_processing import is_bot
 
 
 load_dotenv()

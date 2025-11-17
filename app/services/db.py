@@ -1,6 +1,10 @@
 from pymongo import MongoClient, DESCENDING
 from datetime import datetime, timedelta, timezone
 import os
+import logging
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 def connect_db():
     try:
@@ -17,7 +21,7 @@ def connect_db():
 
 """ Save data (list or dict) to specified collection """
 def save_data_to_database(data_to_save, collection):
-    print("Inserting into database..\n")
+    logger.info("Inserting into database..\n")
     if not isinstance(data_to_save, (list, dict)):
         raise TypeError("Data to save must be a list or a dictionary")
 
@@ -71,7 +75,7 @@ def update_one_item_in_collection(collection, filter, update):
     if not isinstance(update, dict):
         raise TypeError("Parameter 'update' must be a dictionary")
     
-    print("Updating data in database..")
+    logger.info("Updating data in database..")
     client, db = connect_db()
     try:
         coll = db[collection]
