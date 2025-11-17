@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required
 from app.helpers.auth_utils import get_current_user_id, convert_userids_to_string
 from app.helpers.jwt_utils import is_token_revoked
 from app.services.db import fetch_data_from_collection, get_latest_data_by_subreddit, save_data_to_database, update_one_item_in_collection
-from app.services.reddit_api import get_posts
+from scripts.reddit_api import get_posts
 
 subscription_bp = Blueprint('subscriptions', __name__)
 
