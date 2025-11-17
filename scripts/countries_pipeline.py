@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
 from scripts.post_util import get_top_posts_with_translations
-from app.services.reddit_api import get_posts
+from scripts.reddit_api import get_posts
 from scripts.sentiment_analysis import sentiment_analysis_for_map_feature
 from app.services.db import save_data_to_database
 from app.config import Config
