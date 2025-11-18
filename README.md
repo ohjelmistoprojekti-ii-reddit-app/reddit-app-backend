@@ -40,6 +40,7 @@ This is the **backend service** for a web application that:
 - **Translation and summarization:** [Flan-T5](https://huggingface.co/docs/transformers/model_doc/flan-t5)
 - **Database:** [MongoDB](https://www.mongodb.com/)
 - **Automations:** [GitHub Actions](https://docs.github.com/en/actions)
+- **Testing**: [pytest](https://docs.pytest.org/en/stable/), [mongomock](https://github.com/mongomock/mongomock), [Allure Report](https://allurereport.org/docs/)
 
 ## 🏛️ Architecture Overview
 
