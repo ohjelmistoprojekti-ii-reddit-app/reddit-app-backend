@@ -99,7 +99,7 @@ Reddit Analyzer database contains the following collections:
 
 Database access is managed through a dedicated database layer that handles saving, updating, and retrieving data.
 
-The goal of this database description is to provide context for the database-related test cases. Please not that tests **do not use** the production database. Instead, a separate test database simulated with *mongomock* is used.
+The goal of this database description is to provide context for the database-related test cases. Please note that tests **do not use** the production database. Instead, we create a separate test database using *mongomock*.
 
 ## Test Prioritization
 
