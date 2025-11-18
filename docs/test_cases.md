@@ -6,7 +6,7 @@ Please refer to the [Test Plan](./test_plan.md) for an overview of the testing s
 
 ## Database Tests
 
-Database tests will be unit tests. Our database contains diverse data, and no schemas or mandatory fields have been defined, so data integrity validation is not the focus. Instead, we will focus on verifying that database functions work as expected. We will use a test database created using *mongomock*.
+Database tests will be unit tests. Our database contains diverse data, and no schemas or mandatory fields have been defined, so data integrity validation is not the focus. Instead, we will focus on verifying that database functions work as expected. We will create a test database using *mongomock*.
 
 ### TC-01 - Save Data to Database
 **Description**: Tests the `save_data_to_database(data_to_save, collection)` function to ensure data is **saved correctly** and errors are handled appropriately.  
@@ -70,7 +70,6 @@ Database tests will be unit tests. Our database contains diverse data, and no sc
 | 4 | Fetch with invalid `type` parameter | Ensure error handling works | Invalid `type` (not `posts` or `topics`) | `ValueError` or equivalent |
 
 
-
 ### TC-06 - Count Post Numbers by Time Period
 **Description**: Tests `get_post_numbers_by_timeperiod(subreddit, number_of_days)` to ensure it **calculates post counts correctly** and handles errors appropriately.  
 **Priority**: Medium  
@@ -97,7 +96,6 @@ Database tests will be unit tests. Our database contains diverse data, and no sc
 | 4 | Fetch with invalid `number_of_days` | Ensure error handling works | Invalid `number_of_days`, e.g., negative | `ValueError` or equivalent |
 
 
----
 
 ## REST API and User Management Tests
 

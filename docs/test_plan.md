@@ -11,22 +11,22 @@ Contents:
 
 ## Objective and Testing Scope
 
-The goal of the testing process is to ensure the **functionality and stability of key backend features** of Reddit Analyzer as the project is coming to an end. The tests also support **quality assessment**, such as evaluating reliability, identifying potential issues, and highlighting the strengths and weaknesses of the implemented solutions.
+The goal of the testing process is to ensure the **functionality and stability of key backend features** of Reddit Analyzer as the project is coming to an end. The testing also supports **quality assessment**, such as evaluating reliability, identifying potential issues, and highlighting the strengths and weaknesses of the implemented solutions.
 
 The testing scope includes:
 - **Database connections (MongoDB)** – CRUD operations  
 - **REST API** – responses, error handling, and boundary conditions  
 - **Token-based user management and authentication** – registration, login, and token validation  
 
-Testing **does not cover** the analysis pipelines, as they run in a separate automated environment (*GitHub Actions*) and do not belong to the runtime environment of the backend. For the same reason, external services such as the Reddit API and analysis-related libraries (e.g., BERTopic) are excluded. However, GitHub Actions provides feedback through workflow logs, which makes monitoring the analysis jobs easier.
+Testing **does not cover** the analysis pipelines, as they run in a separate automated environment (*GitHub Actions*) and do not belong to the runtime environment of the backend. For the same reason, external services such as the Reddit API and analysis-related libraries (e.g., BERTopic) are excluded. However, GitHub Actions provides feedback through workflow logs, which can be used to identify issues in the analysis pipelines if needed.
 
 Frontend testing is outside the scope of this plan, as it is handled by a different team member.
 
 ## Testing Approach
 
-The testing follows the **"test first, refactor later"** principle: tests are first written for all major functionalities, even if they initially fail. The goal is to gain a clear understanding of problematic areas. After that, the tests will guide the refactoring process. If this approach becomes too difficult or time-consuming, a more traditional approach —testing and refactoring simultaneously— may be used.
+The testing follows the **"test first, refactor later"** principle: tests are first written for all major functionalities, even if they initially fail. The goal is to gain a clear understanding of the problematic areas. After that, the test results will guide the refactoring process. If this approach becomes too difficult or time-consuming, a more traditional approach —testing and refactoring simultaneously— may be used.
 
-Since the project's requirement specification is incomplete and lacks explicit acceptance criteria, test design is primarily based on how the application’s functionalities are **expected** to behave. This aligns with the main goal of testing: ensuring the correctness and stability of the critical components. We will use a **white-box testing** strategy, meaning tests are designed by examining the structure and logic of the functions directly.
+Since the project's requirement specification is incomplete and lacks explicit acceptance criteria, test design is primarily based on how the application’s functionalities are **expected** to behave. This aligns with the main goal of testing: ensuring the functionality and stability of the critical components. We will use a **white-box testing** strategy, meaning tests are designed by examining the structure and logic of the functions directly.
 
 The testing tools include:
 - **pytest** – for implementing unit and integration tests  
@@ -39,7 +39,7 @@ Unit tests verify individual functions and methods, while integration tests veri
 
 ### REST API and User Management
 
-The REST API controls all key features of Reddit Analyzer, including trend analysis, country-specific subreddit analysis, subscription-based analysis, and user management. **Analyses are executed automatically via GitHub Actions**, and the API provides access to these results. The API also handles user registration, login, and subscription management.
+The REST API controls all key features of Reddit Analyzer, including trending topics analysis, country-specific subreddit analysis, subscription-based analysis, and user management. **Analyses are executed automatically via GitHub Actions**, and the API provides access to these results. The API also handles user and subscription management.
 
 Below is an overview of the main functionalities and how they interact with the API:
 
@@ -85,7 +85,7 @@ A detailed description of all endpoints (with examples) is available in the back
 
 ### Database
 
-The Reddit Analyzer database is implemented using [MongoDB Atlas](https://www.mongodb.com/docs/atlas/). MongoDB is a NoSQL document database where data is stored in JSON-like documents and organized into *collections*. Schema flexibility allows documents within the same collection to have varying structures.
+The Reddit Analyzer database is implemented using [MongoDB Atlas](https://www.mongodb.com/docs/atlas/). MongoDB is a NoSQL document database where data is stored in JSON-like documents and organized into *collections*. Schemas are flexible, allowing for easy adaptation to changing data requirements.
 
 Reddit Analyzer database contains the following collections:
 
@@ -122,14 +122,14 @@ Tests will be executed primarily in a **local** Python virtual environment. If t
 
 ## Testing Criteria
 
-- **Entry Criteria:**
+- **Entry Criteria:** (conditions for starting testing)
   Required libraries and dependencies are installed, backend runs locally, and the test environment is set up.
 
-- **Exit Criteria:**
+- **Exit Criteria:** (conditions for completing testing)
   All unit and integration tests have been executed, and all critical tests pass. Any failed tests are documented and resolved.
 
-- **Suspension Criteria:**
-  Testing may be paused if unexpected issues occur in the environment or if time constraints prevent continuation.
+- **Suspension Criteria:** (conditions for pausing testing)
+  Testing may be paused if unexpected issues occur in the environment or if time or resource constraints prevent continuation.
 
 ## Testing Deliverables
 
