@@ -29,6 +29,7 @@ Database tests will be unit tests. Our database contains diverse data, and no sc
 | 1 | Fetch all documents | Ensure fetching all documents works normally | No `filter` | Returns all documents as a list |
 | 2 | Fetch documents using filter | Ensure filtered fetch works correctly | Valid `filter` | Returns documents matching the filter |
 | 3 | Fetch a non-existent document | Ensure fetch handles missing data correctly | Invalid `filter` | Returns empty list |
+| 4 | Fetch documents with invalid filter type | Ensure error handling works | Invalid `filter` | `TypeError` |
 
 
 ### TC-03 - Update Document in Database
@@ -48,8 +49,8 @@ Database tests will be unit tests. Our database contains diverse data, and no sc
 
 | # | Test Step | Objective | Input/Parameter | Expected Result |
 |---|-----------|----------|-----------------|----------------|
-| 1 | Delete existing document | Ensure deletion succeeds | Valid `filter` | Document is deleted successfully |
-| 2 | Delete non-existent document | Ensure error handling works | Invalid `filter` | `ValueError` or equivalent |
+| 1 | Delete existing document | Ensure deletion succeeds | Valid `filter` | Document is deleted successfully (function returns 1) |
+| 2 | Delete non-existent document | Ensure deleting non-existent document is handled gracefully | Invalid `filter` | Function returns 0 |
 | 3 | Delete with invalid filter | Ensure error handling works | Invalid `filter`, e.g., string | `TypeError` or equivalent |
 
 ---
