@@ -56,45 +56,44 @@ Database tests will be unit tests. Our database contains diverse data, and no sc
 ---
 
 > **NOTE:**
-> For the next tests involving analysis results, a more comprehensive test dataset should be created covering different types of analysis results and multiple timestamps.
-> For clarity, analysis-specific tests should be separated from basic CRUD tests.
+> For the next tests involving analysis results, make sure to create a dataset that covers different types of analysis results and multiple timestamps. For clarity, analysis-related tests should be separated from basic CRUD tests.
 
-### TC-05 - Fetch Latest Analysis Results by Subreddit
+### TC-05 - Fetch Latest Analysis Results From Database
 **Description**: Tests `get_latest_data_by_subreddit(collection, subreddit, type=None)` to ensure it **returns the latest data correctly** and handles errors appropriately.  
 **Priority**: High
 
 | # | Test Step | Objective | Input/Parameter | Expected Result |
 |---|-----------|----------|-----------------|----------------|
-| 1 | Fetch latest documents without `type` filter | Ensure latest documents are returned | Valid `subreddit` | Returns document with latest timestamp |
-| 2 | Fetch latest documents with `type` filter | Ensure filtering by analysis type works | Valid `subreddit` and `type` | Returns document with latest timestamp and correct type |
-| 3 | Fetch from non-existent subreddit | Ensure missing subreddit is handled correctly | Invalid `subreddit` | Returns empty list |
-| 4 | Fetch with invalid `type` parameter | Ensure error handling works | Invalid `type` (not `posts` or `topics`) | `ValueError` or equivalent |
+| 1 | Fetch latest data without `type` filter | Ensure latest documents are returned | Valid `subreddit` | Returns correct documents with latest timestamp |
+| 2 | Fetch latest data with `type` filter | Ensure filtering by analysis type works | Valid `subreddit` and `type` | Returns correct documents with latest timestamp and correct type |
+| 3 | Fetch latest data from non-existent subreddit | Ensure missing subreddit is handled correctly | Invalid `subreddit` | Returns empty list |
+| 4 | Fetch latest data with invalid `type` parameter | Ensure error handling works | Invalid `type` (not `posts` or `topics`) | `ValueError` or equivalent |
 
 
-### TC-06 - Count Post Numbers by Time Period
+### TC-06 - Calculate Post Number Statistics From Analysis Results
 **Description**: Tests `get_post_numbers_by_timeperiod(subreddit, number_of_days)` to ensure it **calculates post counts correctly** and handles errors appropriately.  
 **Priority**: Medium  
 **Note**: Test data must include posts across multiple days so that the counting logic can be properly verified.
 
 | # | Test Step | Objective | Input/Parameter | Expected Result |
 |---|-----------|----------|-----------------|----------------|
-| 1 | Fetch posts for existing subreddit | Ensure counts are correct | Valid `subreddit` and `number_of_days` | Returns list of post counts, all counts correct |
-| 2 | Fetch posts for non-existent subreddit | Ensure missing subreddit is handled correctly | Invalid `subreddit` | Returns empty list |
-| 3 | Fetch with invalid `number_of_days` | Ensure error handling works | Invalid `number_of_days`, e.g., negative | `ValueError` or equivalent |
+| 1 | Count post numbers for existing subreddit | Ensure counts are correct | Valid `subreddit` and `number_of_days` | Returns list of post counts with correct totals |
+| 2 | Count post numbers for non-existent subreddit | Ensure missing subreddit is handled correctly | Invalid `subreddit` | Returns empty list |
+| 3 | Count post numbers with invalid `number_of_days` | Ensure error handling works | Invalid `number_of_days`, e.g., negative | `ValueError` or equivalent |
 
 
-
-### TC-07 - Fetch Top Topics by Time Period
+### TC-07 - Calculate Top Topics Statistics From Analysis Results
 **Description**: Tests `get_top_topics_by_timeperiod(subreddit, number_of_days, limit)` to ensure it **returns topics in correct order and counts** and handles errors appropriately.  
 **Priority**: Medium  
 **Note**: Test data must include posts across multiple days with various topics so that the ranking logic can be properly verified.
 
 | # | Test Step | Objective | Input/Parameter | Expected Result |
 |---|-----------|----------|-----------------|----------------|
-| 1 | Fetch top topics for existing subreddit | Ensure top topics are calculated correctly | Valid `subreddit`, `number_of_days`, `limit` | Returns list of top topics in order, count = `limit` |
-| 2 | Fetch top topics for non-existent subreddit | Ensure missing subreddit is handled correctly | Invalid `subreddit` | Returns empty list |
-| 3 | Fetch with large `limit` | Ensure function returns all available topics without error | Valid `subreddit`, large `limit` | Returns all top topics, count < `limit` |
-| 4 | Fetch with invalid `number_of_days` | Ensure error handling works | Invalid `number_of_days`, e.g., negative | `ValueError` or equivalent |
+| 1 | Count top topics for existing subreddit | Ensure top topics are calculated correctly | Valid `subreddit`, `number_of_days`, `limit` | Returns list of top topics in order, topic amount = `limit` |
+| 2 | Count top topics for non-existent subreddit | Ensure missing subreddit is handled correctly | Invalid `subreddit` | Returns empty list |
+| 3 | Count top topics with large `limit` | Ensure function returns all available topics without error | Valid `subreddit`, large `limit` | Returns all top topics, count < `limit` |
+| 4 | Count top topics with invalid `number_of_days` | Ensure error handling works | Invalid `number_of_days`, e.g. negative | `ValueError` or equivalent |
+| 5 | Count top topics with invalid `limit` | Ensure error handling works | Invalid `limit`, e.g. negative | `ValueError` or equivalent |
 
 
 
@@ -106,7 +105,7 @@ REST API tests follow the priority order defined in the test plan. First, we wil
 
 ### Public endpoints (no authentication required)
 
-#### TC-08 - Fetch List of Subreddits
+### TC-08 - Fetch List of Subreddits
 **Description**: Tests `/api/subreddits` to ensure it **returns a list of available subreddits** and handles errors correctly.
 **Priority**: High
 
@@ -116,7 +115,7 @@ REST API tests follow the priority order defined in the test plan. First, we wil
 | 2 | Verify list content | Ensure subreddits match config | - | Subreddits match `Config.SUBREDDITS` |
 | 3 | Missing config | Ensure error handling works | Remove `Config.SUBREDDITS` | Status `500 Internal Service Error` or equivalent |
 
-#### TC-09 - Fetch List of Country-Based Subreddits
+### TC-09 - Fetch List of Country-Based Subreddits
 **Description**: Tests `/api/subreddits/countries` to ensure it **returns a list of country-based subreddits** and handles errors correctly.  
 **Priority**: High
 
@@ -127,7 +126,7 @@ REST API tests follow the priority order defined in the test plan. First, we wil
 | 3 | Missing config | Ensure error handling works | Remove `Config.COUNTRY_SUBREDDITS` | Status `500 Internal Service Error` or equivalent |
 | 4 | Check login requirement | Ensure some subreddits require login | - | Each item has `login_required` field, 0 or 1 |
 
-#### TC-10 - Fetch Topic Analysis Results
+### TC-10 - Fetch Topic Analysis Results
 **Description**: Tests `/api/topics/latest/<subreddit>` to ensure it **returns the latest analysis results** and handles errors correctly.  
 **Priority**: High
 
@@ -135,9 +134,9 @@ REST API tests follow the priority order defined in the test plan. First, we wil
 |---|-----------|----------|-----------------|----------------|
 | 1 | Fetch results for existing subreddit | Ensure results are returned correctly | Valid `subreddit` | Returns list with latest `timestamp` |
 | 2 | Fetch for non-existent subreddit | Ensure error handling works | Invalid `subreddit` | Status `404 Not Found` |
-| 3 | Verify content | Ensure data matches database | Valid `subreddit` | JSON contains expected fields (label, posts, subreddit, timestamp, etc.) |
+| 3 | Verify response content | Ensure data matches database | Valid `subreddit` | JSON contains expected fields (label, posts, subreddit, timestamp, etc.) |
 
-#### TC-11 - Fetch Country-Based Analysis Results
+### TC-11 - Fetch Country-Based Analysis Results
 **Description**: Tests `/api/countries/latest/<subreddit>` to ensure it **returns the latest results** and handles errors correctly.  
 **Priority**: High
 
@@ -145,27 +144,27 @@ REST API tests follow the priority order defined in the test plan. First, we wil
 |---|-----------|----------|-----------------|----------------|
 | 1 | Fetch results for existing subreddit | Ensure results are returned correctly | Valid `subreddit` | Returns list with latest `timestamp` |
 | 2 | Fetch for non-existent subreddit | Ensure error handling works | Invalid `subreddit` | Status `404 Not Found` |
-| 3 | Verify content | Ensure data matches database | Valid `subreddit` | JSON contains expected fields (country, posts, requiresLogin, etc.) |
+| 3 | Verify response content | Ensure data matches database | Valid `subreddit` | JSON contains expected fields (country, posts, requiresLogin, etc.) |
 
-#### TC-12 - Fetch Post Statistics for Topic Analysis
+### TC-12 - Fetch Post Statistics for Topic Analysis
 **Description**: Tests `/api/statistics/<subreddit>/<days>` to ensure it **returns post counts** and handles errors correctly.  
 **Priority**: Medium
 
 | # | Test Step | Objective | Input/Parameter | Expected Result |
 |---|-----------|----------|-----------------|----------------|
 | 1 | Fetch stats for existing subreddit | Ensure stats are returned correctly | Valid `subreddit` | Returns stats as list |
-| 2 | Fetch for non-existent subreddit | Ensure error handling works | Invalid `subreddit` | Status `404 Not Found` |
-| 3 | Verify content | Ensure data structure is correct | Valid `subreddit` | JSON contains expected fields (_id, daily, total_posts) |
+| 2 | Fetch stats for non-existent subreddit | Ensure error handling works | Invalid `subreddit` | Status `404 Not Found` |
+| 3 | Verify response content | Ensure data structure is correct | Valid `subreddit` | JSON contains expected fields (_id, daily, total_posts) |
 
-#### TC-13 - Fetch Topic Statistics for Topic Analysis
+### TC-13 - Fetch Topic Statistics for Topic Analysis
 **Description**: Tests `/api/statistics/topics/<subreddit>/<days>/<limit>` to ensure it **returns top topic statistics** and handles errors correctly.  
 **Priority**: Medium
 
 | # | Test Step | Objective | Input/Parameter | Expected Result |
 |---|-----------|----------|-----------------|----------------|
 | 1 | Fetch stats for existing subreddit | Ensure stats are returned correctly | Valid `subreddit` | Returns stats as list |
-| 2 | Fetch for non-existent subreddit | Ensure error handling works | Invalid `subreddit` | Status `404 Not Found` |
-| 3 | Verify content | Ensure data structure is correct | Valid `subreddit` | JSON contains expected fields (_id, topics) |
+| 2 | Fetch stats for non-existent subreddit | Ensure error handling works | Invalid `subreddit` | Status `404 Not Found` |
+| 3 | Verify response content | Ensure data structure is correct | Valid `subreddit` | JSON contains expected fields (_id, topics) |
 
 
 Tests that still need to be planned:
