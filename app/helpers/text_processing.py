@@ -27,7 +27,7 @@ def preprocess(posts):
 
 def is_bot(text):
     clean_text = re.sub(r'[_*~`]', '', text)
-    bot_text = re.compile(r'i am a bot')
+    bot_text = re.compile(r'i am a bot|automated message|automatic message')
     return bool(bot_text.search(clean_text))
 
 def remove_links(text):
