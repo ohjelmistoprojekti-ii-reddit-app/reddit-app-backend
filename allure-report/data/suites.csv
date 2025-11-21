@@ -1,5 +1,0 @@
-"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"Test saving a single document to the database, and verify it was saved correctly.","0","test_save_one_document","tests.database","2025-11-19","passed","2025-11-19","Save one item","TC-01: Save data to database","",""
-"Test saving multiple documents to the database, and verify they were saved correctly.","0","test_save_multiple_documents","tests.database","2025-11-19","passed","2025-11-19","Save list of items","TC-01: Save data to database","",""
-"Test saving an empty list to the database, and verify that a ValueError is raised.","0","test_save_empty_list","tests.database","2025-11-19","broken","2025-11-19","Save empty list","TC-01: Save data to database","",""
-"Test saving an invalid data type to the database, and verify that a TypeError is raised.","0","test_save_invalid_data_type","tests.database","2025-11-19","passed","2025-11-19","Save invalid data type","TC-01: Save data to database","",""
