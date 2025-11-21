@@ -17,7 +17,7 @@ The used datasets include only the necessary fields for the tested functions.
 @allure.description("Test fetching latest data without type filter from the database, and verify that correct documents (with most recent timestamp) are returned.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_fetch_latest_results_without_type_filter(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "label": "Topic A", "subreddit": "example", "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
@@ -46,7 +46,7 @@ def test_fetch_latest_results_without_type_filter(mock_db):
 @allure.description("Test fetching latest data with type filter from the database, and verify that correct documents (with most recent timestamp and correct type) are returned.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_fetch_latest_results_with_type_filter(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "type": "topics", "label": "Topic A", "subreddit": "example", "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
@@ -76,7 +76,7 @@ def test_fetch_latest_results_with_type_filter(mock_db):
 @allure.description("Test fetching latest data from a nonexistent subreddit, and verify that an empty list is returned.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_fetch_latest_results_from_nonexistent_subreddit(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "label": "Topic A", "subreddit": "example", "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
@@ -97,7 +97,7 @@ def test_fetch_latest_results_from_nonexistent_subreddit(mock_db):
 @allure.description("Test fetching latest data using invalid filter type, and verify that a ValueError or TypeError is raised.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_fetch_latest_results_using_invalid_filter_type(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "label": "Topic A", "subreddit": "example", "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
@@ -119,7 +119,7 @@ def test_fetch_latest_results_using_invalid_filter_type(mock_db):
 @allure.description("Test calculating post numbers for existing subreddit, and verify that the correct post count statistics are returned. Expects today's statistics to be included.")
 @allure.severity(allure.severity_level.NORMAL)
 def test_calculate_post_numbers_for_existing_subreddit(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     # Ensure test data includes today's date
     current_date = datetime.now(timezone.utc)
@@ -156,7 +156,7 @@ def test_calculate_post_numbers_for_existing_subreddit(mock_db):
 @allure.description("Test calculating post numbers for nonexistent subreddit, and verify that an empty list is returned.")
 @allure.severity(allure.severity_level.NORMAL)
 def test_calculate_post_numbers_for_nonexistent_subreddit(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     current_date = datetime.now(timezone.utc)
     test_data = [
@@ -190,7 +190,7 @@ def test_calculate_post_numbers_with_invalid_number_of_days(mock_db):
 @allure.description("Test calculating top topics for existing subreddit, and verify that the correct topics statistics are returned. Expects today's statistics to be included.")
 @allure.severity(allure.severity_level.NORMAL)
 def test_calculate_top_topics_for_existing_subreddit(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     # Ensure test data includes today's date
     current_date = datetime.now(timezone.utc)
@@ -222,7 +222,7 @@ def test_calculate_top_topics_for_existing_subreddit(mock_db):
 @allure.description("Test calculating top topics for nonexistent subreddit, and verify that an empty list is returned.")
 @allure.severity(allure.severity_level.NORMAL)
 def test_calculate_top_topics_for_nonexistent_subreddit(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     current_date = datetime.now(timezone.utc)
     test_data = [
@@ -244,7 +244,7 @@ def test_calculate_top_topics_for_nonexistent_subreddit(mock_db):
 @allure.description("Test calculating top topics with a large limit, and verify that all available topics are returned without error.")
 @allure.severity(allure.severity_level.NORMAL)
 def test_calculate_top_topics_with_large_limit(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     current_date = datetime.now(timezone.utc)
     test_data = [

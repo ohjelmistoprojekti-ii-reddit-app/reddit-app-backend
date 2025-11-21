@@ -25,4 +25,4 @@ def mock_db(monkeypatch):
         mock_client = mongomock.MongoClient()
         mock_client_class.return_value = mock_client
         client, db = connect_db()
-        yield client, db
+        yield db

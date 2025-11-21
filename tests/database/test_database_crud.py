@@ -11,7 +11,7 @@ from app.services.db import save_data_to_database, fetch_data_from_collection, u
 @allure.description("Test saving a single document to the database, and verify it was saved correctly.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_save_one_document(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = { "title": "Test Post", "content": "This is a test post" }
     collection = "test_collection"
@@ -30,7 +30,7 @@ def test_save_one_document(mock_db):
 @allure.description("Test saving multiple documents to the database, and verify they were saved correctly.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_save_multiple_documents(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "title": "Test Post", "content": "This is a test post" },
@@ -80,7 +80,7 @@ def test_save_invalid_data_type(mock_db):
 @allure.description("Test fetching all documents from the database collection, and verify that the correct documents are returned as a list.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_fetch_all_documents(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "title": "Test Post", "content": "This is a test post" },
@@ -103,7 +103,7 @@ def test_fetch_all_documents(mock_db):
 @allure.description("Test fetching documents with a filter, and verify that the correct documents are returned as a list.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_fetch_documents_using_filter(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "title": "Test Post", "content": "This is a test post" },
@@ -125,7 +125,7 @@ def test_fetch_documents_using_filter(mock_db):
 @allure.description("Test fetching a document that doesn't exist, and verify that an empty list is returned.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_fetch_nonexistent_document(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = [
         { "title": "Test Post", "content": "This is a test post" },
@@ -160,7 +160,7 @@ def test_fetch_documents_with_invalid_filter_type(mock_db):
 @allure.description("Test updating existing document, and verify it was updated successfully.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_update_existing_document(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = { "title": "Test Post", "content": "This is a test post" }
     collection = "test_collection"
@@ -178,7 +178,7 @@ def test_update_existing_document(mock_db):
 @allure.description("Test updating non-existing document, and verify that a ValueError was raised.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_update_nonexisting_document(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = { "title": "Test Post", "content": "This is a test post" }
     collection = "test_collection"
@@ -194,7 +194,7 @@ def test_update_nonexisting_document(mock_db):
 @allure.description("Test updating using an invalid filter, and verify that a TypeError was raised.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_update_with_invalid_filter_type(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = { "title": "Test Post", "content": "This is a test post" }
     collection = "test_collection"
@@ -212,7 +212,7 @@ def test_update_with_invalid_filter_type(mock_db):
 @allure.description("Test deleting existing document, and verify it was deleted successfully.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_delete_existing_document(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = { "title": "Test Post", "content": "This is a test post" }
     collection = "test_collection"
@@ -233,7 +233,7 @@ def test_delete_existing_document(mock_db):
 @allure.description("Test deleting non-existing document, and verify it is handled gracefully.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_delete_nonexisting_document(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = { "title": "Test Post", "content": "This is a test post" }
     collection = "test_collection"
@@ -249,7 +249,7 @@ def test_delete_nonexisting_document(mock_db):
 @allure.description("Test deleting with invalid filter, and verify that a TypeError was raised.")
 @allure.severity(allure.severity_level.CRITICAL)
 def test_delete_with_invalid_filter_type(mock_db):
-    client, db = mock_db
+    db = mock_db
 
     test_data = { "title": "Test Post", "content": "This is a test post" }
     collection = "test_collection"
