@@ -1,2 +1,0 @@
-Inserting into database..
-
