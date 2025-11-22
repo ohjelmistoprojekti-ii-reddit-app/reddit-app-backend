@@ -1,8 +1,8 @@
 import asyncio
 from datetime import datetime, timezone
-from scripts.reddit_api import get_posts
-from scripts.topic_modeling import extract_topics
-from scripts.sentiment_analysis import sentiment_analysis
+from external_api.reddit_api import get_posts
+from data_processing.topic_modeling import extract_topics
+from data_processing.sentiment_analysis import sentiment_analysis
 from app.services.db import save_data_to_database
 from app.config import Config
 import sys

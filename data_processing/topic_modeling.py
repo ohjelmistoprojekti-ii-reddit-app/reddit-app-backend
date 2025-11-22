@@ -1,6 +1,6 @@
-from scripts.text_processing import preprocess, process_topic_label
-from scripts.summarizing import summarize_texts
-from scripts.stopwords import stopwords
+from data_processing.text_processing import preprocess, process_topic_label
+from data_processing.summarizing import summarize_texts
+from data_processing.stopwords import stopwords
 from bertopic import BERTopic
 from sklearn.feature_extraction.text import CountVectorizer
 from hdbscan import HDBSCAN

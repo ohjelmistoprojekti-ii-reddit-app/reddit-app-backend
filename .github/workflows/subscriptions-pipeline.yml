@@ -2,8 +2,8 @@ name: Subscription-based subreddit analysis
 
 on:
   # schedule:
-  #   # runs once a day at 04:00 UTC / 06:00 Finnish time
-  #   - cron: '0 4 * * *'
+  #   # runs once a day at 04:17 UTC / 06:17 Finnish time
+  #   - cron: '17 4 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,15 +23,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_ml.txt') }}
           restore-keys: ${{ runner.os }}-pip-
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements_ml.txt
       - name: Cache NLTK data
         uses: actions/cache@v4
         with:
           path: ~/nltk_data
-          key: ${{ runner.os }}-nltk-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-nltk-${{ hashFiles('**/requirements_ml.txt') }}
           restore-keys: ${{ runner.os }}-nltk-
       - name: Download NLTK data
         run: python -m nltk.downloader punkt punkt_tab vader_lexicon

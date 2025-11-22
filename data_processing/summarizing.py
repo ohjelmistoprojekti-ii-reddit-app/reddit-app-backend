@@ -1,5 +1,5 @@
 import re
-from scripts.text_processing import filter_factual_sentences, smart_split, clean_text
+from data_processing.text_processing import filter_factual_sentences, smart_split, clean_text
 
 def summarize_texts(texts, summarizer):
     tokenizer = summarizer.tokenizer
