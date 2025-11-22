@@ -172,7 +172,7 @@ class TestLoginUser:
 
     @allure.sub_suite("Login with nonexistent user")
     @allure.description("Test logging in with a username that does not exist in the database. Verify that appropriate error message is returned.")
-    def test_login_with_nonexistent_user(self, client):
+    def test_login_with_nonexistent_user(self, client, mock_db):
         response = login_user(client, "nonexistentuser", "password")
         assert response.status_code == 401
         response_data = response.get_json()
