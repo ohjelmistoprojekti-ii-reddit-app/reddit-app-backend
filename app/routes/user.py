@@ -25,6 +25,7 @@ def who_am_i():
         id=str(user["_id"]),
         username=user["username"],
         email=user["email"],
-        created_at=user.get("created_at") #returns None if not present
+        created_at=user.get("created_at"), #returns None if not present
+        last_login=user.get("last_login") #returns None if not present
     )
 
