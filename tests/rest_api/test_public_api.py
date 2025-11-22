@@ -1,6 +1,6 @@
 import allure
 from app.config import Config
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from tests.helpers import get_country_subreddit
 
@@ -128,7 +128,7 @@ class TestFetchTopicAnalysisResults:
 
 
 # TC-10: Fetch country analysis results
-# Note that some country subreddits require authentication. These tests only cover subreddits that do not require login.
+# Note that while some country subreddits require authentication, these tests only cover subreddits that do not require login.
 
 @allure.parent_suite("REST API tests")
 @allure.suite("TC-10: Fetch country analysis results")
@@ -207,3 +207,186 @@ class TestFetchCountryAnalysisResults:
         expected_fields = ["subreddit", "post", "timestamp"]
         for field in expected_fields:
             assert field in country_data.keys()
+
+
+# TC-11: Fetch post statistics for topic analysis
+
+@allure.parent_suite("REST API tests")
+@allure.suite("TC-11: Fetch post statistics for topic analysis")
+@allure.severity(allure.severity_level.NORMAL)
+class TestFetchPostStatisticsForTopicAnalysis:
+    
+    @allure.sub_suite("Fetch post statistics with valid subreddit")
+    @allure.description("Test fetching post statistics for a valid subreddit, and verify that they are returned correctly.")
+    def test_fetch_post_statistics_valid_subreddit(self, client, mock_db):
+        db = mock_db
+
+        subreddit = "example"
+        current_date = datetime.now(timezone.utc)
+        test_data = [
+            { "subreddit": subreddit, "num_posts": 5, "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "num_posts": 10, "timestamp": (current_date - timedelta(days=2)) },
+        ]
+
+        # Tested function uses hardcoded collection name "posts"
+        db["posts"].insert_many(test_data)
+
+        number_of_days = 3 # Make sure to cover all test data
+        response = client.get(f'/api/statistics/{subreddit}/{number_of_days}')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+
+        assert data[0]["total_posts"] == 15
+        assert len(data[0]["daily"]) == 2
+
+
+    @allure.sub_suite("Fetch post statistics with invalid subreddit")
+    @allure.description("Test fetching post statistics for an invalid subreddit, and verify that status 404 is returned.")
+    def test_fetch_post_statistics_invalid_subreddit(self, client, mock_db):
+        db = mock_db
+
+        subreddit = "example"
+        current_date = datetime.now(timezone.utc)
+        test_data = [
+            { "subreddit": subreddit, "num_posts": 5, "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "num_posts": 10, "timestamp": (current_date - timedelta(days=2)) },
+        ]
+
+        # Tested function uses hardcoded collection name "posts"
+        db["posts"].insert_many(test_data)
+
+        invalid_subreddit = "nonexistent"
+        number_of_days = 3
+        response = client.get(f'/api/statistics/{invalid_subreddit}/{number_of_days}')
+        assert response.status_code == 404
+
+        data = response.get_json()
+        assert 'error' in data
+
+
+    @allure.sub_suite("Fetch post statistics and verify response content")
+    @allure.description("Test fetching post statistics and verify that response contains expected fields.")
+    def test_verify_post_statistics_response_content(self, client, mock_db):
+        db = mock_db
+
+        subreddit = "example"
+        current_date = datetime.now(timezone.utc)
+        test_data = [
+            { "subreddit": subreddit, "num_posts": 10, "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "num_posts": 5, "timestamp": (current_date - timedelta(days=2)) },
+        ]
+
+        # Tested function uses hardcoded collection name "posts"
+        db["posts"].insert_many(test_data)
+
+        number_of_days = 3
+        response = client.get(f'/api/statistics/{subreddit}/{number_of_days}')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+
+        stats = data[0]
+        expected_fields = ["_id", "total_posts", "daily"]
+        for field in expected_fields:
+            assert field in stats.keys()
+
+
+# TC-12: Fetch topic statistics for topic analysis
+
+@allure.parent_suite("REST API tests")
+@allure.suite("TC-12: Fetch topic statistics for topic analysis")
+@allure.severity(allure.severity_level.NORMAL)
+class TestFetchTopicStatisticsForTopicAnalysis:
+
+    @allure.sub_suite("Fetch topic statistics with valid subreddit")
+    @allure.description("Test fetching topic statistics for a valid subreddit, and verify that they are returned correctly.")
+    def test_fetch_topic_statistics_valid_subreddit(self, client, mock_db):
+        db = mock_db
+
+        subreddit = "example"
+        current_date = datetime.now(timezone.utc)
+        test_data = [
+            { "subreddit": subreddit, "topic": ["A", "B"], "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "topic": ["A", "C"], "timestamp": (current_date - timedelta(days=2)) },
+            { "subreddit": subreddit, "topic": ["A", "B"],"timestamp": (current_date - timedelta(days=3)) },
+        ]
+
+        # Tested function uses hardcoded collection name "posts"
+        db["posts"].insert_many(test_data)
+
+        number_of_days = 4 # Make sure to cover all test data
+        limit = 2
+        response = client.get(f'/api/statistics/topics/{subreddit}/{number_of_days}/{limit}')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert isinstance(data, list)
+
+        results = data[0]["topics"]
+        assert len(results) == limit
+
+        assert results[0]["topic"] == "A"
+        assert results[0]["count"] == 3
+
+        assert results[1]["topic"] == "B"
+        assert results[1]["count"] == 2
+
+
+    @allure.sub_suite("Fetch topic statistics with invalid subreddit")
+    @allure.description("Test fetching topic statistics for an invalid subreddit, and verify that status 404 is returned.")
+    def test_fetch_topic_statistics_invalid_subreddit(self, client, mock_db):
+        db = mock_db
+
+        subreddit = "example"
+        current_date = datetime.now(timezone.utc)
+        test_data = [
+            { "subreddit": subreddit, "topic": ["A", "B"], "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "topic": ["A", "C"], "timestamp": (current_date - timedelta(days=2)) },
+        ]
+
+        # Tested function uses hardcoded collection name "posts"
+        db["posts"].insert_many(test_data)
+
+        invalid_subreddit = "nonexistent"
+        number_of_days = 3
+        limit = 2
+        response = client.get(f'/api/statistics/topics/{invalid_subreddit}/{number_of_days}/{limit}')
+        assert response.status_code == 404
+
+        data = response.get_json()
+        assert 'error' in data
+
+
+    @allure.sub_suite("Fetch topic statistics and verify response content")
+    @allure.description("Test fetching topic statistics and verify that response contains expected fields.")
+    def test_verify_topic_statistics_response_content(self, client, mock_db):
+        db = mock_db
+
+        subreddit = "example"
+        current_date = datetime.now(timezone.utc)
+        test_data = [
+            { "subreddit": subreddit, "topic": ["X", "Y"], "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "topic": ["X", "Z"], "timestamp": (current_date - timedelta(days=2)) },
+        ]
+
+        # Tested function uses hardcoded collection name "posts"
+        db["posts"].insert_many(test_data)
+
+        number_of_days = 3
+        limit = 2
+        response = client.get(f'/api/statistics/topics/{subreddit}/{number_of_days}/{limit}')
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert isinstance(data, list)
+        assert len(data) == 1
+
+        stats = data[0]
+        expected_fields = ["_id", "topics"]
+        for field in expected_fields:
+            assert field in stats.keys()
