@@ -47,21 +47,21 @@ This is the **backend service** for a web application that:
 ```mermaid
 graph TD
   subgraph Flask-backend
-      A[**API endpoints**: topics, subscriptions, statistics, and other features]
-      N[**Authentication endpoints**: user registration, login, token management]
+      A[**API endpoints**: <br>topics, subscriptions,<br> statistics, and other features]
+      N[**Authentication endpoints**:<br> user registration, login,<br> token management]
   end
 
   subgraph Automated data pipelines
       I[**GitHub Actions**]
-      I -->|Runs daily| J[**Trending topics analysis pipeline**]
-      I -->|Runs daily| K[**Country subreddit analysis pipeline**]
-      I -->|Runs daily| L[**Subscription-based analysis pipeline**]
+      I -->|Schedule trigger| J[**Trending topics<br> analysis pipeline**]
+      I -->|Schedule trigger| K[**Country subreddit<br> analysis pipeline**]
+      I -->|Schedule trigger| L[**Subscription-based<br> analysis pipeline**]
 
-      J --> J1[Fetch 500 posts from predefined subreddits] --> J2[Topic modeling, summarization, sentiment analysis]
-      K --> K1[Fetch 10 posts from predefined country-specific subreddits] --> K2[Translation, sentiment analysis]
-      L --> |Topics analysis| L1[Fetch 500 posts from subscribed subreddits] --> L2[Topic modeling, summarization, sentiment analysis]
-      L --> |Posts analysis| L3[Fetch 10 posts from subscribed subreddits] --> L4[Sentiment analysis]
-      L --> X[**Inactive user check**: automatic subscription deactivation]
+      J --> J1[Fetch 500 posts from<br> predefined subreddits] --> J2[Topic modeling,<br> summarization,<br> sentiment analysis]
+      K --> K1[Fetch 10 posts from <br>predefined country-specific<br> subreddits] --> K2[Translation,<br> sentiment analysis]
+      L --> |Topics analysis| L1[Fetch 500 posts from <br>subscribed subreddits] --> L2[Topic modeling, <br>summarization,<br> sentiment analysis]
+      L --> |Posts analysis| L3[Fetch 10 posts from <br>subscribed subreddits] --> L4[Sentiment analysis]
+      L --> X[**Inactive user check**:<br> automatic subscription<br> deactivation]
   end
 
   J2 --> D
