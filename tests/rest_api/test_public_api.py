@@ -313,7 +313,7 @@ class TestFetchTopicStatisticsForTopicAnalysis:
         test_data = [
             { "subreddit": subreddit, "topic": ["A", "B"], "timestamp": (current_date - timedelta(days=1)) },
             { "subreddit": subreddit, "topic": ["A", "C"], "timestamp": (current_date - timedelta(days=2)) },
-            { "subreddit": subreddit, "topic": ["A", "B"],"timestamp": (current_date - timedelta(days=3)) },
+            { "subreddit": subreddit, "topic": ["A", "B"], "timestamp": (current_date - timedelta(days=3)) },
         ]
 
         # Tested function uses hardcoded collection name "posts"

@@ -33,7 +33,7 @@ class TestSaveDataToDatabase:
 
         test_data = [
             { "title": "Test Post", "content": "This is a test post" },
-            { "title": "Another Post", "content": "This is another post"}
+            { "title": "Another Post", "content": "This is another post" }
         ]
         collection = "test_collection"
 
@@ -99,7 +99,7 @@ class TestFetchDataFromDatabase:
 
         test_data = [
             { "title": "Test Post", "content": "This is a test post" },
-            { "title": "Another Post", "content": "This is another post"}
+            { "title": "Another Post", "content": "This is another post" }
         ]
         collection = "test_collection"
 
@@ -118,7 +118,7 @@ class TestFetchDataFromDatabase:
 
         test_data = [
             { "title": "Test Post", "content": "This is a test post" },
-            { "title": "Another Post", "content": "This is another post"}
+            { "title": "Another Post", "content": "This is another post" }
         ]
         collection = "test_collection"
 
