@@ -182,9 +182,12 @@ REST API tests follow the priority order defined in the test plan. First, we wil
 | 2 | Login with invalid password | Ensure error handling works | Valid username/email and invalid password | Status `401 Unauthorized`, error message |
 | 3 | Login with non-existent user | Ensure error handling works | Invalid username/email and password | Status `401 Unauthorized`, error message |
 
-### User-specific endpoints (require authentication)
 
-### TC-10 - Fetch Country-Based Analysis Results
+### Planned tests (not yet implemented)
+
+#### User-specific endpoints (require authentication)
+
+#### TC-10 - Fetch Country-Based Analysis Results
 **Description**: Tests `/api/countries/latest/<subreddit>` to ensure it **returns the latest results** and handles errors correctly.<br>
 **Priority**: High<br>
 **Note**: Some country subreddits require user authentication. These tests cover authenticated access. The other tests are in the **public endpoints** section.
@@ -195,9 +198,7 @@ REST API tests follow the priority order defined in the test plan. First, we wil
 | 1 | Fetch results for existing subreddit that requires login | Ensure results are returned correctly | Valid `subreddit`, authenticated user | Returns list with latest `timestamp` |
 | 2 | Fetch results for existing subreddit that requires login, but without authentication | Ensure access is denied or error is returned | Valid `subreddit`, unauthenticated user | Status `401 Unauthorized` or appropriate error |
 
-
-### Planned tests
-Further tests will be added for the following functionalities:
+Still to be planned:
 - **User management (authentication)**, including token refresh, user logout
 - **User-specific features (that require login)**, including subscription management
 
