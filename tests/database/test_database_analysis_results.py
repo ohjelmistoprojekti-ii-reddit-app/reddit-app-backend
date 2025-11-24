@@ -19,16 +19,18 @@ class TestFetchLatestAnalysisResultsFromDatabase:
     @allure.description("Test fetching latest data without type filter from the database, and verify that correct documents (with most recent timestamp) are returned.")
     def test_fetch_latest_results_without_type_filter(self, mock_db):
         db = mock_db
+
+        subreddit = "example"
         test_data = [
-            { "label": "Topic A", "subreddit": "example", "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
-            { "label": "Topic B", "subreddit": "example", "timestamp": datetime(2025, 10, 1, 10, 0, tzinfo=timezone.utc) },
-            { "label": "Topic C", "subreddit": "example", "timestamp": datetime(2025, 11, 1, 10, 0, tzinfo=timezone.utc) },
+            { "label": "Topic A", "subreddit": subreddit, "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
+            { "label": "Topic B", "subreddit": subreddit, "timestamp": datetime(2025, 10, 1, 10, 0, tzinfo=timezone.utc) },
+            { "label": "Topic C", "subreddit": subreddit, "timestamp": datetime(2025, 11, 1, 10, 0, tzinfo=timezone.utc) },
         ]
 
         collection = "test_collection"
         db[collection].insert_many(test_data)
 
-        fetched_data = get_latest_data_by_subreddit(collection, subreddit=test_data[0]["subreddit"])
+        fetched_data = get_latest_data_by_subreddit(collection, subreddit=subreddit)
         assert isinstance(fetched_data, list)
         assert len(fetched_data) == 1
 
@@ -45,16 +47,17 @@ class TestFetchLatestAnalysisResultsFromDatabase:
     def test_fetch_latest_results_with_type_filter(self, mock_db):
         db = mock_db
 
+        subreddit = "example"
         test_data = [
-            { "type": "topics", "label": "Topic A", "subreddit": "example", "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
-            { "type": "topics", "label": "Topic B", "subreddit": "example", "timestamp": datetime(2025, 10, 1, 10, 0, tzinfo=timezone.utc) },
-            { "type": "posts", "posts": [{"title": "Example post"}], "subreddit": "example", "timestamp": datetime(2025, 11, 1, 10, 0, tzinfo=timezone.utc) },
+            { "type": "topics", "label": "Topic A", "subreddit": subreddit, "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
+            { "type": "topics", "label": "Topic B", "subreddit": subreddit, "timestamp": datetime(2025, 10, 1, 10, 0, tzinfo=timezone.utc) },
+            { "type": "posts", "posts": [{"title": "Example post"}], "subreddit": subreddit, "timestamp": datetime(2025, 11, 1, 10, 0, tzinfo=timezone.utc) },
         ]
 
         collection = "test_collection"
         db[collection].insert_many(test_data)
 
-        fetched_data = get_latest_data_by_subreddit(collection, subreddit=test_data[0]["subreddit"], type="topics")
+        fetched_data = get_latest_data_by_subreddit(collection, subreddit=subreddit, type="topics")
         assert isinstance(fetched_data, list)
         assert len(fetched_data) == 1 # Check that only one document of type "topics" is returned
 
@@ -90,16 +93,18 @@ class TestFetchLatestAnalysisResultsFromDatabase:
     def test_fetch_latest_results_using_invalid_filter_type(self, mock_db):
         db = mock_db
 
+        subreddit = "example"
+
         test_data = [
-            { "label": "Topic A", "subreddit": "example", "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
-            { "label": "Topic B", "subreddit": "example", "timestamp": datetime(2025, 10, 1, 10, 0, tzinfo=timezone.utc) },
+            { "label": "Topic A", "subreddit": subreddit, "timestamp": datetime(2025, 9, 1, 10, 0, tzinfo=timezone.utc) },
+            { "label": "Topic B", "subreddit": subreddit, "timestamp": datetime(2025, 10, 1, 10, 0, tzinfo=timezone.utc) },
         ]
 
         collection = "test_collection"
         db[collection].insert_many(test_data)
 
         with pytest.raises((ValueError, TypeError)):
-            get_latest_data_by_subreddit(collection, subreddit=test_data[0]["subreddit"], type="invalid")
+            get_latest_data_by_subreddit(collection, subreddit=subreddit, type="invalid")
 
 
 # TC-06: Calculate post number statistics from analysis results
@@ -114,12 +119,14 @@ class TestCalculatePostNumberStatistics:
     def test_calculate_post_numbers_for_existing_subreddit(self, mock_db):
         db = mock_db
 
+        subreddit = "example"
+
         # Ensure test data includes today's date
         current_date = datetime.now(timezone.utc)
         test_data =[
-            { "subreddit": "example", "num_posts": 5, "timestamp": current_date },
-            { "subreddit": "example", "num_posts": 10, "timestamp": (current_date - timedelta(days=1)) },
-            { "subreddit": "example", "num_posts": 15, "timestamp": (current_date - timedelta(days=2)) },
+            { "subreddit": subreddit, "num_posts": 5, "timestamp": current_date },
+            { "subreddit": subreddit, "num_posts": 10, "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "num_posts": 15, "timestamp": (current_date - timedelta(days=2)) },
         ]
 
         # Tested function uses hardcoded collection name "posts"
@@ -127,7 +134,7 @@ class TestCalculatePostNumberStatistics:
 
         # High number_of_days to include all test data
         number_of_days = 10
-        post_stats = get_post_numbers_by_timeperiod(subreddit="example", number_of_days=number_of_days)
+        post_stats = get_post_numbers_by_timeperiod(subreddit=subreddit, number_of_days=number_of_days)
         assert isinstance(post_stats, list)
         results = post_stats[0]
 
@@ -182,12 +189,13 @@ class TestCalculateTopTopicsStatistics:
     def test_calculate_top_topics_for_existing_subreddit(self, mock_db):
         db = mock_db
 
+        subreddit = "example"
         # Ensure test data includes today's date
         current_date = datetime.now(timezone.utc)
         test_data =[
-            { "subreddit": "example", "topic": ["A", "B", "C"], "timestamp": current_date },
-            { "subreddit": "example", "topic": ["A", "B", "Z"], "timestamp": (current_date - timedelta(days=1)) },
-            { "subreddit": "example", "topic": ["A", "Y", "X"], "timestamp": (current_date - timedelta(days=2)) },
+            { "subreddit": subreddit, "topic": ["A", "B", "C"], "timestamp": current_date },
+            { "subreddit": subreddit, "topic": ["A", "B", "Z"], "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "topic": ["A", "Y", "X"], "timestamp": (current_date - timedelta(days=2)) },
         ]
 
         # Tested function uses hardcoded collection name "posts"
@@ -196,7 +204,7 @@ class TestCalculateTopTopicsStatistics:
         # High number_of_days to include all test data
         number_of_days = 10
         limit = 3
-        topic_stats = get_top_topics_by_timeperiod(subreddit="example", number_of_days=number_of_days, limit=limit)
+        topic_stats = get_top_topics_by_timeperiod(subreddit=subreddit, number_of_days=number_of_days, limit=limit)
         
         assert isinstance(topic_stats, list)
         results = topic_stats[0]
@@ -230,17 +238,18 @@ class TestCalculateTopTopicsStatistics:
     def test_calculate_top_topics_with_large_limit(self, mock_db):
         db = mock_db
 
+        subreddit = "example"
         current_date = datetime.now(timezone.utc)
         test_data = [
-            { "subreddit": "example", "topic": ["A", "B", "C"], "timestamp": current_date },
-            { "subreddit": "example", "topic": ["A", "B", "D"], "timestamp": (current_date - timedelta(days=1)) },
+            { "subreddit": subreddit, "topic": ["A", "B", "C"], "timestamp": current_date },
+            { "subreddit": subreddit, "topic": ["A", "B", "D"], "timestamp": (current_date - timedelta(days=1)) },
         ]
 
         # Tested function uses hardcoded collection name "posts"
         db["posts"].insert_many(test_data)
 
         large_limit = 50
-        topic_stats = get_top_topics_by_timeperiod(subreddit="example", number_of_days=2, limit=large_limit)
+        topic_stats = get_top_topics_by_timeperiod(subreddit=subreddit, number_of_days=2, limit=large_limit)
         
         assert isinstance(topic_stats, list)
         results = topic_stats[0]
