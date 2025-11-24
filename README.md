@@ -41,6 +41,7 @@ This is the **backend service** for a web application that:
 - **Translation and summarization:** [Flan-T5](https://huggingface.co/docs/transformers/model_doc/flan-t5)
 - **Database:** [MongoDB](https://www.mongodb.com/)
 - **Automations:** [GitHub Actions](https://docs.github.com/en/actions)
+- **Testing**: [pytest](https://docs.pytest.org/en/stable/), [mongomock](https://github.com/mongomock/mongomock), [Allure Report](https://allurereport.org/docs/)
 
 ## 🏛️ Architecture Overview
 
@@ -1325,10 +1326,43 @@ This project implements an extract-and-aggregate summarization pipeline using a 
 
 </details>
 
+<details>
+<summary><strong>Testing</strong></summary>
+
+We use `pytest` for unit and integration tests, focusing on critical backend features like database operations, API endpoints, and authentication. Tests run on a separate testing database (`mongomock`) and are automatically executed via GitHub Actions on every push.
+
+📊 [Interactive test report](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend) (GitHub Pages)<br>
+📝 [Detailed report on the testing process](https://github.com/kkivilahti/ohke-flask-testing) (in Finnish)<br>
+📂 Test documentation: [Test plan](docs/test_plan.md) & [Test cases](docs/test_cases.md)
+
+
+> Note: Due to time constraints, the test coverage is not comprehensive. If the project continues, expanding the test suite to cover more components is recommended. Please refer to the test documentation when planning further testing efforts.
+
+### Running tests locally
+Ensure you have the required dependencies installed (see `requirements.txt`), then run the following command in your terminal:
+```
+pytest
+```
+
+If you want to run a specific test file, use:
+```
+pytest tests/folder/test_file.py
+
+# Example:
+pytest tests/database/test_database_crud.py
+```
+
+</details>
+
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## See Also
 
-🖼️ [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend) | 👥 [Organization page](https://github.com/ohjelmistoprojekti-ii-reddit-app/)
+📊 **Backend test report:**
+- [GitHub Pages](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend)
+
+🔗 **Related repositories:**
+- [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend)
+- [Organization page](https://github.com/ohjelmistoprojekti-ii-reddit-app/)
 
 > Note: ChatGPT helped phrase parts of this README.
