@@ -1330,7 +1330,7 @@ This project implements an extract-and-aggregate summarization pipeline using a 
 
 We use `pytest` for unit and integration tests, focusing on critical backend features like database operations, API endpoints, and authentication. Tests run on a separate testing database (`mongomock`) and are automatically executed via GitHub Actions on every push.
 
-📊 [Interactive test report](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-backend) (GitHub Pages)<br>
+📊 [Interactive test report](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend) (GitHub Pages)<br>
 📝 [Detailed report on the testing process](https://github.com/kkivilahti/ohke-flask-testing) (in Finnish)<br>
 📂 Test documentation: [Test plan](docs/test_plan.md) & [Test cases](docs/test_cases.md)
 
@@ -1358,7 +1358,7 @@ pytest tests/database/test_database_crud.py
 ## See Also
 
 📊 **Backend test report:**
-- [GitHub Pages](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-backend)
+- [GitHub Pages](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend)
 
 🔗 **Related repositories:**
 - [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend)
