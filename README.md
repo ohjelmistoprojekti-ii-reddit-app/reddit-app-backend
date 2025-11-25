@@ -84,6 +84,10 @@ graph TD
   N <-->|Interacts with| D
 ```
 
+**GitHub Actions** pipelines fetch and analyze Reddit data, performing topic modeling, summarization, sentiment analysis, and/or translation depending on the analysis type. The results are stored in **MongoDB Atlas**.
+
+The **Flask** backend exposes APIs for retrieving analyzed data, managing user accounts, and handling subscriptions. Users interact with the system through a **Next.js** frontend, which communicates with the backend via API requests.
+
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## 🚀 Getting Started
@@ -1335,6 +1339,27 @@ This project implements an extract-and-aggregate summarization pipeline using a 
 </details>
 
 <details>
+<summary><strong>Database Design</strong></summary>
+
+The backend uses **MongoDB Atlas** for storing user data, subscriptions, and analyzed Reddit data. MongoDB is a NoSQL document-oriented database that allows for flexible schema design and scalability.
+
+We have designed the database with the following collections:
+1. **users**: Stores user account information, including username, email, hashed password, last login time, and token revocation data.
+2. **subscriptions**: Stores subreddit subscriptions, including subreddit name, analysis type (topics or posts), active status, and list of subscribers.
+3. **subscription_data**: Stores analyzed data for each subscription, including subreddit name, analysis type, analyzed posts or topics, and sentiment values.
+4. **posts**: Stores analyzed Reddit posts and comments for trending topics analysis, including topic keywords, summaries, sentiment values and example posts. (The name is a bit misleading as the collection contains topic-based data, not "raw" posts.)
+5. **countries**: Stores analyzed Reddit posts and comments for country subreddit analysis, including analyzed posts with translations and sentiment values.
+
+We have not used database schemas or models, allowing for flexibility in storing different types of analyzed data. However, we have defined clear structures for each collection to ensure consistency and easy querying. (For example, we use fields like `subreddit` and `timestamp` to query analyzed data from the chosen time range.) The collections mainly do not have strict relationships, but we use references (like user IDs in subscriptions) to link related data.
+
+Most of the database queries are handled in either data pipelines or API endpoints, using the `pymongo` library for interacting with MongoDB. We have implemented helper functions for common database operations like fetching or saving data, and retrieving latest  analyzed data.
+
+Read more about MongoDB:
+- [MongoDB official documentation](https://www.mongodb.com/docs/manual/)
+
+</details>
+
+<details>
 <summary><strong>Testing</strong></summary>
 
 We use `pytest` for unit and integration tests, focusing on critical backend features like database operations, API endpoints, and authentication. Tests run on a separate testing database (`mongomock`) and are automatically executed via GitHub Actions on every push.
@@ -1365,6 +1390,8 @@ pytest tests/database/test_database_crud.py
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## See Also
+
+🧾 [Third-party licenses](THIRD_PARTY_LICENSES.md)
 
 📊 **Backend test report:**
 - [GitHub Pages](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend)
