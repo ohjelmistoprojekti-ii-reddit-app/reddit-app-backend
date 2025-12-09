@@ -18,21 +18,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-            python-version: '3.12'
-      - name: Cache Python dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+          python-version: '3.12'
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Cache NLTK data
-        uses: actions/cache@v4
-        with:
-          path: ~/nltk_data
-          key: ${{ runner.os }}-nltk-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: ${{ runner.os }}-nltk-
       - name: Download NLTK data
         run: python -m nltk.downloader punkt punkt_tab vader_lexicon
       - name: Run pipeline
