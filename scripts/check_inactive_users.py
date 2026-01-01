@@ -1,6 +1,15 @@
+from bson import ObjectId
 from app.services.db import fetch_data_from_collection, update_one_item_in_collection
 from datetime import datetime, timezone, timedelta
 import sys
+
+"""
+For GitHub Actions workflow:
+Checks inactive users (no login for more than 15 days) and removes their active subscriptions.
+If a subscription has no active subscribers left, it is set to inactive.
+
+Usage: python -m scripts.check_inactive_users
+"""
 
 def check_inactive_users_and_subscriptions():
     current_date = datetime.now(timezone.utc)
@@ -25,10 +34,13 @@ def check_inactive_users_and_subscriptions():
     subscriptions_deactivated = 0
 
     for user in inactive_users:
-        user_id = user['_id']
+        user_id = str(user['_id'])
         inactive_users_found += 1
         try:
-            user_subscription = fetch_data_from_collection("subscriptions", {"subscribers": user_id})
+            user_subscription = fetch_data_from_collection(
+                "subscriptions",
+                {"subscribers": user_id, "active": True}
+            )
         except Exception as e:
             errors.append(f"Error while fetching subscriptions for user '{user_id}': {e}")
             continue
@@ -42,13 +54,13 @@ def check_inactive_users_and_subscriptions():
             continue
 
         subreddit = user_subscription[0]["subreddit"]
-        analysis_type = user_subscription[0]["analysis_type"]
+        subscription_id = ObjectId(user_subscription[0]["_id"])
 
         try:
             # Remove inactive user from subscribers list
             update_one_item_in_collection(
                 "subscriptions",
-                {"subreddit": subreddit, "analysis_type": analysis_type, "active": True},
+                {"_id": subscription_id},
                 {"$pull": {"subscribers": user_id}}
             )
 
@@ -62,13 +74,13 @@ def check_inactive_users_and_subscriptions():
             # Check if subscribers list is empty, and set subscription to inactive if it is
             updated_subscription = fetch_data_from_collection(
                 "subscriptions",
-                {"subreddit": subreddit, "analysis_type": analysis_type, "active": True}
+                {"_id": subscription_id, "active": True}
             )
 
             if updated_subscription and len(updated_subscription[0]["subscribers"]) == 0:
                 update_one_item_in_collection(
                     "subscriptions",
-                    {"subreddit": subreddit, "analysis_type": analysis_type, "active": True},
+                    {"_id": subscription_id},
                     {"$set": {"active": False}}
                 )
                 set_to_inactive = True

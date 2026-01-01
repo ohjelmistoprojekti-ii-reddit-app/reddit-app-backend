@@ -1,4 +1,5 @@
 import asyncio
+from bson import ObjectId
 from datetime import datetime, timezone
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
@@ -59,7 +60,7 @@ def add_subscription(subreddit, type):
     if type not in ["posts", "topics"]:
         return jsonify({"error": "Analysis type must be 'posts' or 'topics'"}), 400
 
-    existing_subscriptions_for_current_user = fetch_data_from_collection("subscriptions", {"subscribers": current_user_id})
+    existing_subscriptions_for_current_user = fetch_data_from_collection("subscriptions", {"subscribers": current_user_id, "active": True})
 
     # Limit max subscriptions to 1 per user for now
     if len(existing_subscriptions_for_current_user) >= 1:
@@ -73,10 +74,11 @@ def add_subscription(subreddit, type):
 
     # If subreddit already has active subscriptions, add current user to subscribers list
     if existing_subscriptions_for_subreddit:
+        existing_sub_id = ObjectId(existing_subscriptions_for_subreddit[0]["_id"])
         try:
             update_one_item_in_collection(
                 "subscriptions",
-                {"subreddit": subreddit, "analysis_type": type, "active": True},
+                {"_id": existing_sub_id},
                 {"$addToSet": {"subscribers": current_user_id}}
             )
             return jsonify({"message": f"User added to existing subscription"}), 200
@@ -120,7 +122,7 @@ def deactivate_current_subscription():
         return jsonify({"msg": "Token revoked"}), 401
     
     # Get users active subscriptions
-    active_subscriptions = fetch_data_from_collection("subscriptions", {"subscribers": current_user_id})
+    active_subscriptions = fetch_data_from_collection("subscriptions", {"subscribers": current_user_id, "active": True})
 
     if not active_subscriptions:
         return jsonify({"error": "No active subscription found for this user"}), 404
@@ -128,13 +130,13 @@ def deactivate_current_subscription():
     if len(active_subscriptions) > 1:
         return jsonify({"error": "Multiple active subscriptions found for this user, even though the limit is 1. Please check manually"}), 500
     subreddit = active_subscriptions[0]["subreddit"]
-    analysis_type = active_subscriptions[0]["analysis_type"]
+    subscription_id = ObjectId(active_subscriptions[0]["_id"])
 
     try:
         # Remove user from subscribers list
         update_one_item_in_collection(
             "subscriptions",
-            {"subreddit": subreddit, "analysis_type": analysis_type, "active": True},
+            {"_id": subscription_id},
             {"$pull": {"subscribers": current_user_id}}
         )
 
@@ -142,14 +144,14 @@ def deactivate_current_subscription():
 
         updated_subscription = fetch_data_from_collection(
             "subscriptions",
-            {"subreddit": subreddit, "analysis_type": analysis_type, "active": True}
+            {"_id": subscription_id}
         )
 
         # Check if updated subscribers list is empty, and set subscription to inactive if it is
         if updated_subscription and len(updated_subscription[0]["subscribers"]) == 0:
             update_one_item_in_collection(
                 "subscriptions",
-                {"subreddit": subreddit, "analysis_type": analysis_type, "active": True},
+                {"_id": subscription_id},
                 {"$set": {"active": False}}
             )
             set_to_inactive = True
