@@ -34,7 +34,7 @@ def check_inactive_users_and_subscriptions():
     subscriptions_deactivated = 0
 
     for user in inactive_users:
-        user_id = str(user['_id'])
+        user_id = ObjectId(user['_id'])
         inactive_users_found += 1
         try:
             user_subscription = fetch_data_from_collection(
