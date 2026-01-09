@@ -24,6 +24,9 @@ def save_data_to_database(data_to_save, collection):
     logger.info("Inserting into database..\n")
     if not isinstance(data_to_save, (list, dict)):
         raise TypeError("Data to save must be a list or a dictionary")
+    
+    if isinstance(data_to_save, (list, dict)) and not data_to_save:
+        raise ValueError("Trying to save empty data to the database")
 
     client, db = connect_db()
     coll = db[collection]
@@ -67,7 +70,7 @@ def fetch_data_from_collection(collection, filter=None):
 """
 Update data in collection based on filter and update dict
 Example usage: update_one_item_in_collection("example_collection", {"id": 123}, {"$set": {"active": False}})
--> updates all documents with id 123, setting their 'active' field to False
+-> update document with id 123, setting it's 'active' field to False
 """
 def update_one_item_in_collection(collection, filter, update):
     if not isinstance(filter, dict):
@@ -82,6 +85,8 @@ def update_one_item_in_collection(collection, filter, update):
         result = coll.update_one(filter, update)
         if result.matched_count == 0:
             raise ValueError("Update failed: no matching documents found")
+    except ValueError:
+        raise
     except Exception as e:
         raise ConnectionError(f"Database error: {e}")
     finally:
@@ -119,18 +124,20 @@ def get_latest_data_by_subreddit(collection, subreddit, type=None):
         raise ValueError("Parameter 'type' must be either 'posts', 'topics', or None")
 
     client, db = connect_db()
+
+    query = {"subreddit": subreddit}
+    if type:
+        query["type"] = type
     
     try:
         coll = db[collection]
-        latest_entry = coll.find_one({"subreddit": subreddit}, sort=[("timestamp", DESCENDING)])
+        latest_entry = coll.find_one(query, sort=[("timestamp", DESCENDING)])
 
         if not latest_entry:
             return []
 
         latest_timestamp = latest_entry["timestamp"]
-        query = {"subreddit": subreddit, "timestamp": latest_timestamp}
-        if type:
-            query["type"] = type
+        query["timestamp"] = latest_timestamp
 
         data = list(coll.find(query))
 
@@ -149,9 +156,19 @@ def get_post_numbers_by_timeperiod(subreddit, number_of_days):
     client, db = connect_db()
     collection = db["posts"]
 
-    date_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    min_date = date_today - timedelta(days=number_of_days)
-    max_date = date_today
+    if number_of_days <= 0:
+        raise ValueError("number_of_days must be a positive integer")
+
+    # start counting from latest saved batch in the database
+    latest_entry = collection.find_one({"subreddit": subreddit}, sort=[("timestamp", DESCENDING)])
+
+    if not latest_entry:
+        return []
+
+    latest_date = latest_entry["timestamp"]
+
+    min_date = latest_date - timedelta(days=number_of_days)
+    max_date = latest_date.replace(hour=23, minute=59, second=59)
 
     # build aggregation pipeline
     pipeline = [
@@ -199,9 +216,19 @@ def get_top_topics_by_timeperiod(subreddit, number_of_days, limit):
     client, db = connect_db()
     collection = db["posts"]
 
-    date_today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-    min_date = date_today - timedelta(days=number_of_days)
-    max_date = date_today
+    if number_of_days <= 0 or limit <= 0:
+        raise ValueError("number_of_days and limit must be positive integers")
+
+    # start counting from latest saved batch in the database
+    latest_entry = collection.find_one({"subreddit": subreddit}, sort=[("timestamp", DESCENDING)])
+
+    if not latest_entry:
+        return []
+
+    latest_date = latest_entry["timestamp"]
+
+    min_date = latest_date - timedelta(days=number_of_days)
+    max_date = latest_date.replace(hour=23, minute=59, second=59)
 
     # build aggregation pipeline
     pipeline = [

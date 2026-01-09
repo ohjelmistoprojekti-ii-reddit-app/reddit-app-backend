@@ -55,8 +55,6 @@ def extract_topics(posts):
     vectorizer_model = CountVectorizer(
         stop_words=stopwords(),
         ngram_range=(1, 2), # Extract both unigrams (single words) and bigrams (pairs of consecutive words) as features
-        min_df=2,
-        max_df=0.9
     )
 
     model.update_topics(docs, vectorizer_model=vectorizer_model)

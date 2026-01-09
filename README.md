@@ -1,4 +1,5 @@
 # Reddit Trend Analyzer
+🔗 [Backend link (page under construction)](https://reddit-app-backend.onrender.com)
 
 This is the **backend service** for a web application that:
 - fetches **popular Reddit posts**
@@ -40,27 +41,28 @@ This is the **backend service** for a web application that:
 - **Translation and summarization:** [Flan-T5](https://huggingface.co/docs/transformers/model_doc/flan-t5)
 - **Database:** [MongoDB](https://www.mongodb.com/)
 - **Automations:** [GitHub Actions](https://docs.github.com/en/actions)
+- **Testing**: [pytest](https://docs.pytest.org/en/stable/), [mongomock](https://github.com/mongomock/mongomock), [Allure Report](https://allurereport.org/docs/)
 
 ## 🏛️ Architecture Overview
 
 ```mermaid
 graph TD
   subgraph Flask-backend
-      A[**API endpoints**: topics, subscriptions, statistics, and other features]
-      N[**Authentication endpoints**: user registration, login, token management]
+      A[**API endpoints**: <br>topics, subscriptions,<br> statistics, and other features]
+      N[**Authentication endpoints**:<br> user registration, login,<br> token management]
   end
 
   subgraph Automated data pipelines
       I[**GitHub Actions**]
-      I -->|Runs daily| J[**Trending topics analysis pipeline**]
-      I -->|Runs daily| K[**Country subreddit analysis pipeline**]
-      I -->|Runs daily| L[**Subscription-based analysis pipeline**]
+      I -->|Schedule trigger| J[**Trending topics<br> analysis pipeline**]
+      I -->|Schedule trigger| K[**Country subreddit<br> analysis pipeline**]
+      I -->|Schedule trigger| L[**Subscription-based<br> analysis pipeline**]
 
-      J --> J1[Fetch 500 posts from predefined subreddits] --> J2[Topic modeling, summarization, sentiment analysis]
-      K --> K1[Fetch 10 posts from predefined country-specific subreddits] --> K2[Translation, sentiment analysis]
-      L --> |Topics analysis| L1[Fetch 500 posts from subscribed subreddits] --> L2[Topic modeling, summarization, sentiment analysis]
-      L --> |Posts analysis| L3[Fetch 10 posts from subscribed subreddits] --> L4[Sentiment analysis]
-      L --> X[**Inactive user check**: automatic subscription deactivation]
+      J --> J1[Fetch 500 posts from<br> predefined subreddits] --> J2[Topic modeling,<br> summarization,<br> sentiment analysis]
+      K --> K1[Fetch 10 posts from <br>predefined country-specific<br> subreddits] --> K2[Translation,<br> sentiment analysis]
+      L --> |Topics analysis| L1[Fetch 500 posts from <br>subscribed subreddits] --> L2[Topic modeling, <br>summarization,<br> sentiment analysis]
+      L --> |Posts analysis| L3[Fetch 10 posts from <br>subscribed subreddits] --> L4[Sentiment analysis]
+      L --> X[**Inactive user check**:<br> automatic subscription<br> deactivation]
   end
 
   J2 --> D
@@ -81,6 +83,10 @@ graph TD
   A <-->|Interacts with| D
   N <-->|Interacts with| D
 ```
+
+**GitHub Actions** pipelines fetch and analyze Reddit data, performing topic modeling, summarization, sentiment analysis, and/or translation depending on the analysis type. The results are stored in **MongoDB Atlas**.
+
+The **Flask** backend exposes APIs for retrieving analyzed data, managing user accounts, and handling subscriptions. Users interact with the system through a **Next.js** frontend, which communicates with the backend via API requests.
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
@@ -295,6 +301,7 @@ http://127.0.0.1:5000/api/live-data/posts/hot/italia
 ```
 </details>
 
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## Trending topics analysis endpoints
 
@@ -396,6 +403,8 @@ Note that the order of fields may vary.
 ```
 </details>
 
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
+
 ## Statistics endpoints
 
 ### Get post number statistics for a subreddit in a given timeperiod
@@ -479,6 +488,7 @@ http://127.0.0.1:5000/api/statistics/topics/programming/7/8
 ```
 </details>
 
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## Country subreddit analysis endpoints
 
@@ -604,6 +614,8 @@ Some countries require user authentication, which is indicated by the `requiresL
 }
 ```
 </details>
+
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## User authentication endpoints
 
@@ -786,6 +798,8 @@ Invoke-WebRequest -Uri "http://127.0.0.1:5000/api/user/who_am_i" `
     `{ "msg": "User not found" }`
 
 </details>
+
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## Subscriptions endpoints
 
@@ -1324,10 +1338,66 @@ This project implements an extract-and-aggregate summarization pipeline using a 
 
 </details>
 
+<details>
+<summary><strong>Database Design</strong></summary>
+
+The backend uses **MongoDB Atlas** for storing user data, subscriptions, and analyzed Reddit data. MongoDB is a NoSQL document-oriented database that allows for flexible schema design and scalability.
+
+We have designed the database with the following collections:
+1. **users**: Stores user account information, including username, email, hashed password, last login time, and token revocation data.
+2. **subscriptions**: Stores subreddit subscriptions, including subreddit name, analysis type (topics or posts), active status, and list of subscribers.
+3. **subscription_data**: Stores analyzed data for each subscription, including subreddit name, analysis type, analyzed posts or topics, and sentiment values.
+4. **posts**: Stores analyzed Reddit posts and comments for trending topics analysis, including topic keywords, summaries, sentiment values and example posts. (The name is a bit misleading as the collection contains topic-based data, not "raw" posts.)
+5. **countries**: Stores analyzed Reddit posts and comments for country subreddit analysis, including analyzed posts with translations and sentiment values.
+
+We have not used database schemas or models, allowing for flexibility in storing different types of analyzed data. However, we have defined clear structures for each collection to ensure consistency and easy querying. (For example, we use fields like `subreddit` and `timestamp` to query analyzed data from the chosen time range.) The collections mainly do not have strict relationships, but we use references (like user IDs in subscriptions) to link related data.
+
+Most of the database queries are handled in either data pipelines or API endpoints, using the `pymongo` library for interacting with MongoDB. We have implemented helper functions for common database operations like fetching or saving data, and retrieving latest  analyzed data.
+
+Read more about MongoDB:
+- [MongoDB official documentation](https://www.mongodb.com/docs/manual/)
+
+</details>
+
+<details>
+<summary><strong>Testing</strong></summary>
+
+We use `pytest` for unit and integration tests, focusing on critical backend features like database operations, API endpoints, and authentication. Tests run on a separate testing database (`mongomock`) and are automatically executed via GitHub Actions on every push.
+
+📊 [Interactive test report](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend) (GitHub Pages)<br>
+📝 [Detailed report on the testing process](https://github.com/kkivilahti/ohke-flask-testing) (in Finnish)<br>
+📂 Test documentation: [Test plan](docs/test_plan.md) & [Test cases](docs/test_cases.md)
+
+
+> Note: Due to time constraints, the test coverage is not comprehensive. If the project continues, expanding the test suite to cover more components is recommended. Please refer to the test documentation when planning further testing efforts.
+
+### Running tests locally
+Ensure you have the required dependencies installed (see `requirements.txt`), then run the following command in your terminal:
+```
+pytest
+```
+
+If you want to run a specific test file, use:
+```
+pytest tests/folder/test_file.py
+
+# Example:
+pytest tests/database/test_database_crud.py
+```
+
+</details>
+
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
 ## See Also
 
-🖼️ [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend) | 👥 [Organization page](https://github.com/ohjelmistoprojekti-ii-reddit-app/)
+🧾 [Third-party licenses](THIRD_PARTY_LICENSES.md)
+
+📊 **Backend test report:**
+- [GitHub Pages](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend)
+
+🔗 **Related repositories:**
+- [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend)
+- [Organization page](https://github.com/ohjelmistoprojekti-ii-reddit-app/)
 
 > Note: ChatGPT helped phrase parts of this README.
