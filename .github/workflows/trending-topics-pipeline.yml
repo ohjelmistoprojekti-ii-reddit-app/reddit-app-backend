@@ -1,9 +1,9 @@
 name: Trending topics analysis
 
 on:
-  schedule:
-    # runs once a day at 00:17 UTC / 02:17 Finnish time
-    - cron: '17 0 * * *'
+  # schedule:
+  #   # runs once a day at 00:17 UTC / 02:17 Finnish time
+  #   - cron: '17 0 * * *'
   workflow_dispatch:
 
 jobs:
