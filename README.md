@@ -1,5 +1,4 @@
 # Reddit Trend Analyzer
-🔗 [Backend link (page under construction)](https://reddit-app-backend.onrender.com)
 
 This is the **backend service** for a web application that:
 - fetches **popular Reddit posts**
@@ -26,11 +25,12 @@ This is the **backend service** for a web application that:
   - [Subscriptions endpoints](#subscriptions-endpoints)
   - [No database endpoints](#no-database-endpoints)
 - [🔎 Solutions Overview](#-solutions-overview)
-- [➡️ See Also](#see-also)
+- [➡️ Useful Links](#useful-links)
 
 </details>
 
-> Note! This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
+> This project was created as part of the Software Development Project II course at Haaga-Helia University of Applied Sciences, Finland. It is not affiliated with or endorsed by Reddit.
+
 
 ## 🛠️ Tech Stack
 - **Language:** [Python](https://docs.python.org/3/)
@@ -87,6 +87,22 @@ graph TD
 **GitHub Actions** pipelines fetch and analyze Reddit data, performing topic modeling, summarization, sentiment analysis, and/or translation depending on the analysis type. The results are stored in **MongoDB Atlas**.
 
 The **Flask** backend exposes APIs for retrieving analyzed data, managing user accounts, and handling subscriptions. Users interact with the system through a **Next.js** frontend, which communicates with the backend via API requests.
+
+<p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
+
+## ⚠️ Notice
+
+The automated data pipelines are currently **disabled**. The project is a demo for a school course, and we don't want to waste resources by keeping the automations running.
+
+This means that the app is no longer daily updated with freshly analyzed data, and some features that rely on the pipelines (like subscriptions) do not fully work.
+
+You can still explore the app with previously analyzed data:
+- [Backend demo](https://reddit-app-backend.onrender.com) (under construction)
+- [Frontend demo](https://reddit-analyzer-app-nine.vercel.app/)
+
+❗ The backend API has no index view, which is why you might see an error message when accessing the root URL.
+
+ℹ️ The automations can be easily enabled by uncommenting the `schedule` section in the GitHub Actions workflow files located in `.github/workflows` folder. If you want to run the pipelines manually, see [Solutions overview](#-solutions-overview) and GitHub Actions section for instructions.
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
@@ -1188,7 +1204,7 @@ We use typical threshold values to determine sentiments:
 <details>
 <summary><strong>GitHub Actions</strong></summary>
 
-We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have three pipelines that run daily:
+We use **GitHub Actions** to automate data processing and keep our database up-to-date with fresh Reddit data. Currently, we have three data pipelines:
 
 ### 1. Trending topics analysis
 
@@ -1272,6 +1288,9 @@ Automating data processing with GitHub Actions offers several benefits:
 - Enables historical analysis and long-term trend tracking
 - Delivers fast frontend performance without waiting for real-time processing
 - Saves time by removing manual, repetitive tasks
+
+### Automated tests
+We have also used GitHub Actions for automated testing and generating a visual [test report](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend). The test workflow runs on every push to the `main` branch, and generates and publishes the test report automatically.
 
 **Learn more:**
 - [GitHub Actions documentation](https://docs.github.com/en/actions)
@@ -1362,7 +1381,7 @@ Read more about MongoDB:
 <details>
 <summary><strong>Testing</strong></summary>
 
-We use `pytest` for unit and integration tests, focusing on critical backend features like database operations, API endpoints, and authentication. Tests run on a separate testing database (`mongomock`) and are automatically executed via GitHub Actions on every push.
+We use `pytest` for unit and integration tests, focusing on critical backend features like database operations, API endpoints, and authentication. Tests run on a separate testing database (`mongomock`) and are automatically executed via GitHub Actions on every push to the `main` branch.
 
 📊 [Interactive test report](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend) (GitHub Pages)<br>
 📝 [Detailed report on the testing process](https://github.com/kkivilahti/ohke-flask-testing) (in Finnish)<br>
@@ -1389,12 +1408,16 @@ pytest tests/database/test_database_crud.py
 
 <p align="right"><a href="#reddit-trend-analyzer">Back to top 🔼</a></p>
 
-## See Also
+## Useful Links
 
-🧾 [Third-party licenses](THIRD_PARTY_LICENSES.md)
+🚀 [Live backend demo](https://reddit-app-backend.onrender.com) (under construction)
 
 📊 **Backend test report:**
 - [GitHub Pages](https://ohjelmistoprojekti-ii-reddit-app.github.io/reddit-app-backend)
+
+🧾 **Licences**:
+- [Project licence (Apache 2.0)](LICENSE)
+- [Third-party licenses](THIRD_PARTY_LICENSES.md)
 
 🔗 **Related repositories:**
 - [Frontend repository](https://github.com/ohjelmistoprojekti-ii-reddit-app/reddit-app-frontend)
